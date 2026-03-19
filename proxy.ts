@@ -39,8 +39,8 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   // --- Route Protection ---
-  // /display/* herkese açık — auth gerekmez
-  if (pathname.startsWith('/display/')) {
+  // /display/* ve /receipt/* herkese açık — auth gerekmez
+  if (pathname.startsWith('/display/') || pathname.startsWith('/receipt/')) {
     return NextResponse.next({ request: { headers } })
   }
 

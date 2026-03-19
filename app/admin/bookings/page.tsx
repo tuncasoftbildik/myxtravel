@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { formatCurrency } from '@/lib/commission/engine'
 import {
   BookOpen, CheckCircle, Clock, XCircle, TrendingUp,
-  Building2, Search, ChevronDown, X,
+  Building2, Search, ChevronDown, X, Download, FileText, ExternalLink,
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -118,9 +118,17 @@ export default function AdminBookings() {
 
   return (
     <div className="p-8 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Tüm Rezervasyonlar</h1>
-        <p className="text-slate-500 text-sm mt-1">Platform genelinde tüm acentaların rezervasyonları</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Tüm Rezervasyonlar</h1>
+          <p className="text-slate-500 text-sm mt-1">Platform genelinde tüm acentaların rezervasyonları</p>
+        </div>
+        <a
+          href="/api/admin/bookings/export"
+          className="flex items-center gap-2 border rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition"
+        >
+          <Download size={15} /> CSV İndir
+        </a>
       </div>
 
       {/* Özet */}
