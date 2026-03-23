@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<p align="center">
+  <img src="public/logo.png" alt="X Travel" width="180" />
+</p>
 
-## Getting Started
+<h1 align="center">X Travel</h1>
+<p align="center"><strong>Live Your Dream</strong></p>
+<p align="center">Uçak, otel, transfer ve tur — tek platformda karşılaştır, en uygun fiyatla rezerve et.</p>
 
-First, run the development server:
+---
+
+## Teknolojiler
+
+- **Next.js 16** (App Router, Turbopack)
+- **React 19** & **TypeScript 5**
+- **Tailwind CSS 4**
+- **TravelRobot API** — 6 servis, 49+ endpoint
+
+## Özellikler
+
+- Uçak bileti arama ve karşılaştırma
+- Otel arama ve fiyat karşılaştırma
+- Transfer hizmeti arama
+- Tur paketleri arama ve detay görüntüleme
+- Mobile-first responsive tasarım
+- BFF (Backend for Frontend) mimarisi
+- Token yönetimi ile otomatik yenileme
+
+## Kurulum
+
+```bash
+git clone https://github.com/tuncasoftbildik/X.git
+cd X
+npm install
+```
+
+`.env.local` dosyası oluştur:
+
+```
+TRAVELROBOT_API_URL=http://sandbox.kplus.com.tr/kplus/v0
+TRAVELROBOT_CHANNEL_CODE=your_channel_code
+TRAVELROBOT_CHANNEL_PASSWORD=your_channel_password
+```
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Proje Yapısı
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+app/
+├── api/
+│   ├── flights/search/    # Uçuş arama API
+│   ├── hotels/search/     # Otel arama API
+│   ├── tours/search/      # Tur arama API
+│   ├── tours/details/     # Tur detay API
+│   └── transfer/search/   # Transfer arama API
+├── ucus/                  # Uçuş sonuç sayfası
+├── otel/                  # Otel sonuç sayfası
+├── tur/                   # Tur sonuç & detay sayfaları
+└── transfer/              # Transfer sonuç sayfası
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+components/
+├── search-forms/          # Arama formları
+├── header.tsx             # Navigasyon
+├── footer.tsx             # Alt bilgi
+└── search-tabs.tsx        # Ana sayfa arama sekmeleri
 
-## Learn More
+lib/travelrobot/
+├── client.ts              # API client (wrapper/token yönetimi)
+├── config.ts              # Konfigürasyon
+├── token-manager.ts       # Token oluşturma & cache
+└── services/              # Servis modülleri (air, hotel, tour, transfer, general)
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Lisans
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Bu proje özel ve gizlidir. Tüm hakları saklıdır.
