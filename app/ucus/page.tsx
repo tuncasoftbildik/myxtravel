@@ -5,6 +5,34 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 
+const AIRPORTS = [
+  { code: "IST", label: "İstanbul (IST)" },
+  { code: "SAW", label: "İstanbul Sabiha Gökçen (SAW)" },
+  { code: "ESB", label: "Ankara Esenboğa (ESB)" },
+  { code: "AYT", label: "Antalya (AYT)" },
+  { code: "ADB", label: "İzmir Adnan Menderes (ADB)" },
+  { code: "DLM", label: "Dalaman (DLM)" },
+  { code: "TZX", label: "Trabzon (TZX)" },
+  { code: "BJV", label: "Bodrum Milas (BJV)" },
+  { code: "GZT", label: "Gaziantep (GZT)" },
+  { code: "VAN", label: "Van (VAN)" },
+  { code: "LHR", label: "Londra Heathrow (LHR)" },
+  { code: "CDG", label: "Paris Charles de Gaulle (CDG)" },
+  { code: "FRA", label: "Frankfurt (FRA)" },
+  { code: "AMS", label: "Amsterdam (AMS)" },
+  { code: "JFK", label: "New York JFK (JFK)" },
+  { code: "DXB", label: "Dubai (DXB)" },
+];
+
+const POPULAR_ROUTES = [
+  { from: "IST", to: "AYT", fromLabel: "İstanbul", toLabel: "Antalya", gradient: "from-orange-400 to-rose-500" },
+  { from: "IST", to: "ADB", fromLabel: "İstanbul", toLabel: "İzmir", gradient: "from-emerald-400 to-teal-500" },
+  { from: "ESB", to: "IST", fromLabel: "Ankara", toLabel: "İstanbul", gradient: "from-indigo-500 to-purple-600" },
+  { from: "IST", to: "TZX", fromLabel: "İstanbul", toLabel: "Trabzon", gradient: "from-sky-400 to-indigo-500" },
+  { from: "IST", to: "BJV", fromLabel: "İstanbul", toLabel: "Bodrum", gradient: "from-cyan-400 to-blue-500" },
+  { from: "AYT", to: "IST", fromLabel: "Antalya", toLabel: "İstanbul", gradient: "from-amber-400 to-orange-500" },
+];
+
 interface FlightSegment {
   airline: string;
   airlineCode: string;
@@ -88,9 +116,10 @@ function UcusContent() {
   const fromName = searchParams.get("fromName");
   const toName = searchParams.get("toName");
 
+  const hasSearchParams = from && to && departDate;
+
   useEffect(() => {
-    if (!from || !to || !departDate) {
-      setError("Uçuş bilgileri eksik");
+    if (!hasSearchParams) {
       setLoading(false);
       return;
     }
@@ -116,7 +145,12 @@ function UcusContent() {
     }
 
     fetchFlights();
-  }, [from, to, departDate, returnDate, tripType, passengers]);
+  }, [from, to, departDate, returnDate, tripType, passengers, hasSearchParams]);
+
+  // Landing page when no search params
+  if (!hasSearchParams) {
+    return <UcusLandingPage />;
+  }
 
   return (
     <>
@@ -134,7 +168,7 @@ function UcusContent() {
                 <p className="text-xs text-white/40 uppercase tracking-wider mb-2 font-medium">Uçuş Arama</p>
                 <h1 className="text-2xl sm:text-3xl font-bold text-white">
                   {fromName && toName ? (
-                    <>{fromName} <span className="text-white/40 mx-2">→</span> {toName}</>
+                    <>{fromName} <span className="text-white/40 mx-2">&rarr;</span> {toName}</>
                   ) : (
                     "Uçuş Sonuçları"
                   )}
@@ -149,7 +183,7 @@ function UcusContent() {
                 )}
               </div>
               <button
-                onClick={() => router.push("/")}
+                onClick={() => router.push("/ucus")}
                 className="inline-flex items-center gap-2 px-5 py-2.5 text-sm text-white/70 hover:text-white bg-white/10 hover:bg-white/15 rounded-xl transition font-medium backdrop-blur-sm"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,10 +199,10 @@ function UcusContent() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 -mt-6 relative z-10 pb-12 sm:pb-16">
           {loading && <LoadingSkeleton />}
 
-          {error && <ErrorCard message={error} onBack={() => router.push("/")} />}
+          {error && <ErrorCard message={error} onBack={() => router.push("/ucus")} />}
 
           {!loading && !error && flights.length === 0 && (
-            <EmptyState message="Bu güzergah için uçuş bulunamadı." onBack={() => router.push("/")} />
+            <EmptyState message="Bu güzergah için uçuş bulunamadı." onBack={() => router.push("/ucus")} />
           )}
 
           {!loading && !error && flights.length > 0 && (
@@ -184,6 +218,260 @@ function UcusContent() {
     </>
   );
 }
+
+/* ───────────────────────── Landing Page ───────────────────────── */
+
+function UcusLandingPage() {
+  const router = useRouter();
+  const [tripType, setTripType] = useState<"roundtrip" | "oneway">("roundtrip");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const [departDate, setDepartDate] = useState("");
+  const [returnDate, setReturnDate] = useState("");
+  const [passengers, setPassengers] = useState("1");
+  const [searchLoading, setSearchLoading] = useState(false);
+
+  function handleSearch() {
+    if (!from || !to || !departDate) return;
+    if (tripType === "roundtrip" && !returnDate) return;
+    setSearchLoading(true);
+
+    const [yD, mD, dD] = departDate.split("-");
+    const params = new URLSearchParams({
+      from,
+      to,
+      departDate: `${dD}.${mD}.${yD}`,
+      tripType,
+      passengers,
+    });
+
+    if (tripType === "roundtrip" && returnDate) {
+      const [yR, mR, dR] = returnDate.split("-");
+      params.set("returnDate", `${dR}.${mR}.${yR}`);
+    }
+
+    const fromAirport = AIRPORTS.find((a) => a.code === from);
+    const toAirport = AIRPORTS.find((a) => a.code === to);
+    if (fromAirport) params.set("fromName", fromAirport.label);
+    if (toAirport) params.set("toName", toAirport.label);
+
+    router.push(`/ucus?${params.toString()}`);
+  }
+
+  function swapAirports() {
+    setFrom(to);
+    setTo(from);
+  }
+
+  function handleRouteClick(route: typeof POPULAR_ROUTES[number]) {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const [yD, mD, dD] = [tomorrow.getFullYear(), String(tomorrow.getMonth() + 1).padStart(2, "0"), String(tomorrow.getDate()).padStart(2, "0")];
+
+    const fromAirport = AIRPORTS.find((a) => a.code === route.from);
+    const toAirport = AIRPORTS.find((a) => a.code === route.to);
+
+    const params = new URLSearchParams({
+      from: route.from,
+      to: route.to,
+      departDate: `${dD}.${mD}.${yD}`,
+      tripType: "oneway",
+      passengers: "1",
+    });
+    if (fromAirport) params.set("fromName", fromAirport.label);
+    if (toAirport) params.set("toName", toAirport.label);
+
+    router.push(`/ucus?${params.toString()}`);
+  }
+
+  const canSearch = from && to && departDate && (tripType === "oneway" || returnDate);
+
+  return (
+    <>
+      <Header variant="solid" />
+      <main className="flex-1 bg-gray-50">
+        {/* Hero banner */}
+        <div className="relative bg-gradient-to-br from-brand-dark via-[#2d1b69] to-[#0f172a] overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-0 right-[20%] w-64 h-64 bg-orange-500/10 rounded-full blur-[100px]" />
+            <div className="absolute bottom-0 left-[10%] w-48 h-48 bg-fuchsia-500/8 rounded-full blur-[80px]" />
+          </div>
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-16 sm:pt-14 sm:pb-20 text-center">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3">Uçak Bileti</h1>
+            <p className="text-base sm:text-lg text-white/60 max-w-xl mx-auto">
+              Yüzlerce havayolunu karşılaştır, en uygun bileti bul
+            </p>
+          </div>
+        </div>
+
+        {/* Search form card */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 -mt-8 relative z-10">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-xl shadow-black/5 p-5 sm:p-7">
+            {/* Trip type */}
+            <div className="flex gap-4 sm:gap-6 text-sm mb-5">
+              {[
+                { value: "roundtrip" as const, label: "Gidiş - Dönüş" },
+                { value: "oneway" as const, label: "Tek Yön" },
+              ].map((opt) => (
+                <label key={opt.value} className="flex items-center gap-2 cursor-pointer group">
+                  <span
+                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition ${
+                      tripType === opt.value ? "border-brand-red" : "border-gray-300 group-hover:border-gray-400"
+                    }`}
+                  >
+                    {tripType === opt.value && <span className="w-2 h-2 rounded-full bg-brand-red" />}
+                  </span>
+                  <input type="radio" name="trip" className="sr-only" checked={tripType === opt.value} onChange={() => setTripType(opt.value)} />
+                  <span className={tripType === opt.value ? "text-gray-800 font-medium" : "text-gray-500"}>{opt.label}</span>
+                </label>
+              ))}
+            </div>
+
+            {/* Fields */}
+            <div className="flex flex-col md:flex-row gap-3">
+              {/* From */}
+              <div className="flex-[2]">
+                <label className="text-xs font-medium text-gray-500 mb-1.5 block uppercase tracking-wider">Nereden</label>
+                <div className="relative">
+                  <select
+                    value={from}
+                    onChange={(e) => setFrom(e.target.value)}
+                    className="w-full appearance-none px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition cursor-pointer"
+                  >
+                    <option value="">Havalimanı seçin</option>
+                    {AIRPORTS.map((a) => (
+                      <option key={a.code} value={a.code}>{a.label}</option>
+                    ))}
+                  </select>
+                  <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Swap button */}
+              <button
+                type="button"
+                onClick={swapAirports}
+                className="hidden md:flex self-end mb-2 w-10 h-10 rounded-full border-2 border-gray-200 items-center justify-center hover:border-brand-red hover:text-brand-red text-gray-400 transition shrink-0"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+              </button>
+
+              {/* To */}
+              <div className="flex-[2]">
+                <label className="text-xs font-medium text-gray-500 mb-1.5 block uppercase tracking-wider">Nereye</label>
+                <div className="relative">
+                  <select
+                    value={to}
+                    onChange={(e) => setTo(e.target.value)}
+                    className="w-full appearance-none px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition cursor-pointer"
+                  >
+                    <option value="">Havalimanı seçin</option>
+                    {AIRPORTS.map((a) => (
+                      <option key={a.code} value={a.code}>{a.label}</option>
+                    ))}
+                  </select>
+                  <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Depart date */}
+              <div className="flex-[1.2]">
+                <label className="text-xs font-medium text-gray-500 mb-1.5 block uppercase tracking-wider">Gidiş</label>
+                <input
+                  type="date"
+                  value={departDate}
+                  onChange={(e) => setDepartDate(e.target.value)}
+                  className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition"
+                />
+              </div>
+
+              {/* Return date */}
+              {tripType === "roundtrip" && (
+                <div className="flex-[1.2]">
+                  <label className="text-xs font-medium text-gray-500 mb-1.5 block uppercase tracking-wider">Dönüş</label>
+                  <input
+                    type="date"
+                    value={returnDate}
+                    onChange={(e) => setReturnDate(e.target.value)}
+                    className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition"
+                  />
+                </div>
+              )}
+
+              {/* Passengers */}
+              <div className={`flex-[0.8] ${tripType === "oneway" ? "flex-[1.2]" : ""}`}>
+                <label className="text-xs font-medium text-gray-500 mb-1.5 block uppercase tracking-wider">Yolcu</label>
+                <div className="relative">
+                  <select
+                    value={passengers}
+                    onChange={(e) => setPassengers(e.target.value)}
+                    className="w-full appearance-none px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition cursor-pointer"
+                  >
+                    {["1", "2", "3", "4", "5", "6"].map((n) => (
+                      <option key={n} value={n}>{n} Yolcu</option>
+                    ))}
+                  </select>
+                  <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={handleSearch}
+                disabled={searchLoading || !canSearch}
+                className="w-full sm:w-auto px-10 py-4 bg-brand-red text-white font-semibold rounded-2xl hover:bg-red-700 transition-all shadow-lg shadow-red-500/20 hover:shadow-red-500/30 hover:scale-[1.02] active:scale-100 text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              >
+                {searchLoading ? "Aranıyor..." : "Uçuş Ara"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Popular routes */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Popüler Rotalar</h2>
+          <p className="text-sm text-brand-gray/60 mb-8">En çok aranan uçuş güzergahları</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            {POPULAR_ROUTES.map((route) => (
+              <button
+                key={`${route.from}-${route.to}`}
+                onClick={() => handleRouteClick(route)}
+                className="group relative h-44 sm:h-52 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all hover:scale-[1.02] active:scale-100 text-left"
+              >
+                <div className={`absolute inset-0 bg-gradient-to-br ${route.gradient}`} />
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition" />
+                <div className="relative h-full flex flex-col justify-end p-5 sm:p-6">
+                  <div className="flex items-center gap-2 mb-1">
+                    <svg className="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14m-4-4l4 4-4 4" />
+                    </svg>
+                    <h3 className="text-xl sm:text-2xl font-bold text-white">
+                      {route.fromLabel} <span className="text-white/60 mx-1">&rarr;</span> {route.toLabel}
+                    </h3>
+                  </div>
+                  <p className="text-sm text-white/80">{route.from} &mdash; {route.to}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </>
+  );
+}
+
+/* ───────────────────────── Result Components ───────────────────────── */
 
 function formatTime(dateStr: string | undefined): string {
   if (!dateStr) return "--:--";

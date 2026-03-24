@@ -61,6 +61,125 @@ function PageFallback() {
   );
 }
 
+function TurLanding() {
+  const router = useRouter();
+  const [destination, setDestination] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  const categories = [
+    { title: "Kapadokya Turları", subtitle: "Peri bacaları & balon turu", icon: (
+      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+    )},
+    { title: "Ege Turları", subtitle: "Sahiller & antik kentler", icon: (
+      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+    )},
+    { title: "Karadeniz Turları", subtitle: "Yaylalar & doğa", icon: (
+      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
+    )},
+    { title: "Avrupa Turları", subtitle: "Kültür & tarih rotaları", icon: (
+      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
+    )},
+    { title: "Uzak Doğu", subtitle: "Egzotik deneyimler", icon: (
+      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+    )},
+    { title: "Kış Turları", subtitle: "Kayak & termal tatil", icon: (
+      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 2v4m0 12v4m8-10h-4M8 12H4m13.657-5.657l-2.828 2.828M9.172 14.828l-2.829 2.829m11.314 0l-2.828-2.829M9.172 9.172L6.343 6.343" /></svg>
+    )},
+  ];
+
+  return (
+    <>
+      <Header variant="solid" />
+      <main className="flex-1 bg-gray-50">
+        {/* Hero banner */}
+        <div className="relative bg-gradient-to-br from-brand-dark via-[#2d1b69] to-[#0f172a] overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-0 right-[20%] w-64 h-64 bg-orange-500/10 rounded-full blur-[100px]" />
+            <div className="absolute bottom-0 left-[10%] w-48 h-48 bg-fuchsia-500/8 rounded-full blur-[80px]" />
+          </div>
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-20 sm:pt-14 sm:pb-24 text-center">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3">Turlar</h1>
+            <p className="text-base sm:text-lg text-white/60 max-w-xl mx-auto">
+              Yurt içi ve yurt dışı en popüler turları keşfet
+            </p>
+          </div>
+        </div>
+
+        {/* Search form card */}
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 -mt-12 relative z-10">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-xl p-5 sm:p-7">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+              <div className="sm:col-span-3">
+                <label className="block text-xs font-semibold text-brand-gray/60 mb-1.5 uppercase tracking-wide">Nereye</label>
+                <input
+                  type="text"
+                  placeholder="Şehir, ülke veya bölge..."
+                  value={destination}
+                  onChange={(e) => setDestination(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red/30 focus:border-brand-red transition"
+                />
+              </div>
+              <div className="sm:col-span-1">
+                <label className="block text-xs font-semibold text-brand-gray/60 mb-1.5 uppercase tracking-wide">Başlangıç Tarihi</label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-red/30 focus:border-brand-red transition"
+                />
+              </div>
+              <div className="sm:col-span-1">
+                <label className="block text-xs font-semibold text-brand-gray/60 mb-1.5 uppercase tracking-wide">Bitiş Tarihi</label>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-red/30 focus:border-brand-red transition"
+                />
+              </div>
+              <div className="sm:col-span-1 flex items-end">
+                <button
+                  onClick={() => {
+                    if (!startDate || !endDate) return;
+                    const params = new URLSearchParams({ startDate, endDate });
+                    if (destination) params.set("destination", destination);
+                    router.push(`/tur?${params.toString()}`);
+                  }}
+                  className="w-full px-6 py-3 bg-brand-red text-white font-semibold rounded-xl hover:bg-red-700 transition shadow-sm shadow-brand-red/20 hover:shadow-brand-red/30 text-sm sm:text-base"
+                >
+                  Tur Ara
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Popular categories */}
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Popüler Tur Kategorileri</h2>
+          <p className="text-sm text-brand-gray/50 mb-6 sm:mb-8">En çok tercih edilen tur destinasyonları</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+            {categories.map((cat, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-2xl border border-gray-100 hover:border-brand-red/20 shadow-sm hover:shadow-lg p-5 sm:p-6 cursor-pointer transition-all group"
+              >
+                <div className="w-12 h-12 bg-gradient-to-br from-brand-red/10 to-brand-red/5 rounded-xl flex items-center justify-center text-brand-red mb-3 group-hover:scale-110 transition-transform">
+                  {cat.icon}
+                </div>
+                <h3 className="font-semibold text-sm sm:text-base text-gray-900 group-hover:text-brand-dark transition-colors">{cat.title}</h3>
+                <p className="text-xs text-brand-gray/50 mt-1">{cat.subtitle}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </>
+  );
+}
+
 function TurContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -73,9 +192,10 @@ function TurContent() {
   const endDate = searchParams.get("endDate");
   const destination = searchParams.get("destination");
 
+  const hasSearchParams = startDate && endDate;
+
   useEffect(() => {
-    if (!startDate || !endDate) {
-      setError("Tarih bilgisi eksik");
+    if (!hasSearchParams) {
       setLoading(false);
       return;
     }
@@ -107,7 +227,11 @@ function TurContent() {
     }
 
     fetchTours();
-  }, [startDate, endDate, destination]);
+  }, [startDate, endDate, destination, hasSearchParams]);
+
+  if (!hasSearchParams) {
+    return <TurLanding />;
+  }
 
   return (
     <>

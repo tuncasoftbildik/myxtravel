@@ -19,7 +19,7 @@ export function SearchTabs() {
   const [active, setActive] = useState<TabId>("flight");
 
   return (
-    <div className="glass-white rounded-3xl shadow-2xl shadow-black/10 overflow-hidden">
+    <div className="glass-white rounded-3xl shadow-2xl shadow-black/10 overflow-hidden w-full">
       {/* Tab bar */}
       <div className="flex border-b border-gray-100">
         {tabs.map((tab) => {
@@ -45,12 +45,14 @@ export function SearchTabs() {
         })}
       </div>
 
-      {/* Form area */}
+      {/* Form area — grid overlay keeps container size stable */}
       <div className="p-4 sm:p-6 md:p-8">
-        {active === "flight" && <FlightSearch />}
-        {active === "hotel" && <HotelSearch />}
-        {active === "transfer" && <TransferSearch />}
-        {active === "tour" && <TourSearch />}
+        <div className="grid [grid-area:1/1]">
+          <div className={`col-start-1 row-start-1 ${active === "flight" ? "" : "invisible"}`}><FlightSearch /></div>
+          <div className={`col-start-1 row-start-1 ${active === "hotel" ? "" : "invisible"}`}><HotelSearch /></div>
+          <div className={`col-start-1 row-start-1 ${active === "transfer" ? "" : "invisible"}`}><TransferSearch /></div>
+          <div className={`col-start-1 row-start-1 ${active === "tour" ? "" : "invisible"}`}><TourSearch /></div>
+        </div>
       </div>
     </div>
   );

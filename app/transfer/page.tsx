@@ -50,6 +50,154 @@ function PageFallback() {
   );
 }
 
+function TransferLanding() {
+  const router = useRouter();
+  const [pickUp, setPickUp] = useState("");
+  const [dropOff, setDropOff] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("10:00");
+  const [passengers, setPassengers] = useState("2");
+
+  const popularRoutes = [
+    { title: "Havalimanı → Otel", subtitle: "Kapıda karşılama ile", icon: (
+      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+    )},
+    { title: "Otel → Havalimanı", subtitle: "Zamanında ulaşım garantisi", icon: (
+      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+    )},
+    { title: "Şehirler Arası", subtitle: "Konforlu uzun mesafe", icon: (
+      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
+    )},
+    { title: "Kruvaziyer Limanı", subtitle: "Liman transferleri", icon: (
+      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 17h1l1-5h14l1 5h1M5 17l-2 4h18l-2-4M12 3v4m-4 0h8M8 7L6 12m10-5l2 5" /></svg>
+    )},
+    { title: "VIP Transfer", subtitle: "Lüks araçlarla", icon: (
+      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
+    )},
+    { title: "Grup Transferi", subtitle: "Büyük araçlar & otobüsler", icon: (
+      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+    )},
+  ];
+
+  return (
+    <>
+      <Header variant="solid" />
+      <main className="flex-1 bg-gray-50">
+        {/* Hero banner */}
+        <div className="relative bg-gradient-to-br from-brand-dark via-[#2d1b69] to-[#0f172a] overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-0 right-[20%] w-64 h-64 bg-orange-500/10 rounded-full blur-[100px]" />
+            <div className="absolute bottom-0 left-[10%] w-48 h-48 bg-fuchsia-500/8 rounded-full blur-[80px]" />
+          </div>
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-20 sm:pt-14 sm:pb-24 text-center">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3">Transfer</h1>
+            <p className="text-base sm:text-lg text-white/60 max-w-xl mx-auto">
+              Havalimanı ve şehir içi özel transfer hizmeti
+            </p>
+          </div>
+        </div>
+
+        {/* Search form card */}
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 -mt-12 relative z-10">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-xl p-5 sm:p-7">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="sm:col-span-2 md:col-span-1">
+                <label className="block text-xs font-semibold text-brand-gray/60 mb-1.5 uppercase tracking-wide">Alınış Noktası</label>
+                <input
+                  type="text"
+                  placeholder="Havalimanı, otel, adres..."
+                  value={pickUp}
+                  onChange={(e) => setPickUp(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red/30 focus:border-brand-red transition"
+                />
+              </div>
+              <div className="sm:col-span-2 md:col-span-1">
+                <label className="block text-xs font-semibold text-brand-gray/60 mb-1.5 uppercase tracking-wide">Bırakılış Noktası</label>
+                <input
+                  type="text"
+                  placeholder="Otel, havalimanı, adres..."
+                  value={dropOff}
+                  onChange={(e) => setDropOff(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red/30 focus:border-brand-red transition"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-brand-gray/60 mb-1.5 uppercase tracking-wide">Tarih</label>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-red/30 focus:border-brand-red transition"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-brand-gray/60 mb-1.5 uppercase tracking-wide">Saat</label>
+                  <input
+                    type="time"
+                    value={time}
+                    onChange={(e) => setTime(e.target.value)}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-red/30 focus:border-brand-red transition"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-brand-gray/60 mb-1.5 uppercase tracking-wide">Yolcu</label>
+                  <select
+                    value={passengers}
+                    onChange={(e) => setPassengers(e.target.value)}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-red/30 focus:border-brand-red transition"
+                  >
+                    {[1,2,3,4,5,6,7,8].map(n => (
+                      <option key={n} value={n}>{n} Yolcu</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                if (!pickUp || !dropOff || !date) return;
+                const params = new URLSearchParams({
+                  pickUpName: pickUp,
+                  dropOffName: dropOff,
+                  date,
+                  time,
+                  passengers,
+                });
+                router.push(`/transfer?${params.toString()}`);
+              }}
+              className="w-full mt-5 px-6 py-3.5 bg-brand-red text-white font-semibold rounded-xl hover:bg-red-700 transition shadow-sm shadow-brand-red/20 hover:shadow-brand-red/30 text-sm sm:text-base"
+            >
+              Transfer Ara
+            </button>
+          </div>
+        </div>
+
+        {/* Popular routes */}
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Popüler Güzergahlar</h2>
+          <p className="text-sm text-brand-gray/50 mb-6 sm:mb-8">En çok tercih edilen transfer rotaları</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+            {popularRoutes.map((route, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-2xl border border-gray-100 hover:border-brand-red/20 shadow-sm hover:shadow-lg p-5 sm:p-6 cursor-pointer transition-all group"
+              >
+                <div className="w-12 h-12 bg-gradient-to-br from-brand-red/10 to-brand-red/5 rounded-xl flex items-center justify-center text-brand-red mb-3 group-hover:scale-110 transition-transform">
+                  {route.icon}
+                </div>
+                <h3 className="font-semibold text-sm sm:text-base text-gray-900 group-hover:text-brand-dark transition-colors">{route.title}</h3>
+                <p className="text-xs text-brand-gray/50 mt-1">{route.subtitle}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </>
+  );
+}
+
 function TransferContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -64,14 +212,16 @@ function TransferContent() {
   const time = searchParams.get("time");
   const passengers = searchParams.get("passengers") || "2";
 
-  useEffect(() => {
-    const pickUpLat = searchParams.get("pickUpLat");
-    const pickUpLng = searchParams.get("pickUpLng");
-    const dropOffLat = searchParams.get("dropOffLat");
-    const dropOffLng = searchParams.get("dropOffLng");
+  // If no search params, show landing page
+  const pickUpLat = searchParams.get("pickUpLat");
+  const pickUpLng = searchParams.get("pickUpLng");
+  const dropOffLat = searchParams.get("dropOffLat");
+  const dropOffLng = searchParams.get("dropOffLng");
 
-    if (!pickUpLat || !pickUpLng || !dropOffLat || !dropOffLng || !date || !time) {
-      setError("Arama bilgileri eksik");
+  const hasSearchParams = pickUpLat && pickUpLng && dropOffLat && dropOffLng && date && time;
+
+  useEffect(() => {
+    if (!hasSearchParams) {
       setLoading(false);
       return;
     }
@@ -103,7 +253,11 @@ function TransferContent() {
     }
 
     fetchTransfers();
-  }, [searchParams, date, time, passengers]);
+  }, [searchParams, date, time, passengers, hasSearchParams, pickUpLat, pickUpLng, dropOffLat, dropOffLng]);
+
+  if (!hasSearchParams) {
+    return <TransferLanding />;
+  }
 
   return (
     <>
