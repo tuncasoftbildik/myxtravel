@@ -40,29 +40,41 @@ export default function HotelMap({ hotels, hoveredHotel, onHotelClick }: HotelMa
     [hotels]
   );
 
+  const isSingle = mappable.length === 1;
+
   // Fit bounds when hotels change
   const onLoad = useCallback(
     (map: google.maps.Map) => {
       mapRef.current = map;
       if (mappable.length === 0) return;
+      if (isSingle && mappable[0].location) {
+        map.setCenter({ lat: mappable[0].location.lat, lng: mappable[0].location.lng });
+        map.setZoom(15);
+        return;
+      }
       const bounds = new google.maps.LatLngBounds();
       mappable.forEach((h) => {
         if (h.location) bounds.extend({ lat: h.location.lat, lng: h.location.lng });
       });
       map.fitBounds(bounds, { top: 50, right: 50, bottom: 50, left: 50 });
     },
-    [mappable]
+    [mappable, isSingle]
   );
 
   // Re-fit when hotels change
   useEffect(() => {
     if (!mapRef.current || mappable.length === 0) return;
+    if (isSingle && mappable[0].location) {
+      mapRef.current.setCenter({ lat: mappable[0].location.lat, lng: mappable[0].location.lng });
+      mapRef.current.setZoom(15);
+      return;
+    }
     const bounds = new google.maps.LatLngBounds();
     mappable.forEach((h) => {
       if (h.location) bounds.extend({ lat: h.location.lat, lng: h.location.lng });
     });
     mapRef.current.fitBounds(bounds, { top: 50, right: 50, bottom: 50, left: 50 });
-  }, [mappable]);
+  }, [mappable, isSingle]);
 
   const selected = mappable.find((h) => h.productCode === selectedHotel);
 
@@ -96,7 +108,7 @@ export default function HotelMap({ hotels, hoveredHotel, onHotelClick }: HotelMa
         const isHovered = h.productCode === hoveredHotel;
         const isSelected = h.productCode === selectedHotel;
         const active = isHovered || isSelected;
-        const price = h.price.total ? `${Math.round(h.price.total).toLocaleString("tr-TR")} ₺` : "";
+        const price = h.price.total ? `${Math.round(h.price.total).toLocaleString("tr-TR")} ₺` : h.name;
 
         return (
           <OverlayViewF

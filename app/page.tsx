@@ -1,6 +1,7 @@
 import { Header } from "@/components/header";
 import { SearchTabs } from "@/components/search-tabs";
 import { PopularDestinations } from "@/components/popular-destinations";
+import { PromotionsCarousel } from "@/components/promotions-carousel";
 import { Features } from "@/components/features";
 import { Footer } from "@/components/footer";
 import { AirlineMarquee } from "@/components/airline-marquee";
@@ -34,14 +35,14 @@ export default function Home() {
             <Image src="/logo.png" alt="X Travel" width={160} height={160} className="object-contain drop-shadow-2xl" priority />
           </div>
 
-          <div className="grid lg:grid-cols-[240px_1.2fr_1fr] gap-6 sm:gap-8 items-center">
+          <div className="grid lg:grid-cols-[220px_0.8fr_1.8fr] gap-6 sm:gap-8 items-center">
             {/* Far Left - Logo (desktop only) */}
             <div className="hidden lg:flex items-center justify-center">
               <Image
                 src="/logo.png"
                 alt="X Travel"
-                width={260}
-                height={260}
+                width={240}
+                height={240}
                 className="object-contain drop-shadow-2xl"
                 priority
               />
@@ -92,7 +93,8 @@ export default function Home() {
       {/* Trusted by - marquee */}
       <AirlineMarquee />
 
-      <PopularDestinations />
+      <PromotionsCarousel />
+      {/* <PopularDestinations /> */}
       <Features />
 
       {/* CTA */}

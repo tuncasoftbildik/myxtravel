@@ -8,6 +8,13 @@ import dynamic from "next/dynamic";
 
 const HotelMap = dynamic(() => import("@/components/hotel-map"), { ssr: false });
 
+interface HotelDistance {
+  name: string;
+  distance: number;
+  unit: string;
+  type: string;
+}
+
 interface HotelDetail {
   productCode: string;
   name: string;
@@ -22,6 +29,7 @@ interface HotelDetail {
   thumbnail: string;
   images: string[];
   facilities: { name: string; category: string }[];
+  distances: HotelDistance[];
   checkInTime: string;
   checkOutTime: string;
 }
@@ -305,7 +313,25 @@ export default function HotelDetailPage() {
                                 </p>
                                 <p className="text-[10px] text-gray-400">{nights} gece için toplam</p>
                               </div>
-                              <button className="px-5 py-2.5 bg-brand-red text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition whitespace-nowrap">
+                              <button
+                                onClick={() => {
+                                  const params = new URLSearchParams({
+                                    hotelCode: code,
+                                    hotelName: hotel.name,
+                                    roomCode: alt.roomCode,
+                                    roomName: alt.roomName,
+                                    boardName: alt.boardName,
+                                    totalAmount: String(alt.totalAmount),
+                                    currency: alt.currency,
+                                    checkIn,
+                                    checkOut,
+                                    adults,
+                                    nights,
+                                  });
+                                  router.push(`/rezervasyon?${params.toString()}`);
+                                }}
+                                className="px-5 py-2.5 bg-brand-red text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition whitespace-nowrap"
+                              >
                                 Rezervasyon
                               </button>
                             </div>
@@ -337,10 +363,22 @@ export default function HotelDetailPage() {
                 </div>
               )}
 
-              {/* Check-in/out info */}
+              {/* Hotel info card */}
               <div className="bg-white rounded-2xl shadow-sm p-5">
                 <h3 className="text-sm font-bold text-gray-900 mb-3">Otel Bilgileri</h3>
                 <div className="space-y-2.5 text-sm">
+                  {hotel.address && (
+                    <div className="flex justify-between gap-2">
+                      <span className="text-gray-500 shrink-0">Adres</span>
+                      <span className="font-medium text-gray-900 text-right text-xs">{hotel.address}</span>
+                    </div>
+                  )}
+                  {hotel.city && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Şehir</span>
+                      <span className="font-medium text-gray-900">{hotel.city}{hotel.country ? `, ${hotel.country}` : ""}</span>
+                    </div>
+                  )}
                   {hotel.checkInTime && (
                     <div className="flex justify-between">
                       <span className="text-gray-500">Giriş</span>
@@ -367,6 +405,35 @@ export default function HotelDetailPage() {
                   )}
                 </div>
               </div>
+
+              {/* Distances / POIs */}
+              {hotel.distances && hotel.distances.length > 0 && (
+                <div className="bg-white rounded-2xl shadow-sm p-5">
+                  <h3 className="text-sm font-bold text-gray-900 mb-3">Yakın Noktalar</h3>
+                  <div className="space-y-2.5 text-sm">
+                    {[...hotel.distances]
+                      .sort((a, b) => a.distance - b.distance)
+                      .slice(0, 8)
+                      .map((d, i) => (
+                      <div key={i} className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-gray-400 shrink-0">
+                            {d.type?.toLowerCase().includes("airport") ? (
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                            ) : (
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            )}
+                          </span>
+                          <span className="text-gray-700 truncate">{d.name}</span>
+                        </div>
+                        <span className="text-gray-500 shrink-0 font-medium">
+                          {d.distance < 1 ? `${Math.round(d.distance * 1000)} m` : `${d.distance} ${d.unit}`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

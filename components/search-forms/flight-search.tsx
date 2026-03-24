@@ -89,29 +89,32 @@ export function FlightSearch() {
         ))}
       </div>
 
-      {/* Fields */}
-      <div className="flex flex-col md:flex-row gap-3">
-        <AirportSelect label="Nereden" value={from} onChange={setFrom} className="flex-[2]" />
+      {/* Fields — Row 1: Airports */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <AirportSelect label="Nereden" value={from} onChange={setFrom} className="flex-1" />
 
         <button
           type="button"
           onClick={swapAirports}
-          className="hidden md:flex self-end mb-2 w-10 h-10 rounded-full border-2 border-gray-200 items-center justify-center hover:border-brand-red hover:text-brand-red text-gray-400 transition shrink-0"
+          className="hidden sm:flex self-end mb-2 w-10 h-10 rounded-full border-2 border-gray-200 items-center justify-center hover:border-brand-red hover:text-brand-red text-gray-400 transition shrink-0"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
           </svg>
         </button>
 
-        <AirportSelect label="Nereye" value={to} onChange={setTo} className="flex-[2]" />
+        <AirportSelect label="Nereye" value={to} onChange={setTo} className="flex-1" />
+      </div>
 
-        <DateField label="Gidiş" value={departDate} onChange={setDepartDate} className="flex-[1.2]" />
+      {/* Fields — Row 2: Dates + Passengers */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <DateField label="Gidiş" value={departDate} onChange={setDepartDate} className="flex-1" />
 
         {tripType === "roundtrip" && (
-          <DateField label="Dönüş" value={returnDate} onChange={setReturnDate} className="flex-[1.2]" />
+          <DateField label="Dönüş" value={returnDate} onChange={setReturnDate} className="flex-1" />
         )}
 
-        <div className={`flex-[0.8] ${tripType === "oneway" ? "flex-[1.2]" : ""}`}>
+        <div className="flex-1">
           <label className="text-xs font-medium text-gray-500 mb-1.5 block uppercase tracking-wider">Yolcu</label>
           <div className="relative">
             <select

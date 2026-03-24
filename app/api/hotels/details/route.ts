@@ -36,6 +36,13 @@ export async function POST(req: NextRequest) {
 
     const geo = hotelData.GeoLocation as Record<string, unknown> | null;
 
+    // Parse hotel distances (airport, POIs, etc.)
+    const distances =
+      (hotelData.HotelDistances as Record<string, unknown>[]) ||
+      (hotelData.Distances as Record<string, unknown>[]) ||
+      (h.HotelDistances as Record<string, unknown>[]) ||
+      [];
+
     return NextResponse.json({
       success: true,
       hotel: {
@@ -56,6 +63,12 @@ export async function POST(req: NextRequest) {
         facilities: facilities.map((f: Record<string, unknown>) => ({
           name: f.Name || f.FacilityName || f.Value || "",
           category: f.Category || f.FacilityCategory || f.GroupName || "",
+        })),
+        distances: distances.map((d: Record<string, unknown>) => ({
+          name: (d.Description as string) || (d.Name as string) || "",
+          distance: d.Distance as number || 0,
+          unit: d.UnitType === 1 ? "km" : d.UnitType === 2 ? "m" : "km",
+          type: (d.Name as string) || "",
         })),
         checkInTime: hotelData.CheckInTime || "",
         checkOutTime: hotelData.CheckOutTime || "",
