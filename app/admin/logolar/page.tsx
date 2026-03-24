@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Header } from "@/components/header";
 import { createClient } from "@/lib/supabase/client";
+import { useAdmin } from "@/lib/supabase/use-admin";
 
 interface AirlineLogo {
   id?: string;
@@ -25,11 +26,9 @@ export default function AdminLogolar() {
   const [editing, setEditing] = useState<AirlineLogo | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [user, setUser] = useState(false);
+  const { isAdmin, isLoggedIn, loading: authLoading } = useAdmin();
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => setUser(!!data.user));
     fetchLogos();
   }, []);
 
@@ -96,14 +95,31 @@ export default function AdminLogolar() {
     }
   }
 
-  if (!user) {
+  if (authLoading) {
+    return (
+      <>
+        <Header variant="solid" />
+        <main className="min-h-screen bg-[#f5f0e8] flex items-center justify-center">
+          <div className="w-8 h-8 border-3 border-brand-red border-t-transparent rounded-full animate-spin" />
+        </main>
+      </>
+    );
+  }
+
+  if (!isLoggedIn || !isAdmin) {
     return (
       <>
         <Header variant="solid" />
         <main className="min-h-screen bg-[#f5f0e8] flex items-center justify-center">
           <div className="bg-white rounded-2xl shadow-sm p-8 text-center max-w-sm">
-            <p className="text-gray-600 mb-4">Bu sayfayı görüntülemek için giriş yapmalısınız.</p>
-            <a href="/giris" className="text-brand-red font-semibold hover:underline">Giriş Yap</a>
+            <p className="text-gray-600 mb-4">
+              {!isLoggedIn ? "Bu sayfayı görüntülemek için giriş yapmalısınız." : "Bu sayfaya erişim yetkiniz bulunmamaktadır."}
+            </p>
+            {!isLoggedIn ? (
+              <a href="/giris" className="text-brand-red font-semibold hover:underline">Giriş Yap</a>
+            ) : (
+              <a href="/" className="text-brand-red font-semibold hover:underline">Ana Sayfa</a>
+            )}
           </div>
         </main>
       </>

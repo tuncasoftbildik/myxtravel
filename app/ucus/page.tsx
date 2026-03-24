@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { ExpediaBanner } from "@/components/expedia-banner";
 
 const AIRPORTS = [
   { code: "IST", label: "İstanbul (IST)" },
@@ -541,6 +542,9 @@ function UcusLandingPage() {
             ))}
           </div>
         </div>
+
+        {/* Expedia Banner */}
+        <ExpediaBanner />
 
         {/* spacer */}
         <div className="pb-12 sm:pb-16" />

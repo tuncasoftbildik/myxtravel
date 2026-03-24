@@ -21,13 +21,22 @@ export async function GET() {
   }
 }
 
-// POST — update settings (admin)
+// POST — update settings (admin only)
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: "Yetkilendirme gerekli" }, { status: 401 });
+    }
+
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id);
+    const roleList = (roles || []).map((r) => r.role);
+    if (!roleList.includes("super_admin") && !roleList.includes("admin")) {
+      return NextResponse.json({ error: "Admin yetkisi gerekli" }, { status: 403 });
     }
 
     const { settings } = await req.json() as { settings: Record<string, string> };

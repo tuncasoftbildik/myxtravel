@@ -25,12 +25,34 @@ function LoginContent() {
     setLoading(true);
     setError("");
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
 
-    if (error) {
+    if (signInError) {
+      console.error("Login error:", signInError);
       setError("E-posta veya şifre hatalı.");
       setLoading(false);
       return;
+    }
+
+    // Session yenilendikten sonra rolü kontrol et
+    try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      console.log("Logged in user:", currentUser?.id);
+
+      if (currentUser && redirect === "/") {
+        const { data: roles, error: rolesError } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", currentUser.id);
+        console.log("Roles:", roles, "Error:", rolesError);
+        const roleList = (roles || []).map((r: { role: string }) => r.role);
+        if (roleList.includes("super_admin") || roleList.includes("admin")) {
+          router.push("/admin");
+          return;
+        }
+      }
+    } catch (err) {
+      console.error("Role check error:", err);
     }
 
     router.push(redirect);

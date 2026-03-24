@@ -18,13 +18,22 @@ export async function GET() {
   }
 }
 
-// POST — create or update airline logo (admin)
+// POST — create or update airline logo (admin only)
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: "Yetkilendirme gerekli" }, { status: 401 });
+    }
+
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id);
+    const roleList = (roles || []).map((r) => r.role);
+    if (!roleList.includes("super_admin") && !roleList.includes("admin")) {
+      return NextResponse.json({ error: "Admin yetkisi gerekli" }, { status: 403 });
     }
 
     const body = await req.json();
@@ -55,13 +64,22 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// DELETE — remove airline logo (admin)
+// DELETE — remove airline logo (admin only)
 export async function DELETE(req: NextRequest) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: "Yetkilendirme gerekli" }, { status: 401 });
+    }
+
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id);
+    const roleList = (roles || []).map((r) => r.role);
+    if (!roleList.includes("super_admin") && !roleList.includes("admin")) {
+      return NextResponse.json({ error: "Admin yetkisi gerekli" }, { status: 403 });
     }
 
     const { id } = await req.json();
