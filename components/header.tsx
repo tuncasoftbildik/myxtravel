@@ -25,35 +25,15 @@ export function Header({ variant = "transparent" }: HeaderProps) {
     <header className={isSolid ? "sticky top-0 z-50 bg-brand-dark shadow-lg shadow-brand-dark/20" : "absolute top-0 left-0 right-0 z-50"}>
       <div className="w-full px-4 sm:px-8 h-16 sm:h-20 flex items-center">
         {/* Logo — far left */}
-        <Link href="/" className="flex items-center gap-2.5 shrink-0">
-          <Image src="/logo.png" alt="X Travel" width={36} height={36} className="object-contain" />
-          <div className="hidden sm:block">
-            <span className="text-sm font-bold text-white tracking-wide">X TRAVEL</span>
-            <span className="block text-[9px] text-white/40 tracking-[0.12em] -mt-0.5">LIVE YOUR DREAM</span>
-          </div>
+        <Link href="/" className="shrink-0">
+          <Image src="/logo.png" alt="X Travel" width={320} height={320} className="object-contain -my-8 translate-y-[20%] -translate-x-[30%]" />
         </Link>
 
-        {/* Desktop nav — centered pill buttons */}
-        <nav className="hidden lg:flex items-center gap-2 mx-auto">
-          {navItems.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className="flex items-center gap-1.5 px-5 py-2 rounded-full text-sm font-medium border border-white/15 text-white/70 hover:text-white hover:border-white/30 hover:bg-white/10 transition"
-            >
-              <svg className="w-4 h-4" fill={item.fill ? "currentColor" : "none"} stroke={item.fill ? "none" : "currentColor"} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={item.fill ? 0 : 1.5} d={item.icon} />
-              </svg>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        {/* Spacer */}
+        <div className="flex-1" />
 
-        {/* Spacer for mobile */}
-        <div className="flex-1 lg:hidden" />
-
-        {/* Desktop auth — far right */}
-        <div className="hidden lg:flex items-center gap-2 shrink-0">
+        {/* Auth — far right */}
+        <div className="hidden sm:flex items-center gap-2 shrink-0">
           <Link href="/giris" className="px-5 py-2.5 text-sm text-white/80 hover:text-white transition">
             Giriş Yap
           </Link>
@@ -66,7 +46,7 @@ export function Header({ variant = "transparent" }: HeaderProps) {
         </div>
 
         {/* Mobile hamburger */}
-        <button className="lg:hidden p-3 text-white" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menü">
+        <button className="sm:hidden p-3 text-white" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menü">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             {menuOpen ? (
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -79,7 +59,7 @@ export function Header({ variant = "transparent" }: HeaderProps) {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <nav className={`lg:hidden mx-4 rounded-2xl p-4 space-y-1 mb-2 ${isSolid ? "bg-white/10 border border-white/10" : "glass"}`}>
+        <nav className={`sm:hidden mx-4 rounded-2xl p-4 space-y-1 mb-2 ${isSolid ? "bg-white/10 border border-white/10" : "glass"}`}>
           {navItems.map((item) => (
             <Link key={item.label} href={item.href} className="block px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-xl text-sm transition">
               {item.label}

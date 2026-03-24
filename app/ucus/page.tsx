@@ -436,35 +436,114 @@ function UcusLandingPage() {
           </div>
         </div>
 
-        {/* Popular routes */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Popüler Rotalar</h2>
-          <p className="text-sm text-brand-gray/60 mb-8">En çok aranan uçuş güzergahları</p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-            {POPULAR_ROUTES.map((route) => (
+        {/* Quick actions */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-12 sm:pt-16">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[
+              {
+                title: "Check-in Yapın",
+                desc: "Online check-in'le zamandan tasarruf edebilirsiniz",
+                icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
+                color: "#10b981",
+              },
+              {
+                title: "Uçuş Sorgulayın",
+                desc: "PNR no ile uçuş detaylarını görüntüleyebilirsiniz",
+                icon: "M21 16v-2l-8-5V3.5a1.5 1.5 0 00-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z",
+                color: "#6366f1",
+                fill: true,
+              },
+              {
+                title: "Bilet İşlemlerine Ulaşın",
+                desc: "İptal/değişim işlemlerini kolaylıkla yapabilirsiniz",
+                icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
+                color: "#f59e0b",
+              },
+            ].map((item) => (
               <button
-                key={`${route.from}-${route.to}`}
-                onClick={() => handleRouteClick(route)}
-                className="group relative h-44 sm:h-52 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all hover:scale-[1.02] active:scale-100 text-left"
+                key={item.title}
+                className="flex items-start gap-3 p-5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 transition text-left"
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${route.gradient}`} />
-                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition" />
-                <div className="relative h-full flex flex-col justify-end p-5 sm:p-6">
-                  <div className="flex items-center gap-2 mb-1">
-                    <svg className="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14m-4-4l4 4-4 4" />
-                    </svg>
-                    <h3 className="text-xl sm:text-2xl font-bold text-white">
-                      {route.fromLabel} <span className="text-white/60 mx-1">&rarr;</span> {route.toLabel}
-                    </h3>
-                  </div>
-                  <p className="text-sm text-white/80">{route.from} &mdash; {route.to}</p>
+                <div className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: item.color + "15" }}>
+                  <svg className="w-5 h-5" style={{ color: item.color }} fill={item.fill ? "currentColor" : "none"} stroke={item.fill ? "none" : "currentColor"} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900">{item.title}</h3>
+                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{item.desc}</p>
                 </div>
               </button>
             ))}
           </div>
         </div>
+
+        {/* Popular airlines */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">En Çok Tercih Edilen Havayolları</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {[
+              { name: "Turkish Airlines", logo: "/airlines/thy.png" },
+              { name: "Pegasus", logo: "/airlines/pegasus.png" },
+              { name: "SunExpress", logo: "/airlines/sunexpress.png" },
+              { name: "AnadoluJet", logo: "/airlines/anadolujet.png" },
+              { name: "Corendon", logo: "/airlines/corendon.png" },
+              { name: "AtlasGlobal", logo: "/airlines/atlasglobal.png" },
+            ].map((airline) => (
+              <button
+                key={airline.name}
+                className="flex items-center justify-center h-20 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 transition px-4"
+              >
+                <img src={airline.logo} alt={airline.name} className="h-8 sm:h-10 object-contain max-w-full" />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Trust badges */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-8">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Ucuz Uçak Bileti Alın</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[
+              {
+                title: "IATA üyeliği",
+                desc: "Uluslararası güvence sağlayan IATA üyeliği",
+                icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
+                color: "#C41E3A",
+              },
+              {
+                title: "Güvenli ödeme",
+                desc: "Tüm işlemlerinizde güvenli ödeme ayrıcalığı",
+                icon: "M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z",
+                color: "#C41E3A",
+              },
+              {
+                title: "7/24 müşteri desteği",
+                desc: "7/24 ulaşabileceğiniz ödüllü müşteri hizmetleri desteği",
+                icon: "M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z",
+                color: "#C41E3A",
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="flex items-start gap-3 p-5 bg-red-50/50 rounded-2xl border border-red-100/50"
+              >
+                <div className="shrink-0 w-10 h-10 rounded-xl bg-brand-red/10 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-brand-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900">{item.title}</h3>
+                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* spacer */}
+        <div className="pb-12 sm:pb-16" />
       </main>
       <Footer />
     </>

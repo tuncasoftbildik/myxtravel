@@ -173,21 +173,84 @@ function TransferLanding() {
           </div>
         </div>
 
-        {/* Popular routes */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Popüler Güzergahlar</h2>
-          <p className="text-sm text-brand-gray/50 mb-6 sm:mb-8">En çok tercih edilen transfer rotaları</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-            {popularRoutes.map((route, i) => (
+        {/* Quick actions */}
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-12 sm:pt-16">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[
+              {
+                title: "Kapıda Karşılama",
+                desc: "Şoförünüz sizi isim tabelası ile karşılar",
+                icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z",
+                color: "#10b981",
+              },
+              {
+                title: "Sabit Fiyat Garantisi",
+                desc: "Trafik veya mesafe farkı olmadan sabit fiyat",
+                icon: "M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z",
+                color: "#6366f1",
+              },
+              {
+                title: "Ücretsiz İptal",
+                desc: "24 saat öncesine kadar ücretsiz iptal hakkı",
+                icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
+                color: "#f59e0b",
+              },
+            ].map((item) => (
               <div
-                key={i}
-                className="bg-white rounded-2xl border border-gray-100 hover:border-brand-red/20 shadow-sm hover:shadow-lg p-5 sm:p-6 cursor-pointer transition-all group"
+                key={item.title}
+                className="flex items-start gap-3 p-5 bg-white rounded-2xl border border-gray-100 shadow-sm"
               >
-                <div className="w-12 h-12 bg-gradient-to-br from-brand-red/10 to-brand-red/5 rounded-xl flex items-center justify-center text-brand-red mb-3 group-hover:scale-110 transition-transform">
-                  {route.icon}
+                <div className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: item.color + "15" }}>
+                  <svg className="w-5 h-5" style={{ color: item.color }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
+                  </svg>
                 </div>
-                <h3 className="font-semibold text-sm sm:text-base text-gray-900 group-hover:text-brand-dark transition-colors">{route.title}</h3>
-                <p className="text-xs text-brand-gray/50 mt-1">{route.subtitle}</p>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900">{item.title}</h3>
+                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* spacer between sections */}
+        <div className="py-4" />
+
+        {/* Trust badges */}
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-12 sm:pb-16">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Neden X Travel Transfer?</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[
+              {
+                title: "Profesyonel sürücüler",
+                desc: "Lisanslı ve deneyimli sürücülerle güvenli yolculuk",
+                icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
+              },
+              {
+                title: "Geniş araç filosu",
+                desc: "Sedan'dan VIP minibüse kadar her ihtiyaca uygun araç",
+                icon: "M8 17h.01M16 17h.01M3 11l1.5-5A2 2 0 016.4 4h11.2a2 2 0 011.9 1.4L21 11M3 11v6a1 1 0 001 1h1m16-7v6a1 1 0 01-1 1h-1M3 11h18",
+              },
+              {
+                title: "7/24 destek",
+                desc: "Transfer öncesi ve sonrası kesintisiz müşteri desteği",
+                icon: "M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z",
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="flex items-start gap-3 p-5 bg-red-50/50 rounded-2xl border border-red-100/50"
+              >
+                <div className="shrink-0 w-10 h-10 rounded-xl bg-brand-red/10 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-brand-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900">{item.title}</h3>
+                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{item.desc}</p>
+                </div>
               </div>
             ))}
           </div>

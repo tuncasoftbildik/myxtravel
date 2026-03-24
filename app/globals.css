@@ -54,3 +54,12 @@ body {
 .animate-float-delay {
   animation: float 6s ease-in-out 2s infinite;
 }
+
+@keyframes shine {
+  0% { transform: translateX(-100%) skewX(-20deg); }
+  100% { transform: translateX(300%) skewX(-20deg); }
+}
+
+.group:hover .group-hover\:animate-shine {
+  animation: shine 0.8s ease-out;
+}
