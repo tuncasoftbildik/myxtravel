@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 interface HeaderProps {
   variant?: "transparent" | "solid";
@@ -18,15 +20,49 @@ const navItems = [
 
 export function Header({ variant = "transparent" }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const isSolid = variant === "solid";
+  const supabase = createClient();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setDropdownOpen(false);
+    window.location.href = "/";
+  };
+
+  const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "";
+  const avatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
+  const initials = displayName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
 
   return (
     <header className={isSolid ? "sticky top-0 z-50 bg-brand-dark shadow-lg shadow-brand-dark/20" : "absolute top-0 left-0 right-0 z-50"}>
       <div className="w-full px-4 sm:px-8 h-16 sm:h-20 flex items-center">
         {/* Logo — far left */}
         <Link href="/" className="shrink-0">
-          <Image src="/logo.png" alt="X Travel" width={320} height={320} className="object-contain -my-8 translate-y-[20%] -translate-x-[30%]" />
+          <Image
+            src="/logo.png"
+            alt="X Travel"
+            width={320}
+            height={320}
+            className={`object-contain ${
+              isSolid
+                ? "h-8 sm:h-9 w-auto -translate-x-[10%]"
+                : "-my-8 translate-y-[20%] -translate-x-[30%]"
+            }`}
+          />
         </Link>
 
         {/* Spacer */}
@@ -34,15 +70,56 @@ export function Header({ variant = "transparent" }: HeaderProps) {
 
         {/* Auth — far right */}
         <div className="hidden sm:flex items-center gap-2 shrink-0">
-          <Link href="/giris" className="px-5 py-2.5 text-sm text-white/80 hover:text-white transition">
-            Giriş Yap
-          </Link>
-          <Link
-            href="/kayit"
-            className="px-5 py-2.5 text-sm bg-brand-red text-white rounded-full hover:bg-red-700 transition font-medium"
-          >
-            Ücretsiz Üye Ol
-          </Link>
+          {user ? (
+            <div className="relative">
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="flex items-center gap-2.5 px-3 py-1.5 rounded-full hover:bg-white/10 transition"
+              >
+                {avatarUrl ? (
+                  <Image src={avatarUrl} alt={displayName} width={32} height={32} className="w-8 h-8 rounded-full" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-brand-red flex items-center justify-center text-white text-xs font-bold">
+                    {initials}
+                  </div>
+                )}
+                <span className="text-sm text-white/90 font-medium max-w-[120px] truncate">{displayName}</span>
+                <svg className={`w-4 h-4 text-white/60 transition ${dropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {dropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-50">
+                    <div className="px-4 py-2.5 border-b border-gray-100">
+                      <p className="text-sm font-medium text-gray-900 truncate">{displayName}</p>
+                      <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                    </div>
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition"
+                    >
+                      Çıkış Yap
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          ) : (
+            <>
+              <Link href="/giris" className="px-5 py-2.5 text-sm text-white/80 hover:text-white transition">
+                Giriş Yap
+              </Link>
+              <Link
+                href="/kayit"
+                className="px-5 py-2.5 text-sm bg-brand-red text-white rounded-full hover:bg-red-700 transition font-medium"
+              >
+                Ücretsiz Üye Ol
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile hamburger */}
@@ -65,10 +142,34 @@ export function Header({ variant = "transparent" }: HeaderProps) {
               {item.label}
             </Link>
           ))}
-          <div className="flex gap-2 pt-3 border-t border-white/10 mt-2">
-            <Link href="/giris" className="flex-1 text-center py-2.5 text-white/80 border border-white/20 rounded-full text-sm">Giriş Yap</Link>
-            <Link href="/kayit" className="flex-1 text-center py-2.5 bg-brand-red text-white rounded-full text-sm">Üye Ol</Link>
-          </div>
+          {user ? (
+            <div className="pt-3 border-t border-white/10 mt-2">
+              <div className="flex items-center gap-3 px-4 py-2">
+                {avatarUrl ? (
+                  <Image src={avatarUrl} alt={displayName} width={32} height={32} className="w-8 h-8 rounded-full" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-brand-red flex items-center justify-center text-white text-xs font-bold">
+                    {initials}
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <p className="text-sm text-white font-medium truncate">{displayName}</p>
+                  <p className="text-xs text-white/50 truncate">{user.email}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleSignOut}
+                className="w-full text-center py-2.5 text-red-400 border border-red-400/30 rounded-full text-sm mt-2"
+              >
+                Çıkış Yap
+              </button>
+            </div>
+          ) : (
+            <div className="flex gap-2 pt-3 border-t border-white/10 mt-2">
+              <Link href="/giris" className="flex-1 text-center py-2.5 text-white/80 border border-white/20 rounded-full text-sm">Giriş Yap</Link>
+              <Link href="/kayit" className="flex-1 text-center py-2.5 bg-brand-red text-white rounded-full text-sm">Üye Ol</Link>
+            </div>
+          )}
         </nav>
       )}
     </header>
