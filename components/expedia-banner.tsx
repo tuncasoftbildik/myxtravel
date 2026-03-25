@@ -8,8 +8,8 @@ export function ExpediaBanner() {
 
   useEffect(() => {
     // Script yüklendikten sonra banner'ı yeniden render etmeye zorla
-    if (typeof window !== "undefined" && (window as Record<string, unknown>).EgAffiliateBanners) {
-      (window as Record<string, unknown>).EgAffiliateBanners = undefined;
+    if (typeof window !== "undefined" && (window as unknown as Record<string, unknown>).EgAffiliateBanners) {
+      (window as unknown as Record<string, unknown>).EgAffiliateBanners = undefined;
     }
   }, []);
 
