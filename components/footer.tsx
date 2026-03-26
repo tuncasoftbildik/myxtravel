@@ -78,8 +78,8 @@ export function Footer() {
             <span className="text-[10px] text-white/40">Güvenli Ödeme / Secure Payment</span>
           </div>
           <div className="w-full flex flex-col md:flex-row justify-between items-center gap-3 pt-4 border-t border-white/5">
-            <span className="text-xs text-white/30">&copy; {new Date().getFullYear()} Şimşek Via Travel Turizm. Tüm hakları saklıdır.</span>
-            <span className="text-xs text-white/30">TURSAB Belge No: 11452</span>
+            <span className="text-xs text-white/30">&copy; 2025 ŞİMŞEK VİA TRAVEL TURİZM - Tüm hakları saklıdır.</span>
+            <span className="text-xs text-white/30">TURSAB Belge No: A 11452</span>
           </div>
         </div>
       </div>
