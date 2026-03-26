@@ -60,7 +60,7 @@ export function Header({ variant = "transparent" }: HeaderProps) {
             className={`object-contain ${
               isSolid
                 ? "h-8 sm:h-9 w-auto -translate-x-[10%]"
-                : "h-20 sm:h-auto -my-8 translate-y-[20%] -translate-x-[10%] sm:-translate-x-[30%]"
+                : "h-14 sm:h-[70%] -my-5 translate-y-[20%] -translate-x-[10%] sm:-translate-x-[20%]"
             }`}
           />
         </Link>
