@@ -29,12 +29,8 @@ export function Footer() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 sm:gap-8 md:gap-10">
           {/* Brand */}
           <div className="col-span-2">
-            <div className="flex items-center gap-3 mb-5">
-              <Image src="/logo.png" alt="X Travel" width={40} height={40} className="object-contain" />
-              <div>
-                <span className="text-lg font-bold tracking-wide">X TRAVEL</span>
-                <span className="block text-[10px] text-white/40 tracking-[0.15em]">LIVE YOUR DREAM</span>
-              </div>
+            <div className="mb-5">
+              <Image src="/logo.png" alt="X Travel" width={52} height={52} className="object-contain" />
             </div>
             <p className="text-white/50 text-sm leading-relaxed max-w-xs">
               Uçak bileti, otel, transfer ve tur hizmetleri ile hayalinizdeki seyahati en uygun fiyatlarla planlayın.
