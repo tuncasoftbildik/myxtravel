@@ -14,7 +14,7 @@ const DEFAULT_AIRLINES = [
   { name: "Aegean Airlines", image_url: "/airlines/aegean.png" },
   { name: "United Airlines", image_url: "/airlines/united.png" },
   { name: "Ryanair", image_url: "/airlines/ryanair.png" },
-  { name: "AnadoluJet", image_url: "/airlines/anadolujet.png" },
+  { name: "AJet", image_url: "/airlines/ajet.png" },
   { name: "Corendon", image_url: "/airlines/corendon.png" },
   { name: "China Southern", image_url: "/airlines/chinasouthern.png" },
   { name: "Lufthansa", image_url: "/airlines/lufthansa.png" },
