@@ -1,9 +1,19 @@
+import Image from "next/image";
 import { Header } from "@/components/header";
 import { HeroSection } from "@/components/hero-section";
 import { PromotionsCarousel } from "@/components/promotions-carousel";
 import { Features } from "@/components/features";
 import { Footer } from "@/components/footer";
 import { AirlineMarquee } from "@/components/airline-marquee";
+
+const PAYMENT_CARDS = [
+  { name: "Axess", src: "/cards/axess.png" },
+  { name: "Maximum", src: "/cards/maximum.png" },
+  { name: "World", src: "/cards/world.png" },
+  { name: "Bonus", src: "/cards/bonus.png" },
+  { name: "Paraf", src: "/cards/paraf.png" },
+  { name: "Amex", src: "/cards/amex.png" },
+];
 
 export default function Home() {
   return (
@@ -17,6 +27,26 @@ export default function Home() {
       <PromotionsCarousel />
       {/* <PopularDestinations /> */}
       <Features />
+
+      {/* SSL & Payment Cards */}
+      <section className="bg-gray-50 py-8 sm:py-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col items-center gap-5">
+          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-5 py-2.5 shadow-sm">
+            <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <span className="text-xs font-semibold text-emerald-600">256-bit SSL</span>
+            <span className="text-[11px] text-gray-400">Güvenli Ödeme / Secure Payment</span>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-5 sm:gap-8">
+            {PAYMENT_CARDS.map((card) => (
+              <div key={card.name} className="h-[32px] sm:h-[38px] w-[90px] sm:w-[110px] flex items-center justify-center">
+                <Image src={card.src} alt={card.name} width={110} height={38} className="max-h-full max-w-full object-contain opacity-70 hover:opacity-100 transition-opacity" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* CTA */}
       <section className="relative overflow-hidden">
