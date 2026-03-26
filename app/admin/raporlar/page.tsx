@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/header";
@@ -74,7 +74,15 @@ function getMonthOptions() {
   return months;
 }
 
-export default function AdminRaporlar() {
+export default function AdminRaporlarPage() {
+  return (
+    <Suspense fallback={<><Header variant="solid" /><main className="min-h-screen bg-[#f5f0e8] flex items-center justify-center"><div className="w-8 h-8 border-3 border-brand-red border-t-transparent rounded-full animate-spin" /></main></>}>
+      <AdminRaporlar />
+    </Suspense>
+  );
+}
+
+function AdminRaporlar() {
   const searchParams = useSearchParams();
   const presetAgency = searchParams.get("agency") || "";
 
