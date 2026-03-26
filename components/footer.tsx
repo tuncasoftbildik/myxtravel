@@ -72,9 +72,38 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="border-t border-white/10 mt-12 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <span className="text-xs text-white/30">&copy; {new Date().getFullYear()} Şimşek Via Travel Turizm. Tüm hakları saklıdır.</span>
-          <span className="text-xs text-white/30">TURSAB Belge No: 11452</span>
+        {/* Payment & SSL */}
+        <div className="border-t border-white/10 mt-12 pt-8 flex flex-col items-center gap-6">
+          {/* SSL Badge */}
+          <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2">
+            <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <span className="text-xs font-semibold text-emerald-400">256-bit SSL</span>
+            <span className="text-[10px] text-white/40">Güvenli Ödeme / Secure Payment</span>
+          </div>
+
+          {/* Card Logos */}
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+            {[
+              { name: "Axess", src: "/cards/axess.svg" },
+              { name: "Maximum", src: "/cards/maximum.svg" },
+              { name: "World", src: "/cards/world.svg" },
+              { name: "Bonus", src: "/cards/bonus.svg" },
+              { name: "Paraf", src: "/cards/paraf.svg" },
+              { name: "Amex", src: "/cards/amex.svg" },
+            ].map((card) => (
+              <div key={card.name} className="h-[28px] sm:h-[32px] w-[80px] sm:w-[90px] flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
+                <Image src={card.src} alt={card.name} width={90} height={32} className="max-h-full max-w-full object-contain" />
+              </div>
+            ))}
+          </div>
+
+          {/* Copyright */}
+          <div className="w-full flex flex-col md:flex-row justify-between items-center gap-3 pt-4 border-t border-white/5">
+            <span className="text-xs text-white/30">&copy; {new Date().getFullYear()} Şimşek Via Travel Turizm. Tüm hakları saklıdır.</span>
+            <span className="text-xs text-white/30">TURSAB Belge No: 11452</span>
+          </div>
         </div>
       </div>
     </footer>
