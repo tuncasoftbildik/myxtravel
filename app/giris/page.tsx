@@ -28,7 +28,6 @@ function LoginContent() {
     const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
 
     if (signInError) {
-      console.error("Login error:", signInError);
       setError("E-posta veya şifre hatalı.");
       setLoading(false);
       return;
@@ -37,14 +36,12 @@ function LoginContent() {
     // Session yenilendikten sonra rolü kontrol et
     try {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
-      console.log("Logged in user:", currentUser?.id);
 
       if (currentUser && redirect === "/") {
         const { data: roles, error: rolesError } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", currentUser.id);
-        console.log("Roles:", roles, "Error:", rolesError);
         const roleList = (roles || []).map((r: { role: string }) => r.role);
         if (roleList.includes("super_admin") || roleList.includes("admin")) {
           router.push("/admin");
@@ -52,7 +49,7 @@ function LoginContent() {
         }
       }
     } catch (err) {
-      console.error("Role check error:", err);
+      // role check failed, continue to default redirect
     }
 
     router.push(redirect);
