@@ -62,6 +62,13 @@ export default function AdminAcentalar() {
   const [assignEmail, setAssignEmail] = useState("");
   const [assignRole, setAssignRole] = useState("owner");
   const [assigning, setAssigning] = useState(false);
+  const [domainStatus, setDomainStatus] = useState<string | null>(null);
+  const [domainError, setDomainError] = useState("");
+  const [userMode, setUserMode] = useState<"assign" | "create">("create");
+  const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newRole, setNewRole] = useState("owner");
+  const [creating, setCreating] = useState(false);
   const { isAdmin, isLoggedIn, loading: authLoading } = useAdmin();
 
   useEffect(() => {
@@ -78,9 +85,31 @@ export default function AdminAcentalar() {
     setLoading(false);
   }
 
+  async function addDomainToVercel(domain: string) {
+    try {
+      const res = await fetch("/api/agency/domain", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ domain }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setDomainStatus(data.status === "already_added" ? "already" : "added");
+      } else {
+        setDomainStatus("error");
+        setDomainError(data.error || "Vercel'e domain eklenemedi");
+      }
+    } catch {
+      setDomainStatus("error");
+      setDomainError("Vercel API baglantisi kurulamadi");
+    }
+  }
+
   async function handleSave() {
     if (!editing || !editing.name) return;
     setSaving(true);
+    setDomainStatus(null);
+    setDomainError("");
     try {
       const payload = { ...editing };
       if (!payload.slug) payload.slug = generateSlug(payload.name);
@@ -91,23 +120,37 @@ export default function AdminAcentalar() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
+
+      // Auto-add domain to Vercel if domain is set
+      if (payload.domain) {
+        await addDomainToVercel(payload.domain);
+      }
+
       setEditing(null);
       setTab("info");
       fetchAgencies();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Hata oluştu");
+      alert(err instanceof Error ? err.message : "Hata olustu");
     } finally {
       setSaving(false);
     }
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Bu acentayı ve tüm satış verilerini silmek istediğinize emin misiniz?")) return;
+  async function handleDelete(agency: Agency) {
+    if (!confirm("Bu acentayi ve tum satis verilerini silmek istediginize emin misiniz?")) return;
     try {
+      // Remove domain from Vercel if exists
+      if (agency.domain) {
+        await fetch("/api/agency/domain", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ domain: agency.domain }),
+        }).catch(() => {});
+      }
       await fetch("/api/agencies", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
+        body: JSON.stringify({ id: agency.id }),
       });
       fetchAgencies();
     } catch {
@@ -152,6 +195,27 @@ export default function AdminAcentalar() {
       });
       if (editing?.id) fetchAgencyUsers(editing.id);
     } catch {}
+  }
+
+  async function handleCreateUser() {
+    if (!editing?.id || !newEmail || !newPassword) return;
+    setCreating(true);
+    try {
+      const res = await fetch("/api/agency/create-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ agency_id: editing.id, email: newEmail, password: newPassword, role: newRole }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setNewEmail("");
+      setNewPassword("");
+      alert(`Hesap olusturuldu: ${data.user.email}`);
+      fetchAgencyUsers(editing.id);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Hata olustu");
+    }
+    setCreating(false);
   }
 
   async function handleToggle(agency: Agency) {
@@ -336,7 +400,46 @@ export default function AdminAcentalar() {
                         placeholder="www.ornekturizm.com"
                         className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none"
                       />
-                      <p className="text-[10px] text-gray-400 mt-1">Bu domain Vercel&apos;e de eklenmelidir (Settings → Domains)</p>
+
+                      {/* Domain status feedback */}
+                      {domainStatus === "added" && (
+                        <p className="text-xs text-emerald-600 mt-1.5 font-medium">Vercel&apos;e otomatik eklendi!</p>
+                      )}
+                      {domainStatus === "already" && (
+                        <p className="text-xs text-blue-600 mt-1.5 font-medium">Domain zaten Vercel&apos;e ekli.</p>
+                      )}
+                      {domainStatus === "error" && (
+                        <p className="text-xs text-red-500 mt-1.5 font-medium">{domainError}</p>
+                      )}
+
+                      {/* DNS Checklist */}
+                      <div className="mt-3 p-3 bg-blue-50 border border-blue-100 rounded-xl">
+                        <p className="text-xs font-bold text-blue-800 mb-2">Domain Kurulum Adimlari</p>
+                        <div className="space-y-1.5">
+                          <div className="flex items-start gap-2">
+                            <span className="text-blue-500 text-xs mt-0.5">1.</span>
+                            <p className="text-[11px] text-blue-700">
+                              <strong>Kaydet</strong> butonuna basin — domain otomatik olarak Vercel&apos;e eklenecek.
+                            </p>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <span className="text-blue-500 text-xs mt-0.5">2.</span>
+                            <div className="text-[11px] text-blue-700">
+                              <strong>DNS ayarlari</strong> (acenta domain saglayicisinda):
+                              <div className="mt-1 bg-white/60 rounded-lg p-2 font-mono text-[10px] space-y-1">
+                                <div><span className="text-blue-500">A</span> kaydi → <span className="font-bold">76.76.21.21</span></div>
+                                <div><span className="text-blue-500">CNAME</span> (www) → <span className="font-bold">cname.vercel-dns.com</span></div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <span className="text-blue-500 text-xs mt-0.5">3.</span>
+                            <p className="text-[11px] text-blue-700">
+                              DNS yayilimi <strong>5-30 dakika</strong> surebilir. SSL sertifikasi Vercel tarafindan otomatik olusturulur.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-gray-600 mb-1">Logo URL</label>
@@ -464,51 +567,108 @@ export default function AdminAcentalar() {
 
                 {tab === "users" && editing.id && (
                   <div className="space-y-4">
-                    <div className="flex gap-2">
-                      <input
-                        value={assignEmail}
-                        onChange={(e) => setAssignEmail(e.target.value)}
-                        placeholder="kullanici@email.com"
-                        className="flex-1 px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none"
-                      />
-                      <select
-                        value={assignRole}
-                        onChange={(e) => setAssignRole(e.target.value)}
-                        className="px-3 py-2.5 border border-gray-200 rounded-lg text-sm"
-                      >
-                        <option value="owner">Sahip</option>
-                        <option value="staff">Personel</option>
-                      </select>
+                    {/* Toggle: Create vs Assign */}
+                    <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
                       <button
-                        onClick={handleAssignUser}
-                        disabled={assigning || !assignEmail}
-                        className="px-4 py-2.5 bg-brand-red text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+                        onClick={() => setUserMode("create")}
+                        className={`flex-1 py-2 text-xs font-semibold rounded-md transition ${userMode === "create" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}
                       >
-                        {assigning ? "..." : "Ata"}
+                        Yeni Hesap Olustur
+                      </button>
+                      <button
+                        onClick={() => setUserMode("assign")}
+                        className={`flex-1 py-2 text-xs font-semibold rounded-md transition ${userMode === "assign" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}
+                      >
+                        Mevcut Kullanici Ata
                       </button>
                     </div>
-                    <p className="text-[10px] text-gray-400">Kullanicinin sisteme kayitli olmasi gerekir. E-posta adresini girin.</p>
 
-                    {agencyUsers.length === 0 ? (
-                      <p className="text-sm text-gray-400 text-center py-4">Henuz kullanici atanmamis.</p>
+                    {userMode === "create" ? (
+                      <div className="space-y-3">
+                        <p className="text-[10px] text-gray-400">Acenta icin yeni bir giris hesabi olusturun. Hesap otomatik olarak bu acentaya atanir.</p>
+                        <input
+                          value={newEmail}
+                          onChange={(e) => setNewEmail(e.target.value)}
+                          placeholder="acenta@email.com"
+                          type="email"
+                          className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none"
+                        />
+                        <input
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="Sifre (min 6 karakter)"
+                          type="text"
+                          className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm font-mono focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none"
+                        />
+                        <div className="flex gap-2">
+                          <select
+                            value={newRole}
+                            onChange={(e) => setNewRole(e.target.value)}
+                            className="px-3 py-2.5 border border-gray-200 rounded-lg text-sm"
+                          >
+                            <option value="owner">Sahip (fiyat belirleyebilir)</option>
+                            <option value="staff">Personel (sadece goruntuleme)</option>
+                          </select>
+                          <button
+                            onClick={handleCreateUser}
+                            disabled={creating || !newEmail || !newPassword}
+                            className="flex-1 px-4 py-2.5 bg-brand-red text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+                          >
+                            {creating ? "Olusturuluyor..." : "Hesap Olustur"}
+                          </button>
+                        </div>
+                      </div>
                     ) : (
-                      <div className="space-y-2">
-                        {agencyUsers.map((au) => (
-                          <div key={au.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
-                            <div>
-                              <p className="text-xs font-mono text-gray-600">{au.user_id}</p>
-                              <p className="text-[10px] text-gray-400 mt-0.5">
-                                {au.role === "owner" ? "Sahip" : "Personel"} · {new Date(au.created_at).toLocaleDateString("tr-TR")}
-                              </p>
+                      <div className="space-y-3">
+                        <p className="text-[10px] text-gray-400">Sistemde kayitli bir kullaniciyi bu acentaya atayin.</p>
+                        <div className="flex gap-2">
+                          <input
+                            value={assignEmail}
+                            onChange={(e) => setAssignEmail(e.target.value)}
+                            placeholder="kullanici@email.com"
+                            className="flex-1 px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none"
+                          />
+                          <select
+                            value={assignRole}
+                            onChange={(e) => setAssignRole(e.target.value)}
+                            className="px-3 py-2.5 border border-gray-200 rounded-lg text-sm"
+                          >
+                            <option value="owner">Sahip</option>
+                            <option value="staff">Personel</option>
+                          </select>
+                          <button
+                            onClick={handleAssignUser}
+                            disabled={assigning || !assignEmail}
+                            className="px-4 py-2.5 bg-brand-red text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+                          >
+                            {assigning ? "..." : "Ata"}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Existing users list */}
+                    {agencyUsers.length > 0 && (
+                      <div>
+                        <p className="text-xs font-bold text-gray-700 mb-2">Atanmis Kullanicilar</p>
+                        <div className="space-y-2">
+                          {agencyUsers.map((au) => (
+                            <div key={au.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                              <div>
+                                <p className="text-xs font-mono text-gray-600">{au.user_id}</p>
+                                <p className="text-[10px] text-gray-400 mt-0.5">
+                                  {au.role === "owner" ? "Sahip" : "Personel"} · {new Date(au.created_at).toLocaleDateString("tr-TR")}
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => handleRemoveUser(au.id)}
+                                className="text-xs text-red-500 hover:underline"
+                              >
+                                Kaldir
+                              </button>
                             </div>
-                            <button
-                              onClick={() => handleRemoveUser(au.id)}
-                              className="text-xs text-red-500 hover:underline"
-                            >
-                              Kaldir
-                            </button>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -598,7 +758,7 @@ export default function AdminAcentalar() {
                         Duzenle
                       </button>
                       <button
-                        onClick={() => agency.id && handleDelete(agency.id)}
+                        onClick={() => agency.id && handleDelete(agency)}
                         className="px-3 py-1.5 text-xs font-medium text-red-500 border border-red-200 rounded-lg hover:bg-red-50 transition"
                       >
                         Sil
