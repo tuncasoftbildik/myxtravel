@@ -60,7 +60,7 @@ export function AirlineMarquee() {
     <section className="border-b border-gray-100 py-5 overflow-hidden space-y-4">
       {/* Havayolu logoları — sağdan sola */}
       <div className="relative">
-        <div className="flex items-center gap-12 sm:gap-20 animate-marquee w-max">
+        <div className="flex items-center gap-6 sm:gap-10 animate-marquee w-max">
           {[...airlines, ...airlines, ...airlines].map((airline, i) => (
             <div key={i} className="shrink-0 w-[140px] sm:w-[180px] h-[36px] sm:h-[48px] flex items-center justify-center">
               <Image
@@ -77,7 +77,7 @@ export function AirlineMarquee() {
 
       {/* Otobüs firmaları — soldan sağa */}
       <div className="relative">
-        <div className="flex items-center gap-12 sm:gap-20 animate-marquee-reverse w-max">
+        <div className="flex items-center gap-6 sm:gap-10 animate-marquee-reverse w-max">
           {[...DEFAULT_BUSES, ...DEFAULT_BUSES, ...DEFAULT_BUSES].map((bus, i) => (
             <div key={i} className="shrink-0 w-[140px] sm:w-[180px] h-[36px] sm:h-[48px] flex items-center justify-center">
               <Image
