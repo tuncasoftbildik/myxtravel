@@ -57,24 +57,26 @@ export function HeroSection() {
         <div className="absolute bottom-10 right-[30%] w-56 h-56 bg-amber-400/10 rounded-full blur-[90px] animate-float" />
       </div>
 
-      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 pt-24 sm:pt-28 pb-10 sm:pb-14">
-        {/* Icon bar */}
-        <nav className="flex items-center justify-center gap-1 sm:gap-2 flex-wrap">
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-24 sm:pt-28 pb-12 sm:pb-16">
+        {/* Nav items */}
+        <nav className="flex items-stretch justify-center gap-3 sm:gap-5 md:gap-8 flex-wrap">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.label}
               href={item.href}
-              className="group flex items-center gap-2 px-3 py-2.5 sm:px-4 sm:py-3 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-all duration-200"
+              className="group flex flex-col items-center gap-2.5 sm:gap-3 w-[72px] sm:w-[88px] hover:-translate-y-1 transition-all duration-300"
             >
-              <svg
-                className="w-[18px] h-[18px] sm:w-5 sm:h-5 shrink-0"
-                fill={item.fill ? "currentColor" : "none"}
-                stroke={item.fill ? "none" : "currentColor"}
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
-              </svg>
-              <span className="text-xs sm:text-sm font-medium whitespace-nowrap">{item.label}</span>
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center group-hover:bg-brand-red group-hover:border-brand-red group-hover:shadow-lg group-hover:shadow-brand-red/25 transition-all duration-300">
+                <svg
+                  className="w-5 h-5 sm:w-6 sm:h-6 text-white/70 group-hover:text-white transition-colors duration-300"
+                  fill={item.fill ? "currentColor" : "none"}
+                  stroke={item.fill ? "none" : "currentColor"}
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
+                </svg>
+              </div>
+              <span className="text-[11px] sm:text-xs font-medium text-white/50 group-hover:text-white transition-colors duration-300 text-center leading-tight">{item.label}</span>
             </Link>
           ))}
         </nav>
