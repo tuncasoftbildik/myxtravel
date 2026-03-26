@@ -46,14 +46,15 @@ export function AirlineMarquee() {
       <div className="relative">
         <div className="flex items-center gap-12 sm:gap-20 animate-marquee">
           {[...airlines, ...airlines, ...airlines].map((airline, i) => (
-            <Image
-              key={i}
-              src={airline.image_url}
-              alt={airline.name}
-              width={150}
-              height={40}
-              className="h-6 sm:h-8 w-auto shrink-0 opacity-40 hover:opacity-70 transition-opacity duration-300 object-contain"
-            />
+            <div key={i} className="shrink-0 w-[120px] sm:w-[150px] h-[32px] sm:h-[40px] flex items-center justify-center">
+              <Image
+                src={airline.image_url}
+                alt={airline.name}
+                width={150}
+                height={40}
+                className="max-h-full max-w-full opacity-40 hover:opacity-70 transition-opacity duration-300 object-contain"
+              />
+            </div>
           ))}
         </div>
       </div>
