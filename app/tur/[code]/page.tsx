@@ -207,7 +207,7 @@ export default function TurDetailPage() {
           )}
 
           {!loading && !error && tour && (
-            <div className="grid lg:grid-cols-[1fr_380px] gap-6">
+            <div className="grid lg:grid-cols-[1fr_360px] gap-6">
               {/* Main content */}
               <div className="space-y-6">
                 {/* Gallery */}
@@ -408,7 +408,7 @@ export default function TurDetailPage() {
                         )}
 
                         <h3 className="font-bold text-gray-900 text-sm mb-3">Yolcu Bilgileri</h3>
-                        <div className="space-y-4 mb-4 max-h-[300px] overflow-y-auto pr-1">
+                        <div className="space-y-4 mb-4 max-h-[250px] sm:max-h-[300px] overflow-y-auto pr-1">
                           {passengers.map((p, i) => (
                             <div key={i} className="space-y-2 pb-3 border-b border-gray-50 last:border-0">
                               <p className="text-xs text-brand-gray/40 font-medium">Yolcu {i + 1}</p>
@@ -532,7 +532,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 
 function DetailSkeleton() {
   return (
-    <div className="grid lg:grid-cols-[1fr_380px] gap-6">
+    <div className="grid lg:grid-cols-[1fr_360px] gap-6">
       <div className="space-y-6">
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden animate-pulse">
           <div className="aspect-[16/9] bg-gray-100" />

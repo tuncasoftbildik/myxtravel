@@ -78,7 +78,7 @@ export function HeroSection() {
             <Link
               key={card.label}
               href={card.href}
-              className="group relative bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-8 sm:px-8 sm:py-10 flex flex-col items-center text-center hover:bg-white/[0.18] hover:border-white/25 hover:scale-[1.06] hover:-translate-y-1 transition-all duration-300 ease-out"
+              className="group relative bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl px-4 py-5 sm:px-8 sm:py-10 flex flex-col items-center text-center hover:bg-white/[0.18] hover:border-white/25 hover:scale-[1.06] hover:-translate-y-1 transition-all duration-300 ease-out"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               {/* Shine effect on hover */}
@@ -86,12 +86,12 @@ export function HeroSection() {
                 <div className="absolute -inset-full top-0 h-full w-1/3 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-20deg] group-hover:animate-shine" />
               </div>
 
-              <div className={`w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-2xl bg-gradient-to-br ${card.gradient} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 group-hover:shadow-xl group-hover:rotate-3 transition-all duration-300`}>
-                <svg className="w-8 h-8 sm:w-9 sm:h-9 text-white" fill={card.fill ? "currentColor" : "none"} stroke={card.fill ? "none" : "currentColor"} viewBox="0 0 24 24">
+              <div className={`w-11 h-11 sm:w-[72px] sm:h-[72px] rounded-xl sm:rounded-2xl bg-gradient-to-br ${card.gradient} flex items-center justify-center mb-2.5 sm:mb-4 shadow-lg group-hover:scale-110 group-hover:shadow-xl group-hover:rotate-3 transition-all duration-300`}>
+                <svg className="w-6 h-6 sm:w-9 sm:h-9 text-white" fill={card.fill ? "currentColor" : "none"} stroke={card.fill ? "none" : "currentColor"} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={card.icon} />
                 </svg>
               </div>
-              <span className="text-base sm:text-lg font-semibold text-white group-hover:text-white/95 transition-colors">{card.label}</span>
+              <span className="text-sm sm:text-lg font-semibold text-white group-hover:text-white/95 transition-colors">{card.label}</span>
             </Link>
           ))}
         </div>

@@ -145,7 +145,7 @@ export default function HotelMap({ hotels, hoveredHotel, onHotelClick }: HotelMa
           mapPaneName={OverlayView.FLOAT_PANE}
         >
           <div
-            className="bg-white rounded-xl shadow-2xl overflow-hidden w-64 -translate-x-1/2 -translate-y-[calc(100%+40px)]"
+            className="bg-white rounded-xl shadow-2xl overflow-hidden w-52 sm:w-64 -translate-x-1/2 -translate-y-[calc(100%+40px)]"
             style={{ position: "relative", zIndex: 100 }}
           >
             {selected.thumbnail && (

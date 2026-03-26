@@ -109,7 +109,7 @@ export function PromotionsCarousel() {
         {page > 0 && (
           <button
             onClick={() => scroll("left")}
-            className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-500 hover:text-gray-900 transition"
+            className="absolute left-0 sm:-left-3 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-500 hover:text-gray-900 transition"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -121,7 +121,7 @@ export function PromotionsCarousel() {
         {page < totalPages - 1 && (
           <button
             onClick={() => scroll("right")}
-            className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-500 hover:text-gray-900 transition"
+            className="absolute right-0 sm:-right-3 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-500 hover:text-gray-900 transition"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -139,7 +139,7 @@ export function PromotionsCarousel() {
             <Link
               key={promo.id}
               href={promo.link || "#"}
-              className="snap-start shrink-0 w-[280px] sm:w-[calc(25%-12px)] border border-gray-200 rounded-2xl p-5 hover:shadow-lg hover:border-gray-300 transition-all group bg-white relative overflow-hidden"
+              className="snap-start shrink-0 w-[240px] sm:w-[280px] md:w-[calc(25%-12px)] border border-gray-200 rounded-2xl p-4 sm:p-5 hover:shadow-lg hover:border-gray-300 transition-all group bg-white relative overflow-hidden"
             >
               {/* Badge row */}
               <div className="flex items-center justify-between mb-3">
