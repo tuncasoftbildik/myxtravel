@@ -88,7 +88,10 @@ function LoginContent() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-brand-red/10 rounded-full blur-3xl" />
         </div>
         <div className="relative z-10 text-center px-12">
-          <Image src="/logo.png" alt="X Travel" width={160} height={160} className="mx-auto mb-8 drop-shadow-2xl" />
+          <div className="text-center mb-8">
+            <Image src="/logo.png" alt="X Travel" width={160} height={160} className="mx-auto drop-shadow-2xl" />
+            <p className="text-[10px] tracking-[0.3em] text-white/50 font-light mt-1">LIVE YOUR DREAM</p>
+          </div>
           <h2 className="text-3xl font-bold text-white mb-4">Seyahatini Keşfet</h2>
           <p className="text-white/60 text-lg leading-relaxed">
             Uçak, otel, transfer ve tur — tek platformda karşılaştır, en uygun fiyatla rezerve et.

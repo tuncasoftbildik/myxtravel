@@ -76,8 +76,9 @@ export function Footer() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 sm:gap-8 md:gap-10">
           {/* Brand */}
           <div className="col-span-2">
-            <div className="mb-5">
+            <div className="mb-5 flex flex-col items-start">
               <Image src="/logo.png" alt="X Travel" width={52} height={52} className="object-contain" />
+              <span className="text-[7px] tracking-[0.2em] text-white/40 font-light mt-0.5">LIVE YOUR DREAM</span>
             </div>
             <p className="text-white/50 text-sm leading-relaxed max-w-xs">{aboutText}</p>
             <div className="flex gap-3 mt-6">
