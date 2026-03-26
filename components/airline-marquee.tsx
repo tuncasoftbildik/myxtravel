@@ -22,13 +22,28 @@ const DEFAULT_AIRLINES = [
   { name: "AtlasGlobal", image_url: "/airlines/atlasglobal.png" },
 ];
 
-interface Airline {
+const DEFAULT_BUSES = [
+  { name: "Metro Turizm", image_url: "/buses/metro.png" },
+  { name: "Kamil Koç", image_url: "/buses/kamilkoc.png" },
+  { name: "Pamukkale Turizm", image_url: "/buses/pamukkale.png" },
+  { name: "Varan Turizm", image_url: "/buses/varan.png" },
+  { name: "Ulusoy Turizm", image_url: "/buses/ulusoy.png" },
+  { name: "Sivas Tur", image_url: "/buses/sivastur.png" },
+  { name: "Sivaste Tur", image_url: "/buses/sivaste.png" },
+  { name: "Seç Turizm", image_url: "/buses/sec.png" },
+  { name: "Has Turizm", image_url: "/buses/has.png" },
+  { name: "Anadolu Ulaşım", image_url: "/buses/anadolu.png" },
+  { name: "Sivas Huzur", image_url: "/buses/sivashuzur.png" },
+  { name: "Balıkesir Seyahat", image_url: "/buses/balikesir.png" },
+];
+
+interface LogoItem {
   name: string;
   image_url: string;
 }
 
 export function AirlineMarquee() {
-  const [airlines, setAirlines] = useState<Airline[]>(DEFAULT_AIRLINES);
+  const [airlines, setAirlines] = useState<LogoItem[]>(DEFAULT_AIRLINES);
 
   useEffect(() => {
     fetch("/api/airlines")
@@ -42,7 +57,8 @@ export function AirlineMarquee() {
   }, []);
 
   return (
-    <section className="border-b border-gray-100 py-5 overflow-hidden">
+    <section className="border-b border-gray-100 py-5 overflow-hidden space-y-4">
+      {/* Havayolu logoları — sağdan sola */}
       <div className="relative">
         <div className="flex items-center gap-12 sm:gap-20 animate-marquee">
           {[...airlines, ...airlines, ...airlines].map((airline, i) => (
@@ -50,6 +66,23 @@ export function AirlineMarquee() {
               <Image
                 src={airline.image_url}
                 alt={airline.name}
+                width={150}
+                height={40}
+                className="max-h-full max-w-full opacity-40 hover:opacity-70 transition-opacity duration-300 object-contain"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Otobüs firmaları — soldan sağa */}
+      <div className="relative">
+        <div className="flex items-center gap-12 sm:gap-20 animate-marquee-reverse">
+          {[...DEFAULT_BUSES, ...DEFAULT_BUSES, ...DEFAULT_BUSES].map((bus, i) => (
+            <div key={i} className="shrink-0 w-[120px] sm:w-[150px] h-[32px] sm:h-[40px] flex items-center justify-center">
+              <Image
+                src={bus.image_url}
+                alt={bus.name}
                 width={150}
                 height={40}
                 className="max-h-full max-w-full opacity-40 hover:opacity-70 transition-opacity duration-300 object-contain"
