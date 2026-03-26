@@ -86,12 +86,12 @@ export function Footer() {
           {/* Card Logos */}
           <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
             {[
-              { name: "Axess", src: "/cards/axess.svg" },
-              { name: "Maximum", src: "/cards/maximum.svg" },
-              { name: "World", src: "/cards/world.svg" },
-              { name: "Bonus", src: "/cards/bonus.svg" },
-              { name: "Paraf", src: "/cards/paraf.svg" },
-              { name: "Amex", src: "/cards/amex.svg" },
+              { name: "Axess", src: "/cards/axess.png" },
+              { name: "Maximum", src: "/cards/maximum.png" },
+              { name: "World", src: "/cards/world.png" },
+              { name: "Bonus", src: "/cards/bonus.png" },
+              { name: "Paraf", src: "/cards/paraf.png" },
+              { name: "Amex", src: "/cards/amex.png" },
             ].map((card) => (
               <div key={card.name} className="h-[28px] sm:h-[32px] w-[80px] sm:w-[90px] flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
                 <Image src={card.src} alt={card.name} width={90} height={32} className="max-h-full max-w-full object-contain" />
