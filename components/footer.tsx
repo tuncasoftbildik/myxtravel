@@ -73,8 +73,8 @@ export function Footer() {
         </div>
 
         <div className="border-t border-white/10 mt-12 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <span className="text-xs text-white/30">&copy; {new Date().getFullYear()} X Travel. Tüm hakları saklıdır.</span>
-          <span className="text-xs text-white/30">TURSAB Belge No: XXXXX</span>
+          <span className="text-xs text-white/30">&copy; {new Date().getFullYear()} Şimşek Via Travel Turizm. Tüm hakları saklıdır.</span>
+          <span className="text-xs text-white/30">TURSAB Belge No: 11452</span>
         </div>
       </div>
     </footer>
