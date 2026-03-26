@@ -49,15 +49,8 @@ const NAV_ITEMS = [
 
 export function HeroSection() {
   return (
-    <section className="relative bg-gradient-to-br from-[#1a0a2e] via-[#2d1b69] to-[#0f172a] overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-10 right-[15%] w-72 h-72 bg-orange-500/15 rounded-full blur-[100px] animate-float" />
-        <div className="absolute top-1/2 left-[5%] w-64 h-64 bg-fuchsia-500/12 rounded-full blur-[100px] animate-float-delay" />
-        <div className="absolute bottom-10 right-[30%] w-56 h-56 bg-amber-400/10 rounded-full blur-[90px] animate-float" />
-      </div>
-
-      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-24 sm:pt-28 pb-12 sm:pb-16">
+    <section className="relative bg-white border-b border-gray-100 overflow-hidden">
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-8 sm:pt-10 pb-8 sm:pb-10">
         {/* Nav items */}
         <nav className="flex items-stretch justify-center gap-3 sm:gap-5 md:gap-8 flex-wrap">
           {NAV_ITEMS.map((item) => (
@@ -66,9 +59,9 @@ export function HeroSection() {
               href={item.href}
               className="group flex flex-col items-center gap-2.5 sm:gap-3 w-[72px] sm:w-[88px] hover:-translate-y-1 transition-all duration-300"
             >
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center group-hover:bg-brand-red group-hover:border-brand-red group-hover:shadow-lg group-hover:shadow-brand-red/25 transition-all duration-300">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gray-50 border border-gray-200 flex items-center justify-center group-hover:bg-brand-red group-hover:border-brand-red group-hover:shadow-lg group-hover:shadow-brand-red/25 transition-all duration-300">
                 <svg
-                  className="w-5 h-5 sm:w-6 sm:h-6 text-white/70 group-hover:text-white transition-colors duration-300"
+                  className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500 group-hover:text-white transition-colors duration-300"
                   fill={item.fill ? "currentColor" : "none"}
                   stroke={item.fill ? "none" : "currentColor"}
                   viewBox="0 0 24 24"
@@ -76,7 +69,7 @@ export function HeroSection() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
                 </svg>
               </div>
-              <span className="text-[11px] sm:text-xs font-medium text-white/50 group-hover:text-white transition-colors duration-300 text-center leading-tight">{item.label}</span>
+              <span className="text-[11px] sm:text-xs font-medium text-gray-500 group-hover:text-brand-red transition-colors duration-300 text-center leading-tight">{item.label}</span>
             </Link>
           ))}
         </nav>

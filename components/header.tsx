@@ -48,7 +48,7 @@ export function Header({ variant = "transparent" }: HeaderProps) {
   const initials = displayName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
 
   return (
-    <header className={isSolid ? "sticky top-0 z-50 bg-brand-dark shadow-lg shadow-brand-dark/20" : "absolute top-0 left-0 right-0 z-50"}>
+    <header className={isSolid ? "sticky top-0 z-50 bg-brand-dark shadow-lg shadow-brand-dark/20" : "sticky top-0 z-50 bg-brand-dark shadow-lg shadow-brand-dark/20"}>
       <div className="w-full px-4 sm:px-8 h-16 sm:h-20 flex items-center">
         {/* Logo — far left */}
         <Link href="/" className="shrink-0">
@@ -57,11 +57,7 @@ export function Header({ variant = "transparent" }: HeaderProps) {
             alt="X Travel"
             width={320}
             height={320}
-            className={`object-contain ${
-              isSolid
-                ? "h-8 sm:h-9 w-auto -translate-x-[10%]"
-                : "h-10 sm:h-[42%] -my-3 translate-y-[20%] -translate-x-[35%] sm:-translate-x-[40%]"
-            }`}
+            className="object-contain h-8 sm:h-9 w-auto"
           />
         </Link>
 
