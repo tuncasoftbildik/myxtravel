@@ -62,7 +62,7 @@ export function AirlineMarquee() {
       <div className="relative">
         <div className="flex items-center gap-12 sm:gap-20 animate-marquee">
           {[...airlines, ...airlines, ...airlines].map((airline, i) => (
-            <div key={i} className="shrink-0 w-[120px] sm:w-[150px] h-[32px] sm:h-[40px] flex items-center justify-center">
+            <div key={i} className="shrink-0 w-[140px] sm:w-[180px] h-[36px] sm:h-[48px] flex items-center justify-center">
               <Image
                 src={airline.image_url}
                 alt={airline.name}
@@ -79,7 +79,7 @@ export function AirlineMarquee() {
       <div className="relative">
         <div className="flex items-center gap-12 sm:gap-20 animate-marquee-reverse">
           {[...DEFAULT_BUSES, ...DEFAULT_BUSES, ...DEFAULT_BUSES].map((bus, i) => (
-            <div key={i} className="shrink-0 w-[120px] sm:w-[150px] h-[32px] sm:h-[40px] flex items-center justify-center">
+            <div key={i} className="shrink-0 w-[140px] sm:w-[180px] h-[36px] sm:h-[48px] flex items-center justify-center">
               <Image
                 src={bus.image_url}
                 alt={bus.name}
