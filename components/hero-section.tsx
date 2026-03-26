@@ -78,7 +78,7 @@ export function HeroSection() {
             <Link
               key={card.label}
               href={card.href}
-              className="group relative bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl px-3 py-3 sm:px-5 sm:py-6 md:px-6 md:py-8 flex flex-col items-center text-center hover:bg-white/[0.18] hover:border-white/25 hover:scale-[1.06] hover:-translate-y-1 transition-all duration-300 ease-out"
+              className="group relative bg-white/10 backdrop-blur-sm border border-white/10 rounded-xl px-2.5 py-2.5 sm:px-4 sm:py-5 md:px-5 md:py-7 flex flex-col items-center text-center hover:bg-white/[0.18] hover:border-white/25 hover:scale-[1.06] hover:-translate-y-1 transition-all duration-300 ease-out"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               {/* Shine effect on hover */}
@@ -86,12 +86,12 @@ export function HeroSection() {
                 <div className="absolute -inset-full top-0 h-full w-1/3 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-20deg] group-hover:animate-shine" />
               </div>
 
-              <div className={`w-9 h-9 sm:w-11 sm:h-11 md:w-13 md:h-13 lg:w-14 lg:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br ${card.gradient} flex items-center justify-center mb-2 sm:mb-3 md:mb-3 shadow-lg group-hover:scale-110 group-hover:shadow-xl group-hover:rotate-3 transition-all duration-300`}>
-                <svg className="w-4 h-4 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-7 lg:h-7 text-white" fill={card.fill ? "currentColor" : "none"} stroke={card.fill ? "none" : "currentColor"} viewBox="0 0 24 24">
+              <div className={`w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-[52px] lg:h-[52px] rounded-lg sm:rounded-xl bg-gradient-to-br ${card.gradient} flex items-center justify-center mb-1.5 sm:mb-2.5 md:mb-3 shadow-lg group-hover:scale-110 group-hover:shadow-xl group-hover:rotate-3 transition-all duration-300`}>
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-6 lg:h-6 text-white" fill={card.fill ? "currentColor" : "none"} stroke={card.fill ? "none" : "currentColor"} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={card.icon} />
                 </svg>
               </div>
-              <span className="text-[11px] sm:text-xs md:text-sm lg:text-base font-semibold text-white group-hover:text-white/95 transition-colors leading-tight">{card.label}</span>
+              <span className="text-[10px] sm:text-[11px] md:text-xs lg:text-sm font-semibold text-white group-hover:text-white/95 transition-colors leading-tight">{card.label}</span>
             </Link>
           ))}
         </div>
