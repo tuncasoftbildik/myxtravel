@@ -38,13 +38,26 @@ function LoginContent() {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
 
       if (currentUser && redirect === "/") {
-        const { data: roles, error: rolesError } = await supabase
+        // Check admin role
+        const { data: roles } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", currentUser.id);
         const roleList = (roles || []).map((r: { role: string }) => r.role);
         if (roleList.includes("super_admin") || roleList.includes("admin")) {
           router.push("/admin");
+          return;
+        }
+
+        // Check agency user
+        const { data: agencyUser } = await supabase
+          .from("agency_users")
+          .select("agency_id")
+          .eq("user_id", currentUser.id)
+          .limit(1)
+          .single();
+        if (agencyUser) {
+          router.push("/acenta/panel");
           return;
         }
       }
