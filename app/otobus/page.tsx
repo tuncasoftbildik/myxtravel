@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 
-const POPULAR_ROUTES = [
+const DEFAULT_ROUTES = [
   { from: "İstanbul", to: "Ankara", duration: "~5.5 saat", price: "350" },
   { from: "İstanbul", to: "İzmir", duration: "~6 saat", price: "400" },
   { from: "İstanbul", to: "Antalya", duration: "~8 saat", price: "500" },
@@ -15,6 +15,12 @@ const POPULAR_ROUTES = [
   { from: "Ankara", to: "Antalya", duration: "~6 saat", price: "400" },
   { from: "İstanbul", to: "Trabzon", duration: "~12 saat", price: "600" },
   { from: "İstanbul", to: "Sivas", duration: "~10 saat", price: "550" },
+];
+
+const DEFAULT_FEATURES = [
+  { title: "Online Koltuk Seçimi", desc: "Otobüs planı üzerinden istediğiniz koltuğu seçin", icon: "M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z", color: "#10b981" },
+  { title: "Fiyat Karşılaştırma", desc: "Tüm firmaların fiyatlarını tek ekranda karşılaştırın", icon: "M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z", color: "#6366f1" },
+  { title: "Anında Onay", desc: "Biletiniz anında onaylanır, e-posta ile gönderilir", icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z", color: "#f59e0b" },
 ];
 
 const BUS_COMPANIES = [
@@ -37,6 +43,32 @@ export default function OtobusPage() {
   const [to, setTo] = useState("");
   const [date, setDate] = useState("");
   const [passengers, setPassengers] = useState("1");
+  const [heroTitle, setHeroTitle] = useState("Otobüs Bileti");
+  const [heroDesc, setHeroDesc] = useState("Türkiye'nin önde gelen otobüs firmalarından en uygun fiyatlı biletler");
+  const [routes, setRoutes] = useState(DEFAULT_ROUTES);
+  const [features, setFeatures] = useState(DEFAULT_FEATURES);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (!data.settings) return;
+        const s = data.settings;
+        if (s.otobus_title) setHeroTitle(s.otobus_title);
+        if (s.otobus_desc) setHeroDesc(s.otobus_desc);
+        if (s.otobus_routes_json) try { setRoutes(JSON.parse(s.otobus_routes_json)); } catch {}
+        if (s.otobus_features_json) {
+          try {
+            const parsed = JSON.parse(s.otobus_features_json);
+            setFeatures(parsed.map((f: { title: string; desc: string; color: string }, i: number) => ({
+              ...DEFAULT_FEATURES[i],
+              ...f,
+            })));
+          } catch {}
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <>
@@ -49,10 +81,8 @@ export default function OtobusPage() {
             <div className="absolute bottom-0 left-[10%] w-48 h-48 bg-fuchsia-500/8 rounded-full blur-[80px]" />
           </div>
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-20 sm:pt-14 sm:pb-24 text-center">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3">Otobüs Bileti</h1>
-            <p className="text-base sm:text-lg text-white/60 max-w-xl mx-auto">
-              Türkiye&apos;nin önde gelen otobüs firmalarından en uygun fiyatlı biletler
-            </p>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3">{heroTitle}</h1>
+            <p className="text-base sm:text-lg text-white/60 max-w-xl mx-auto">{heroDesc}</p>
           </div>
         </div>
 
@@ -130,26 +160,7 @@ export default function OtobusPage() {
         {/* Features */}
         <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-12 sm:pt-16">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              {
-                title: "Online Koltuk Seçimi",
-                desc: "Otobüs planı üzerinden istediğiniz koltuğu seçin",
-                icon: "M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z",
-                color: "#10b981",
-              },
-              {
-                title: "Fiyat Karşılaştırma",
-                desc: "Tüm firmaların fiyatlarını tek ekranda karşılaştırın",
-                icon: "M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z",
-                color: "#6366f1",
-              },
-              {
-                title: "Anında Onay",
-                desc: "Biletiniz anında onaylanır, e-posta ile gönderilir",
-                icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
-                color: "#f59e0b",
-              },
-            ].map((item) => (
+            {features.map((item) => (
               <div
                 key={item.title}
                 className="flex items-start gap-3 p-5 bg-white rounded-2xl border border-gray-100 shadow-sm"
@@ -172,7 +183,7 @@ export default function OtobusPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-12 sm:pt-16">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Popüler Otobüs Seferleri</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {POPULAR_ROUTES.map((route, i) => (
+            {routes.map((route, i) => (
               <div key={i} className="flex items-center justify-between p-4 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-brand-red/20 transition-all cursor-pointer group">
                 <div className="flex items-center gap-3">
                   <div className="shrink-0 w-10 h-10 rounded-xl bg-brand-red/5 flex items-center justify-center group-hover:bg-brand-red/10 transition-colors">

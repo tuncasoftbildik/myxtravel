@@ -1,11 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export function NewsletterCTA() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+  const [title, setTitle] = useState("Fırsatları İlk Sen Yakala");
+  const [desc, setDesc] = useState("E-bültenimize abone olun, özel indirimlerden ve erken rezervasyon fırsatlarından anında haberdar olun.");
+  const [buttonText, setButtonText] = useState("Abone Ol");
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (!data.settings) return;
+        if (data.settings.newsletter_title) setTitle(data.settings.newsletter_title);
+        if (data.settings.newsletter_desc) setDesc(data.settings.newsletter_desc);
+        if (data.settings.newsletter_button) setButtonText(data.settings.newsletter_button);
+      })
+      .catch(() => {});
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -46,10 +61,10 @@ export function NewsletterCTA() {
 
       <div className="relative max-w-3xl mx-auto px-4 sm:px-6 py-16 sm:py-24 text-center">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
-          Fırsatları İlk Sen Yakala
+          {title}
         </h2>
         <p className="text-white/50 mb-10 max-w-lg mx-auto">
-          E-bültenimize abone olun, özel indirimlerden ve erken rezervasyon fırsatlarından anında haberdar olun.
+          {desc}
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
@@ -66,7 +81,7 @@ export function NewsletterCTA() {
             disabled={status === "loading"}
             className="px-8 py-4 bg-brand-red text-white font-semibold rounded-2xl hover:bg-red-700 transition text-sm whitespace-nowrap disabled:opacity-50"
           >
-            {status === "loading" ? "Gönderiliyor..." : "Abone Ol"}
+            {status === "loading" ? "Gönderiliyor..." : buttonText}
           </button>
         </form>
 
