@@ -139,7 +139,7 @@ export function PromotionsCarousel() {
             <Link
               key={promo.id}
               href={promo.link || "#"}
-              className="snap-start shrink-0 w-[240px] sm:w-[280px] md:w-[calc(25%-12px)] border border-gray-200 rounded-2xl p-4 sm:p-5 hover:shadow-lg hover:border-gray-300 transition-all group bg-white relative overflow-hidden"
+              className="snap-start shrink-0 w-[200px] sm:w-[240px] md:w-[calc(33.333%-11px)] lg:w-[calc(25%-12px)] border border-gray-200 rounded-2xl p-4 sm:p-5 hover:shadow-lg hover:border-gray-300 transition-all group bg-white relative overflow-hidden"
             >
               {/* Badge row */}
               <div className="flex items-center justify-between mb-3">
@@ -162,7 +162,7 @@ export function PromotionsCarousel() {
               {/* Title + discount label */}
               <div className="flex items-start justify-between gap-2 mb-2">
                 <h3
-                  className="text-xl sm:text-2xl font-black leading-tight"
+                  className="text-lg sm:text-xl md:text-2xl font-black leading-tight"
                   style={{ color: promo.bg_color }}
                 >
                   {promo.title}
