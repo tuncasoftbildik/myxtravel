@@ -71,7 +71,7 @@ export function HeroSection() {
         />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 md:px-8 pt-24 sm:pt-26 pb-10 sm:pb-14">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 md:px-8 pl-[120px] sm:pl-[140px] lg:pl-8 pt-24 sm:pt-26 pb-10 sm:pb-14">
         {/* Nav cards */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4 md:gap-5">
           {NAV_CARDS.map((card, index) => (
