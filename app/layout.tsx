@@ -11,10 +11,14 @@ const geistSans = Geist({
 export const metadata: Metadata = {
   title: "X Travel — Live Your Dream",
   description: "Uçak bileti, otel, transfer ve tur rezervasyonu",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: {
     title: "X Travel — Live Your Dream",
     description: "Uçak bileti, otel, transfer ve tur rezervasyonu",
-    url: "https://myxtravel.com.tr",
+    url: "https://xturizm.com",
     siteName: "X Travel",
     images: [
       {
