@@ -123,7 +123,7 @@ export function Footer() {
             <span className="text-xs font-semibold text-emerald-400">256-bit SSL</span>
             <span className="text-[10px] text-white/40">{sslText}</span>
           </div>
-          <div className="w-full flex flex-col md:flex-row justify-between items-center gap-3 pt-4 border-t border-white/5">
+          <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 border-t border-white/5">
             <span className="text-xs text-white/30">{copyright}</span>
             <span className="text-xs text-white/30">{tursab}</span>
           </div>

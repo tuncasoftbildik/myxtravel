@@ -334,7 +334,7 @@ export default function TurPage() {
             <div className="hidden lg:block lg:w-72 flex-shrink-0">
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sticky top-24">
                 <h2 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <svg className="w-4.5 h-4.5 text-brand-gray/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-brand-gray/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                   </svg>
                   Filtreler
@@ -498,7 +498,7 @@ function TourCard({ tour }: { tour: EnrichedTour }) {
           {tour.minPrice && (
             <div className="text-right mb-0 sm:mb-3">
               <p className="text-[10px] text-brand-gray/40 uppercase tracking-wide">kişi başı</p>
-              <p className="text-2xl sm:text-3xl font-bold text-brand-red">
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-brand-red">
                 {tour.minPrice.toLocaleString("tr-TR")}
               </p>
               <p className="text-xs text-brand-gray/50 font-medium">{tour.currency}</p>

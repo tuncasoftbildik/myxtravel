@@ -272,7 +272,7 @@ export default function TurDetailPage() {
           )}
 
           {!loading && !error && tour && (
-            <div className="grid lg:grid-cols-[1fr_380px] gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
               {/* Main content */}
               <div className="space-y-6">
                 {/* Gallery */}
@@ -397,7 +397,7 @@ export default function TurDetailPage() {
 
               {/* Sidebar - Booking */}
               <div className="space-y-5">
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden sticky top-24">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden lg:sticky lg:top-24">
                   {/* Steps */}
                   <div className="flex border-b border-gray-100">
                     {[
@@ -410,8 +410,8 @@ export default function TurDetailPage() {
                       const thisIdx = stepOrder.indexOf(s.id);
                       const isActive = currentIdx >= thisIdx;
                       return (
-                        <div key={s.id} className={`flex-1 py-3 text-center text-xs font-medium transition ${isActive ? "text-brand-red bg-brand-red/5" : "text-brand-gray/30"}`}>
-                          <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] mr-1 ${isActive ? "bg-brand-red text-white" : "bg-gray-100 text-brand-gray/40"}`}>
+                        <div key={s.id} className={`flex-1 py-3 text-center text-[10px] sm:text-xs font-medium transition truncate ${isActive ? "text-brand-red bg-brand-red/5" : "text-brand-gray/30"}`}>
+                          <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] mr-0.5 sm:mr-1 ${isActive ? "bg-brand-red text-white" : "bg-gray-100 text-brand-gray/40"}`}>
                             {i + 1}
                           </span>
                           {s.label}
@@ -620,7 +620,7 @@ function formatDate(dateStr: string): string {
 
 function DetailSkeleton() {
   return (
-    <div className="grid lg:grid-cols-[1fr_380px] gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
       <div className="space-y-6">
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden animate-pulse">
           <div className="aspect-[16/9] bg-gray-100" />
