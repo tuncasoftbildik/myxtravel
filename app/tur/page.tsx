@@ -1,237 +1,295 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState, useMemo, useRef } from "react";
 import Link from "next/link";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 
-interface Tour {
-  code: string;
-  groupCode: string;
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+interface A2Tour {
+  id: number;
   name: string;
-  shortDescription: string;
-  logo: string | null;
-  dayCount: number;
-  nightCount: number;
-  rating: number;
-  tourType: number;
-  withTransfer: boolean;
-  departurePoint: { code: string; name: string; country: string } | null;
-  categories: { code: string; names: Record<string, string> }[];
-  price: {
-    total: number;
-    currency: string;
-    base: number;
-    discount: number;
-  };
-  dates: {
-    tourCode: string;
-    startDate: string;
-    endDate: string;
-    allotment: number;
-    price: { total: number; currency: string };
-  }[];
+  nights: number;
+  transport: string;
+  transportationType: string;
+  departureCity: string;
+  departureStops: string;
+  placesToVisitStr: string;
+  visaFree: number;
+  dayTour: number;
+  outgoingTour: number;
+  cruise: number;
+  tourCode: string;
+  overnightInfo: string;
+  accommodationInfo: string;
+  [key: string]: any;
+}
+
+type TransportFilter = "all" | "bus" | "flight" | "ship";
+type DurationFilter = "all" | "1-3" | "4-5" | "6-7" | "8+";
+
+function getTransportCategory(t: A2Tour): "bus" | "flight" | "ship" {
+  const raw = (t.transport || t.transportationType || "").toLowerCase();
+  if (raw.includes("gemi") || raw.includes("cruise")) return "ship";
+  if (raw.includes("otobüs") || raw.includes("otobüslü")) return "bus";
+  return "flight";
 }
 
 export default function TurPage() {
-  return (
-    <Suspense fallback={<PageFallback />}>
-      <TurContent />
-    </Suspense>
-  );
-}
-
-function PageFallback() {
-  return (
-    <>
-      <Header variant="solid" />
-      <main className="flex-1 bg-gray-50">
-        <div className="bg-gradient-to-br from-brand-dark via-[#2d1b69] to-[#0f172a] pt-8 pb-10 sm:pt-10 sm:pb-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <div className="h-8 bg-white/10 rounded w-48 animate-pulse" />
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 -mt-6 relative z-10 pb-12">
-          <LoadingSkeleton />
-        </div>
-      </main>
-      <Footer />
-    </>
-  );
-}
-
-function TurLanding() {
-  const router = useRouter();
-  const [destination, setDestination] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-
-  const categories = [
-    { title: "Kapadokya Turları", subtitle: "Peri bacaları & balon turu", icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-    )},
-    { title: "Ege Turları", subtitle: "Sahiller & antik kentler", icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-    )},
-    { title: "Karadeniz Turları", subtitle: "Yaylalar & doğa", icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
-    )},
-    { title: "Avrupa Turları", subtitle: "Kültür & tarih rotaları", icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
-    )},
-    { title: "Uzak Doğu", subtitle: "Egzotik deneyimler", icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
-    )},
-    { title: "Kış Turları", subtitle: "Kayak & termal tatil", icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 2v4m0 12v4m8-10h-4M8 12H4m13.657-5.657l-2.828 2.828M9.172 14.828l-2.829 2.829m11.314 0l-2.828-2.829M9.172 9.172L6.343 6.343" /></svg>
-    )},
-  ];
-
-  return (
-    <>
-      <Header variant="solid" />
-      <main className="flex-1 bg-gray-50">
-        {/* Hero banner */}
-        <div className="relative bg-gradient-to-br from-brand-dark via-[#2d1b69] to-[#0f172a] overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-0 right-[20%] w-64 h-64 bg-orange-500/10 rounded-full blur-[100px]" />
-            <div className="absolute bottom-0 left-[10%] w-48 h-48 bg-fuchsia-500/8 rounded-full blur-[80px]" />
-          </div>
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-20 sm:pt-14 sm:pb-24 text-center">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3">Turlar</h1>
-            <p className="text-base sm:text-lg text-white/60 max-w-xl mx-auto">
-              Yurt içi ve yurt dışı en popüler turları keşfet
-            </p>
-          </div>
-        </div>
-
-        {/* Search form card */}
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 -mt-12 relative z-10">
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-xl p-5 sm:p-7">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-              <div className="sm:col-span-3">
-                <label className="block text-xs font-semibold text-brand-gray/60 mb-1.5 uppercase tracking-wide">Nereye</label>
-                <input
-                  type="text"
-                  placeholder="Şehir, ülke veya bölge..."
-                  value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red/30 focus:border-brand-red transition"
-                />
-              </div>
-              <div className="sm:col-span-1">
-                <label className="block text-xs font-semibold text-brand-gray/60 mb-1.5 uppercase tracking-wide">Başlangıç Tarihi</label>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-red/30 focus:border-brand-red transition"
-                />
-              </div>
-              <div className="sm:col-span-1">
-                <label className="block text-xs font-semibold text-brand-gray/60 mb-1.5 uppercase tracking-wide">Bitiş Tarihi</label>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-red/30 focus:border-brand-red transition"
-                />
-              </div>
-              <div className="sm:col-span-1 flex items-end">
-                <button
-                  onClick={() => {
-                    if (!startDate || !endDate) return;
-                    const params = new URLSearchParams({ startDate, endDate });
-                    if (destination) params.set("destination", destination);
-                    router.push(`/tur?${params.toString()}`);
-                  }}
-                  className="w-full px-6 py-3 bg-brand-red text-white font-semibold rounded-xl hover:bg-red-700 transition shadow-sm shadow-brand-red/20 hover:shadow-brand-red/30 text-sm sm:text-base"
-                >
-                  Tur Ara
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Popular categories */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Popüler Tur Kategorileri</h2>
-          <p className="text-sm text-brand-gray/50 mb-6 sm:mb-8">En çok tercih edilen tur destinasyonları</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-            {categories.map((cat, i) => (
-              <div
-                key={i}
-                className="bg-white rounded-2xl border border-gray-100 hover:border-brand-red/20 shadow-sm hover:shadow-lg p-5 sm:p-6 cursor-pointer transition-all group"
-              >
-                <div className="w-12 h-12 bg-gradient-to-br from-brand-red/10 to-brand-red/5 rounded-xl flex items-center justify-center text-brand-red mb-3 group-hover:scale-110 transition-transform">
-                  {cat.icon}
-                </div>
-                <h3 className="font-semibold text-sm sm:text-base text-gray-900 group-hover:text-brand-dark transition-colors">{cat.title}</h3>
-                <p className="text-xs text-brand-gray/50 mt-1">{cat.subtitle}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </main>
-      <Footer />
-    </>
-  );
-}
-
-function TurContent() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const [tours, setTours] = useState<Tour[]>([]);
+  const [tours, setTours] = useState<A2Tour[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [count, setCount] = useState(0);
 
-  const startDate = searchParams.get("startDate");
-  const endDate = searchParams.get("endDate");
-  const destination = searchParams.get("destination");
-
-  const hasSearchParams = startDate && endDate;
+  // Filters
+  const [search, setSearch] = useState("");
+  const [departureFilter, setDepartureFilter] = useState("");
+  const [transportFilter, setTransportFilter] = useState<TransportFilter>("all");
+  const [durationFilter, setDurationFilter] = useState<DurationFilter>("all");
+  const [visaFreeOnly, setVisaFreeOnly] = useState(false);
+  const [cruiseOnly, setCruiseOnly] = useState(false);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [priceVersion, setPriceVersion] = useState(0);
 
   useEffect(() => {
-    if (!hasSearchParams) {
-      setLoading(false);
-      return;
-    }
-
     async function fetchTours() {
-      setLoading(true);
-      setError(null);
       try {
-        const res = await fetch("/api/tours/search", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            startDate,
-            endDate,
-            searchType: 0,
-            ...(destination ? { searchValues: [destination] } : {}),
-          }),
-        });
-
+        const res = await fetch("/api/a2tours/list");
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Arama başarısız");
-        setTours(data.tours);
-        setCount(data.count);
+        if (!res.ok) throw new Error(data.error || "Turlar alınamadı");
+        setTours(data.tours || []);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Bir hata oluştu");
       } finally {
         setLoading(false);
       }
     }
-
     fetchTours();
-  }, [startDate, endDate, destination, hasSearchParams]);
+  }, []);
 
-  if (!hasSearchParams) {
-    return <TurLanding />;
+  const departureCities = useMemo(() => {
+    const counts = new Map<string, number>();
+    tours.forEach((t) => {
+      if (t.departureCity) counts.set(t.departureCity, (counts.get(t.departureCity) || 0) + 1);
+    });
+    return Array.from(counts.entries()).sort((a, b) => b[1] - a[1]);
+  }, [tours]);
+
+  const filtered = useMemo(() => {
+    let result = tours;
+
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter(
+        (t) =>
+          t.name?.toLowerCase().includes(q) ||
+          t.placesToVisitStr?.toLowerCase().includes(q) ||
+          t.departureCity?.toLowerCase().includes(q),
+      );
+    }
+
+    if (departureFilter) {
+      result = result.filter((t) => t.departureCity === departureFilter);
+    }
+
+    if (transportFilter !== "all") {
+      result = result.filter((t) => getTransportCategory(t) === transportFilter);
+    }
+
+    if (durationFilter !== "all") {
+      result = result.filter((t) => {
+        const n = t.nights || 0;
+        if (durationFilter === "1-3") return n >= 1 && n <= 3;
+        if (durationFilter === "4-5") return n >= 4 && n <= 5;
+        if (durationFilter === "6-7") return n >= 6 && n <= 7;
+        if (durationFilter === "8+") return n >= 8;
+        return true;
+      });
+    }
+
+    if (visaFreeOnly) result = result.filter((t) => t.visaFree === 1);
+    if (cruiseOnly) result = result.filter((t) => t.cruise === 1);
+
+    // Sort by price: cheapest first, unloaded prices at end
+    // priceVersion dependency triggers re-sort when new prices arrive
+    result = [...result].sort((a, b) => {
+      const pa = cardCache.get(a.id)?.minPrice;
+      const pb = cardCache.get(b.id)?.minPrice;
+      if (pa && pb) return pa - pb;
+      if (pa) return -1;
+      if (pb) return 1;
+      return 0;
+    });
+
+    return result;
+  }, [tours, search, departureFilter, transportFilter, durationFilter, visaFreeOnly, cruiseOnly, priceVersion]);
+
+  const hasActiveFilters = search || departureFilter || transportFilter !== "all" || durationFilter !== "all" || visaFreeOnly || cruiseOnly;
+
+  function clearFilters() {
+    setSearch("");
+    setDepartureFilter("");
+    setTransportFilter("all");
+    setDurationFilter("all");
+    setVisaFreeOnly(false);
+    setCruiseOnly(false);
   }
+
+  // Count per transport category
+  const transportCounts = useMemo(() => {
+    const c = { bus: 0, flight: 0, ship: 0 };
+    tours.forEach((t) => { c[getTransportCategory(t)]++; });
+    return c;
+  }, [tours]);
+
+  const filterPanel = (
+    <div className="space-y-5">
+      {/* Search */}
+      <div>
+        <label className="block text-xs font-semibold text-brand-gray/60 mb-2 uppercase tracking-wide">
+          Tur Ara
+        </label>
+        <div className="relative">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Tur adı, şehir, ülke..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red/30 focus:border-brand-red transition"
+          />
+        </div>
+      </div>
+
+      {/* Departure city */}
+      <div>
+        <label className="block text-xs font-semibold text-brand-gray/60 mb-2 uppercase tracking-wide">
+          Kalkış Şehri
+        </label>
+        <div className="space-y-1">
+          <button
+            onClick={() => setDepartureFilter("")}
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition ${!departureFilter ? "bg-brand-red/10 text-brand-red font-medium" : "text-gray-600 hover:bg-gray-50"}`}
+          >
+            <span>Tümü</span>
+            <span className="text-xs text-brand-gray/40">{tours.length}</span>
+          </button>
+          {departureCities.map(([city, count]) => (
+            <button
+              key={city}
+              onClick={() => setDepartureFilter(departureFilter === city ? "" : city)}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition ${departureFilter === city ? "bg-brand-red/10 text-brand-red font-medium" : "text-gray-600 hover:bg-gray-50"}`}
+            >
+              <span>{city}</span>
+              <span className="text-xs text-brand-gray/40">{count}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Transport type */}
+      <div>
+        <label className="block text-xs font-semibold text-brand-gray/60 mb-2 uppercase tracking-wide">
+          Ulaşım Tipi
+        </label>
+        <div className="space-y-1">
+          {([
+            { key: "all" as TransportFilter, label: "Tümü", icon: "M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z", count: tours.length },
+            { key: "flight" as TransportFilter, label: "Uçak", icon: "M12 19l9 2-9-18-9 18 9-2zm0 0v-8", count: transportCounts.flight },
+            { key: "bus" as TransportFilter, label: "Otobüs", icon: "M8 7h8m-8 4h8m-4-8v16m-4 0h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v12a2 2 0 002 2z", count: transportCounts.bus },
+            { key: "ship" as TransportFilter, label: "Gemi", icon: "M3 17h1l2-3h12l2 3h1M5 17l-2 4h18l-2-4M12 3v10m-4-6l4-4 4 4", count: transportCounts.ship },
+          ]).map((item) => (
+            <button
+              key={item.key}
+              onClick={() => setTransportFilter(transportFilter === item.key ? "all" : item.key)}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition ${transportFilter === item.key ? "bg-brand-red/10 text-brand-red font-medium" : "text-gray-600 hover:bg-gray-50"}`}
+            >
+              <span className="flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
+                </svg>
+                {item.label}
+              </span>
+              <span className="text-xs text-brand-gray/40">{item.count}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Duration */}
+      <div>
+        <label className="block text-xs font-semibold text-brand-gray/60 mb-2 uppercase tracking-wide">
+          Süre
+        </label>
+        <div className="grid grid-cols-2 gap-1.5">
+          {([
+            { key: "all" as DurationFilter, label: "Tümü" },
+            { key: "1-3" as DurationFilter, label: "1-3 Gece" },
+            { key: "4-5" as DurationFilter, label: "4-5 Gece" },
+            { key: "6-7" as DurationFilter, label: "6-7 Gece" },
+            { key: "8+" as DurationFilter, label: "8+ Gece" },
+          ]).map((item) => (
+            <button
+              key={item.key}
+              onClick={() => setDurationFilter(durationFilter === item.key ? "all" : item.key)}
+              className={`px-3 py-2 rounded-lg text-xs font-medium transition text-center ${durationFilter === item.key ? "bg-brand-red text-white shadow-sm shadow-brand-red/20" : "bg-gray-50 text-gray-600 hover:bg-gray-100"}`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Toggles */}
+      <div>
+        <label className="block text-xs font-semibold text-brand-gray/60 mb-2 uppercase tracking-wide">
+          Özellikler
+        </label>
+        <div className="space-y-2">
+          <label className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition cursor-pointer">
+            <span className="flex items-center gap-2 text-sm text-gray-700">
+              <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              Vizesiz
+            </span>
+            <div
+              onClick={() => setVisaFreeOnly(!visaFreeOnly)}
+              className={`w-10 h-5.5 rounded-full transition relative cursor-pointer ${visaFreeOnly ? "bg-brand-red" : "bg-gray-300"}`}
+            >
+              <div className={`absolute top-0.5 w-4.5 h-4.5 bg-white rounded-full shadow transition-transform ${visaFreeOnly ? "translate-x-5" : "translate-x-0.5"}`} />
+            </div>
+          </label>
+          <label className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition cursor-pointer">
+            <span className="flex items-center gap-2 text-sm text-gray-700">
+              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 17h1l2-3h12l2 3h1M5 17l-2 4h18l-2-4M12 3v10m-4-6l4-4 4 4" />
+              </svg>
+              Cruise
+            </span>
+            <div
+              onClick={() => setCruiseOnly(!cruiseOnly)}
+              className={`w-10 h-5.5 rounded-full transition relative cursor-pointer ${cruiseOnly ? "bg-brand-red" : "bg-gray-300"}`}
+            >
+              <div className={`absolute top-0.5 w-4.5 h-4.5 bg-white rounded-full shadow transition-transform ${cruiseOnly ? "translate-x-5" : "translate-x-0.5"}`} />
+            </div>
+          </label>
+        </div>
+      </div>
+
+      {/* Clear filters */}
+      {hasActiveFilters && (
+        <button
+          onClick={clearFilters}
+          className="w-full py-2.5 text-sm text-brand-red hover:text-red-700 font-medium transition border border-brand-red/20 rounded-xl hover:bg-brand-red/5"
+        >
+          Filtreleri Temizle
+        </button>
+      )}
+    </div>
+  );
 
   return (
     <>
@@ -243,51 +301,115 @@ function TurContent() {
             <div className="absolute top-0 right-[20%] w-64 h-64 bg-orange-500/10 rounded-full blur-[100px]" />
             <div className="absolute bottom-0 left-[10%] w-48 h-48 bg-fuchsia-500/8 rounded-full blur-[80px]" />
           </div>
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-14 sm:pt-10 sm:pb-16">
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-              <div>
-                <p className="text-xs text-white/40 uppercase tracking-wider mb-2 font-medium">Tur Arama</p>
-                <h1 className="text-2xl sm:text-3xl font-bold text-white">Tur Sonuçları</h1>
-                {!loading && !error && (
-                  <p className="text-sm text-white/50 mt-2">
-                    <span className="text-white/80 font-semibold">{count}</span> tur bulundu
-                    {destination && <> &middot; <span className="text-white/70">{destination}</span></>}
-                    {startDate && endDate && (
-                      <> &middot; {startDate} — {endDate}</>
-                    )}
-                  </p>
-                )}
-              </div>
-              <button
-                onClick={() => router.push("/")}
-                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm text-white/70 hover:text-white bg-white/10 hover:bg-white/15 rounded-xl transition font-medium backdrop-blur-sm"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                Yeni Arama
-              </button>
-            </div>
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-16 sm:pt-14 sm:pb-20 text-center">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3">Turlar</h1>
+            <p className="text-base sm:text-lg text-white/60 max-w-xl mx-auto">
+              En popüler turları keşfedin, hayalinizdeki rotayı bulun
+            </p>
           </div>
         </div>
 
-        {/* Results */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 -mt-6 relative z-10 pb-12 sm:pb-16">
-          {loading && <LoadingSkeleton />}
-
-          {error && <ErrorCard message={error} onBack={() => router.push("/")} />}
-
-          {!loading && !error && tours.length === 0 && (
-            <EmptyState message="Bu tarihler için tur bulunamadı." onBack={() => router.push("/")} />
-          )}
-
-          {!loading && !error && tours.length > 0 && (
-            <div className="grid gap-4 sm:gap-5">
-              {tours.map((tour) => (
-                <TourCard key={tour.code} tour={tour} />
-              ))}
+        {/* Content with sidebar */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 -mt-8 relative z-10 pb-12 sm:pb-16">
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Mobile filter toggle */}
+            <div className="lg:hidden">
+              <button
+                onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
+                className="w-full flex items-center justify-between bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-3.5"
+              >
+                <span className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                  <svg className="w-5 h-5 text-brand-gray/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                  </svg>
+                  Filtreler
+                  {hasActiveFilters && (
+                    <span className="w-2 h-2 bg-brand-red rounded-full" />
+                  )}
+                </span>
+                <svg className={`w-5 h-5 text-gray-400 transition-transform ${mobileFiltersOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {mobileFiltersOpen && (
+                <div className="mt-3 bg-white rounded-2xl border border-gray-100 shadow-xl p-5">
+                  {filterPanel}
+                </div>
+              )}
             </div>
-          )}
+
+            {/* Desktop sidebar */}
+            <div className="hidden lg:block lg:w-72 flex-shrink-0">
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sticky top-24">
+                <h2 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <svg className="w-4.5 h-4.5 text-brand-gray/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                  </svg>
+                  Filtreler
+                </h2>
+                {filterPanel}
+              </div>
+            </div>
+
+            {/* Tour list */}
+            <div className="flex-1 min-w-0">
+              {/* Result count */}
+              {!loading && !error && (
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-sm text-brand-gray/50">
+                    <span className="font-semibold text-gray-900">{filtered.length}</span> tur listeleniyor
+                    {filtered.length !== tours.length && (
+                      <span className="text-brand-gray/40"> / {tours.length}</span>
+                    )}
+                  </p>
+                </div>
+              )}
+
+              {loading && <LoadingSkeleton />}
+
+              {error && (
+                <div className="bg-white rounded-2xl border border-red-100 shadow-sm p-8 text-center">
+                  <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-6 h-6 text-brand-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                  </div>
+                  <p className="text-brand-red font-semibold mb-2">{error}</p>
+                </div>
+              )}
+
+              {!loading && !error && filtered.length === 0 && (
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
+                  <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-brand-gray/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                  <p className="text-brand-gray/60 text-lg">
+                    {hasActiveFilters
+                      ? "Filtrelere uygun tur bulunamadı."
+                      : "Henüz tur bulunmuyor."}
+                  </p>
+                  {hasActiveFilters && (
+                    <button
+                      onClick={clearFilters}
+                      className="text-sm text-brand-red hover:text-red-700 font-medium transition mt-2"
+                    >
+                      Filtreleri temizle
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {!loading && !error && filtered.length > 0 && (
+                <div className="grid gap-4 sm:gap-5">
+                  {filtered.map((tour) => (
+                    <TourCard key={tour.id} tour={tour} onPriceLoaded={() => setPriceVersion((v) => v + 1)} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </main>
       <Footer />
@@ -295,26 +417,136 @@ function TurContent() {
   );
 }
 
-function TourCard({ tour }: { tour: Tour }) {
-  const nextDate = tour.dates[0];
+// Cache to avoid re-fetching
+const cardCache = new Map<number, { image: string | null; minPrice: number | null; currency: string | null }>();
+
+function TourCard({ tour, onPriceLoaded }: { tour: A2Tour; onPriceLoaded?: () => void }) {
+  const nights = tour.nights || 0;
+  const days = nights + 1;
+  const transport = tour.transport || tour.transportationType || "";
+  const places = tour.placesToVisitStr || "";
+  const departure = tour.departureCity || "";
+  const cached = cardCache.get(tour.id);
+  const [imageUrl, setImageUrl] = useState<string | null>(cached?.image ?? null);
+  const [minPrice, setMinPrice] = useState<number | null>(cached?.minPrice ?? null);
+  const [currency, setCurrency] = useState<string | null>(cached?.currency ?? null);
+  const [cardLoading, setCardLoading] = useState(!cardCache.has(tour.id));
+  const [hidden, setHidden] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // Lazy load image + price via IntersectionObserver
+  useEffect(() => {
+    if (cardCache.has(tour.id)) {
+      const c = cardCache.get(tour.id)!;
+      setImageUrl(c.image);
+      setMinPrice(c.minPrice);
+      setCurrency(c.currency);
+      setCardLoading(false);
+      if (!c.minPrice || c.minPrice <= 0) setHidden(true);
+      return;
+    }
+
+    const el = cardRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          observer.disconnect();
+          // Fetch image and dates in parallel
+          const detailP = fetch("/api/a2tours/detail", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tourId: tour.id }),
+          }).then((r) => r.json()).catch(() => null);
+
+          const datesP = fetch("/api/a2tours/dates", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tourId: tour.id }),
+          }).then((r) => r.json()).catch(() => null);
+
+          Promise.all([detailP, datesP]).then(([detailData, datesData]) => {
+            const img = detailData?.tour?.images?.[0]?.url || null;
+            setImageUrl(img);
+
+            // Find min dpp price from future, available dates
+            const datesList = Array.isArray(datesData?.dates) ? datesData.dates : [];
+            const tomorrow = new Date();
+            tomorrow.setHours(0, 0, 0, 0);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+
+            const validDates = datesList
+              .filter((d: any) => {
+                const dt = new Date(d.date);
+                if (dt < tomorrow) return false; // skip past dates
+                const remaining = (d.quota || 0) - (d.sold || 0);
+                if (remaining <= 0) return false; // skip full quota
+                return true;
+              })
+              .slice(0, 50); // max 50 future dates
+
+            let mp: number | null = null;
+            let cur: string | null = null;
+            for (const d of validDates) {
+              const dpp = Number(d.dpp);
+              if (!isNaN(dpp) && dpp > 0 && (mp === null || dpp < mp)) {
+                mp = dpp;
+                cur = d.currency || "TRY";
+              }
+              // Also check nested list items (multi-price tours)
+              if (Array.isArray(d.list)) {
+                for (const sub of d.list) {
+                  const sdpp = Number(sub.dpp);
+                  if (!isNaN(sdpp) && sdpp > 0 && (mp === null || sdpp < mp)) {
+                    mp = sdpp;
+                    cur = sub.currency || "TRY";
+                  }
+                }
+              }
+            }
+            setMinPrice(mp);
+            setCurrency(cur);
+
+            cardCache.set(tour.id, { image: img, minPrice: mp, currency: cur });
+            if (!mp || mp <= 0) setHidden(true);
+            onPriceLoaded?.();
+          }).finally(() => setCardLoading(false));
+        }
+      },
+      { rootMargin: "200px" },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [tour.id]);
+
+  if (hidden) return null;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 hover:border-gray-200 shadow-sm hover:shadow-xl transition-all overflow-hidden group">
+    <div ref={cardRef} className="bg-white rounded-2xl border border-gray-100 hover:border-gray-200 shadow-sm hover:shadow-xl transition-all overflow-hidden group">
       <div className="flex flex-col sm:flex-row">
-        {/* Image */}
-        {tour.logo ? (
-          <div className="sm:w-56 h-44 sm:h-auto bg-gray-100 flex-shrink-0 overflow-hidden">
+        {/* Tour image */}
+        {imageUrl ? (
+          <div className="sm:w-52 h-40 sm:h-auto bg-gray-100 flex-shrink-0 overflow-hidden">
             <img
-              src={tour.logo}
+              src={imageUrl}
               alt={tour.name}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           </div>
         ) : (
-          <div className="sm:w-56 h-44 sm:h-auto bg-gradient-to-br from-brand-dark/5 to-brand-dark/10 flex-shrink-0 flex items-center justify-center">
-            <svg className="w-12 h-12 text-brand-dark/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+          <div className="sm:w-52 h-40 sm:h-auto bg-gradient-to-br from-brand-dark/5 to-brand-dark/10 flex-shrink-0 flex items-center justify-center relative overflow-hidden">
+            {cardLoading ? (
+              <div className="w-8 h-8 border-2 border-brand-dark/10 border-t-brand-dark/30 rounded-full animate-spin" />
+            ) : (
+              <>
+                <div className="absolute inset-0 bg-gradient-to-br from-brand-dark/5 via-transparent to-brand-red/5" />
+                <svg className="w-12 h-12 text-brand-dark/15 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </>
+            )}
           </div>
         )}
 
@@ -323,17 +555,16 @@ function TourCard({ tour }: { tour: Tour }) {
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-2 mb-2">
               <span className="text-xs bg-gradient-to-r from-brand-red/10 to-brand-red/5 text-brand-red px-2.5 py-1 rounded-lg font-semibold">
-                {tour.dayCount} Gün / {tour.nightCount} Gece
+                {days} Gün / {nights} Gece
               </span>
-              {tour.withTransfer && (
-                <span className="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-lg font-medium">
-                  Transfer Dahil
+              {transport && (
+                <span className="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-lg font-medium">
+                  {transport}
                 </span>
               )}
-              {tour.rating > 0 && (
-                <span className="text-xs text-amber-600 font-semibold flex items-center gap-0.5">
-                  <svg className="w-3.5 h-3.5 fill-amber-500" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                  {(tour.rating / 10000).toFixed(1)}
+              {tour.visaFree === 1 && (
+                <span className="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-lg font-medium">
+                  Vizesiz
                 </span>
               )}
             </div>
@@ -342,62 +573,49 @@ function TourCard({ tour }: { tour: Tour }) {
               {tour.name}
             </h3>
 
-            {tour.shortDescription && (
-              <p className="text-sm text-brand-gray/70 line-clamp-2 mb-3">
-                {tour.shortDescription}
+            {places && (
+              <p className="text-sm text-brand-gray/70 line-clamp-2 mb-2">
+                {places}
               </p>
             )}
 
-            {tour.departurePoint?.name && (
-              <p className="text-xs text-brand-gray/50 flex items-center gap-1">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                </svg>
-                Kalkış: {tour.departurePoint.name}
-              </p>
-            )}
-
-            {tour.categories.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-2.5">
-                {tour.categories.slice(0, 3).map((c) => (
-                  <span
-                    key={c.code}
-                    className="text-[11px] bg-brand-dark/5 text-brand-dark/60 px-2 py-0.5 rounded-md"
-                  >
-                    {c.names?.tr || c.names?.en || c.code}
-                  </span>
-                ))}
-              </div>
-            )}
+            <div className="flex flex-wrap items-center gap-3 mt-1">
+              {departure && (
+                <p className="text-xs text-brand-gray/50 flex items-center gap-1">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  </svg>
+                  Kalkış: {departure}
+                </p>
+              )}
+              {tour.accommodationInfo && (
+                <p className="text-xs text-brand-gray/50">
+                  {tour.accommodationInfo}
+                </p>
+              )}
+            </div>
           </div>
-
-          {nextDate && (
-            <p className="text-xs text-brand-gray/40 mt-3 flex items-center gap-1">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              İlk tarih: {nextDate.startDate?.split("T")[0]}
-              {tour.dates.length > 1 && ` (+${tour.dates.length - 1} tarih daha)`}
-            </p>
-          )}
         </div>
 
-        {/* Price */}
-        <div className="sm:w-48 p-4 sm:p-5 flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 sm:border-l border-gray-100 bg-gradient-to-b from-gray-50/50 to-gray-50">
-          <div className="text-right">
-            {tour.price.discount > 0 && (
-              <p className="text-xs text-brand-gray/40 line-through">
-                {tour.price.base.toLocaleString("tr-TR")} {tour.price.currency}
+        {/* Price + Action */}
+        <div className="sm:w-44 p-4 sm:p-5 flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 sm:border-l border-gray-100 bg-gradient-to-b from-gray-50/50 to-gray-50">
+          {minPrice ? (
+            <div className="text-right mb-0 sm:mb-3">
+              <p className="text-[10px] text-brand-gray/40 uppercase tracking-wide">kişi başı</p>
+              <p className="text-2xl sm:text-3xl font-bold text-brand-red">
+                {minPrice.toLocaleString("tr-TR")}
               </p>
-            )}
-            <p className="text-2xl sm:text-3xl font-bold text-brand-red">
-              {tour.price.total.toLocaleString("tr-TR")}
-            </p>
-            <p className="text-xs text-brand-gray/50 font-medium">{tour.price.currency} / kişi</p>
-          </div>
+              <p className="text-xs text-brand-gray/50 font-medium">{currency}</p>
+            </div>
+          ) : cardLoading ? (
+            <div className="text-right mb-0 sm:mb-3">
+              <div className="h-4 w-16 bg-gray-100 rounded animate-pulse mb-1" />
+              <div className="h-7 w-24 bg-gray-100 rounded animate-pulse" />
+            </div>
+          ) : null}
           <Link
-            href={`/tur/${tour.code}`}
-            className="mt-0 sm:mt-4 px-6 py-2.5 bg-brand-red text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition shadow-sm shadow-brand-red/20 hover:shadow-brand-red/30 text-center"
+            href={`/tur/${tour.id}`}
+            className="px-6 py-2.5 bg-brand-red text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition shadow-sm shadow-brand-red/20 hover:shadow-brand-red/30 text-center"
           >
             İncele
           </Link>
@@ -407,45 +625,13 @@ function TourCard({ tour }: { tour: Tour }) {
   );
 }
 
-function ErrorCard({ message, onBack }: { message: string; onBack: () => void }) {
-  return (
-    <div className="bg-white rounded-2xl border border-red-100 shadow-sm p-8 text-center">
-      <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-        <svg className="w-6 h-6 text-brand-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-        </svg>
-      </div>
-      <p className="text-brand-red font-semibold mb-2">{message}</p>
-      <button onClick={onBack} className="text-sm text-brand-gray/60 hover:text-brand-dark transition">
-        Ana sayfaya dön
-      </button>
-    </div>
-  );
-}
-
-function EmptyState({ message, onBack }: { message: string; onBack: () => void }) {
-  return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
-      <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-        <svg className="w-8 h-8 text-brand-gray/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-      </div>
-      <p className="text-brand-gray/60 text-lg mb-2">{message}</p>
-      <button onClick={onBack} className="text-sm text-brand-red hover:text-red-700 font-medium transition">
-        Farklı tarihlerle dene
-      </button>
-    </div>
-  );
-}
-
 function LoadingSkeleton() {
   return (
     <div className="grid gap-4 sm:gap-5">
-      {[1, 2, 3].map((i) => (
+      {[1, 2, 3, 4].map((i) => (
         <div key={i} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden animate-pulse">
           <div className="flex flex-col sm:flex-row">
-            <div className="sm:w-56 h-44 sm:h-48 bg-gray-100" />
+            <div className="sm:w-52 h-40 sm:h-48 bg-gray-100" />
             <div className="flex-1 p-5 space-y-3">
               <div className="flex gap-2">
                 <div className="h-6 bg-gray-100 rounded-lg w-28" />
@@ -454,8 +640,7 @@ function LoadingSkeleton() {
               <div className="h-5 bg-gray-100 rounded w-3/4" />
               <div className="h-4 bg-gray-100 rounded w-1/2" />
             </div>
-            <div className="sm:w-48 p-5 bg-gray-50/50 flex flex-col items-end justify-center gap-3">
-              <div className="h-8 bg-gray-100 rounded w-28" />
+            <div className="sm:w-44 p-5 bg-gray-50/50 flex flex-col items-end justify-center">
               <div className="h-10 bg-gray-100 rounded-xl w-24" />
             </div>
           </div>

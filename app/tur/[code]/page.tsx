@@ -5,71 +5,58 @@ import { useParams, useRouter } from "next/navigation";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 
-interface TourDetail {
-  code: string;
-  groupCode: string;
-  name: string;
-  shortDescription: string;
-  logo: string;
-  dayCount: string;
-  nightCount: string;
-  startDate: string;
-  endDate: string;
-  withTransfer: boolean;
-  allotment: number;
-  medias: { url: string; title: string; type: number }[];
-  programs: { day: number; title: string; description: string }[];
-  extras: { code: string; name: string; inclusions: string; exclusions: string; program: string }[];
-  regions: { city: string; country: string }[];
-  cancellationPolicies: unknown[];
-}
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-interface PackagePrice {
-  packageId: string;
-  price: { total: number; currency: string; base: number; tax: number; discount: number };
+interface TourDate {
+  date: string;
+  quota: number;
+  sold: number;
+  dpp: string;
+  currency: string;
+  single: string;
+  list?: any[];
+  [key: string]: any;
 }
-
-type BookingStep = "details" | "pricing" | "passengers" | "confirm" | "done";
 
 export default function TurDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const code = params.code as string;
+  const tourId = params.code as string;
 
-  const [tour, setTour] = useState<TourDetail | null>(null);
+  const [tour, setTour] = useState<any>(null);
+  const [dates, setDates] = useState<TourDate[]>([]);
   const [loading, setLoading] = useState(true);
+  const [datesLoading, setDatesLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeImage, setActiveImage] = useState(0);
 
   // Booking state
-  const [step, setStep] = useState<BookingStep>("details");
+  const [selectedDate, setSelectedDate] = useState<TourDate | null>(null);
   const [adults, setAdults] = useState(2);
-  const [pricingLoading, setPricingLoading] = useState(false);
-  const [packages, setPackages] = useState<PackagePrice[]>([]);
-  const [selectedPackage, setSelectedPackage] = useState<PackagePrice | null>(null);
-  const [bookingLoading, setBookingLoading] = useState(false);
-  const [bookingResult, setBookingResult] = useState<{ systemPnr: string; status: string } | null>(null);
-  const [bookingError, setBookingError] = useState<string | null>(null);
+  const [priceLoading, setPriceLoading] = useState(false);
+  const [priceResult, setPriceResult] = useState<any>(null);
+  const [bookingStep, setBookingStep] = useState<"select" | "passengers" | "done">("select");
 
   // Passenger form
-  const [passengers, setPassengers] = useState<{ firstName: string; lastName: string; birthDate: string; gender: string }[]>([]);
+  const [passengers, setPassengers] = useState<{ name: string; surname: string; birthDate: string; gender: string; tckn: string }[]>([]);
   const [contactEmail, setContactEmail] = useState("");
   const [contactPhone, setContactPhone] = useState("");
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookingResult, setBookingResult] = useState<any>(null);
+  const [bookingError, setBookingError] = useState<string | null>(null);
 
+  // Fetch tour detail
   useEffect(() => {
-    if (!code) return;
-    async function fetchDetails() {
-      setLoading(true);
-      setError(null);
+    if (!tourId) return;
+    async function fetchDetail() {
       try {
-        const res = await fetch("/api/tours/details", {
+        const res = await fetch("/api/a2tours/detail", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tourCode: code }),
+          body: JSON.stringify({ tourId }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Detaylar alınamadı");
-        if (!data.tour) throw new Error("Tur bulunamadı");
         setTour(data.tour);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Bir hata oluştu");
@@ -77,66 +64,112 @@ export default function TurDetailPage() {
         setLoading(false);
       }
     }
-    fetchDetails();
-  }, [code]);
+    fetchDetail();
+  }, [tourId]);
 
-  // Initialize passenger forms when adults change
+  // Fetch tour dates
+  useEffect(() => {
+    if (!tourId) return;
+    async function fetchDates() {
+      try {
+        const res = await fetch("/api/a2tours/dates", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tourId }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Tarihler alınamadı");
+        // dates can be array or { list: [...] }
+        const raw = data.dates;
+        const allDates: TourDate[] = Array.isArray(raw) ? raw : raw?.list || [];
+
+        // Filter: skip past dates, skip full quota, max 50
+        const tomorrow = new Date();
+        tomorrow.setHours(0, 0, 0, 0);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        const validDates = allDates
+          .filter((d) => {
+            const dt = new Date(d.date);
+            if (dt < tomorrow) return false;
+            const remaining = (d.quota || 0) - (d.sold || 0);
+            if (remaining <= 0) return false;
+            return true;
+          })
+          .slice(0, 50);
+
+        setDates(validDates);
+      } catch {
+        // silently fail
+      } finally {
+        setDatesLoading(false);
+      }
+    }
+    fetchDates();
+  }, [tourId]);
+
+  // Init passengers
   useEffect(() => {
     setPassengers(
-      Array.from({ length: adults }, () => ({ firstName: "", lastName: "", birthDate: "", gender: "M" }))
+      Array.from({ length: adults }, () => ({ name: "", surname: "", birthDate: "", gender: "E", tckn: "" })),
     );
   }, [adults]);
 
-  async function handleGetPrices() {
-    setPricingLoading(true);
+  async function handleCalculatePrice() {
+    if (!selectedDate) return;
+    setPriceLoading(true);
+    setPriceResult(null);
     try {
-      const res = await fetch("/api/tours/prices", {
+      const res = await fetch("/api/a2tours/price", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tourAlternativeCode: code, adults }),
+        body: JSON.stringify({
+          tourId: Number(tourId),
+          date: selectedDate.date,
+          adults,
+        }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Fiyat alınamadı");
-      setPackages(data.packages || []);
-      if (data.packages?.length > 0) {
-        setSelectedPackage(data.packages[0]);
-      }
-      setStep("pricing");
+      if (!res.ok) throw new Error(data.error || "Fiyat hesaplanamadı");
+      setPriceResult(data.price);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Fiyat hatası");
     } finally {
-      setPricingLoading(false);
+      setPriceLoading(false);
     }
   }
 
   async function handleBook() {
-    if (!selectedPackage) return;
+    if (!priceResult) return;
+    // Get token from price result
+    const token = priceResult?.price?.[0]?.token || priceResult?.token;
+    if (!token) {
+      setBookingError("Fiyat token bulunamadı, lütfen tekrar fiyat hesaplayın");
+      return;
+    }
     setBookingLoading(true);
     setBookingError(null);
     try {
-      const res = await fetch("/api/tours/book", {
+      const res = await fetch("/api/a2tours/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          packageId: selectedPackage.packageId,
-          passengers: passengers.map((p, i) => ({
-            Index: i + 1,
-            FirstName: p.firstName,
-            LastName: p.lastName,
-            BirthDate: p.birthDate,
-            Gender: p.gender === "M" ? 0 : 1,
-            PaxType: 0,
+          searchToken: token,
+          passengers: passengers.map((p) => ({
+            name: p.name,
+            surname: p.surname,
+            birthDate: p.birthDate,
+            gender: p.gender,
+            tckn: p.tckn,
           })),
-          contactInfo: {
-            Email: contactEmail,
-            Phone: contactPhone,
-          },
+          contactPhone,
+          contactEmail,
         }),
       });
       const data = await res.json();
       if (!res.ok || data.error) throw new Error(data.error || "Rezervasyon başarısız");
-      setBookingResult(data.booking);
-      setStep("done");
+      setBookingResult(data.sale);
+      setBookingStep("done");
     } catch (err) {
       setBookingError(err instanceof Error ? err.message : "Rezervasyon hatası");
     } finally {
@@ -148,7 +181,17 @@ export default function TurDetailPage() {
     setPassengers((prev) => prev.map((p, i) => (i === index ? { ...p, [field]: value } : p)));
   }
 
-  const canBook = passengers.every((p) => p.firstName && p.lastName) && contactEmail && contactPhone;
+  const canBook = passengers.every((p) => p.name && p.surname) && contactEmail && contactPhone;
+
+  // Extract data from tour response
+  const details = tour?.details || {};
+  const images: { url: string }[] = tour?.images || [];
+  const programs: any[] = tour?.tourProgram || [];
+  const departureStops: any[] = tour?.departureStops || [];
+  const categories: any[] = tour?.categoryList || [];
+  const tourName = tour?.name || "";
+  const nights = tour?.nights || 0;
+  const nextDepartureDate = dates.length > 0 ? dates[0].date : null;
 
   return (
     <>
@@ -168,26 +211,48 @@ export default function TurDetailPage() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              Sonuçlara Dön
+              Turlara Dön
             </button>
             {tour && (
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-white">{tour.name}</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-white">{tourName}</h1>
                 <div className="flex flex-wrap items-center gap-3 mt-3">
-                  <span className="text-xs bg-white/10 text-white/80 px-3 py-1.5 rounded-lg font-medium backdrop-blur-sm">
-                    {tour.dayCount} Gün / {tour.nightCount} Gece
-                  </span>
-                  {tour.regions.map((r, i) => (
-                    <span key={i} className="text-xs text-white/50 flex items-center gap-1">
+                  {nights > 0 && (
+                    <span className="text-xs bg-white/10 text-white/80 px-3 py-1.5 rounded-lg font-medium backdrop-blur-sm">
+                      {nights + 1} Gün / {nights} Gece
+                    </span>
+                  )}
+                  {details.transportationType && (
+                    <span className="text-xs bg-blue-500/20 text-blue-300 px-3 py-1.5 rounded-lg font-medium">
+                      {details.transportationType}
+                    </span>
+                  )}
+                  {details.visaFree === 1 && (
+                    <span className="text-xs bg-emerald-500/20 text-emerald-300 px-3 py-1.5 rounded-lg font-medium">
+                      Vizesiz
+                    </span>
+                  )}
+                  {tour.departureCity && (
+                    <span className="text-xs text-white/50 flex items-center gap-1">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       </svg>
-                      {r.city}, {r.country}
+                      {tour.departureCity}
+                    </span>
+                  )}
+                  {nextDepartureDate && (
+                    <span className="text-xs bg-emerald-500/20 text-emerald-300 px-3 py-1.5 rounded-lg font-medium flex items-center gap-1">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      İlk kalkış: {formatDate(nextDepartureDate)}
+                    </span>
+                  )}
+                  {categories.map((c: any, i: number) => (
+                    <span key={i} className="text-xs bg-white/5 text-white/50 px-2.5 py-1 rounded-lg">
+                      {c.categoryName}
                     </span>
                   ))}
-                  {tour.withTransfer && (
-                    <span className="text-xs bg-emerald-500/20 text-emerald-300 px-3 py-1.5 rounded-lg font-medium">Transfer Dahil</span>
-                  )}
                 </div>
               </div>
             )}
@@ -200,29 +265,29 @@ export default function TurDetailPage() {
           {error && !loading && (
             <div className="bg-white rounded-2xl border border-red-100 shadow-sm p-8 text-center">
               <p className="text-brand-red font-semibold mb-2">{error}</p>
-              <button onClick={() => { setError(null); router.back(); }} className="text-sm text-brand-gray/60 hover:text-brand-dark transition">
+              <button onClick={() => router.back()} className="text-sm text-brand-gray/60 hover:text-brand-dark transition">
                 Geri dön
               </button>
             </div>
           )}
 
           {!loading && !error && tour && (
-            <div className="grid lg:grid-cols-[1fr_360px] gap-6">
+            <div className="grid lg:grid-cols-[1fr_380px] gap-6">
               {/* Main content */}
               <div className="space-y-6">
                 {/* Gallery */}
-                {(tour.medias.length > 0 || tour.logo) && (
+                {images.length > 0 && (
                   <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                     <div className="aspect-[16/9] bg-gray-100">
                       <img
-                        src={tour.medias[activeImage]?.url || tour.logo}
-                        alt={tour.name}
+                        src={images[activeImage]?.url}
+                        alt={tourName}
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    {tour.medias.length > 1 && (
+                    {images.length > 1 && (
                       <div className="p-3 flex gap-2 overflow-x-auto">
-                        {tour.medias.map((m, i) => (
+                        {images.map((m, i) => (
                           <button
                             key={i}
                             onClick={() => setActiveImage(i)}
@@ -236,28 +301,34 @@ export default function TurDetailPage() {
                   </div>
                 )}
 
-                {/* Description */}
-                {tour.shortDescription && (
+                {/* General Info */}
+                {details.generalInfo && (
                   <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-6">
                     <h2 className="text-lg font-bold text-gray-900 mb-3">Tur Hakkında</h2>
-                    <p className="text-sm text-brand-gray/70 leading-relaxed">{tour.shortDescription}</p>
+                    <div
+                      className="text-sm text-brand-gray/70 leading-relaxed prose prose-sm max-w-none"
+                      dangerouslySetInnerHTML={{ __html: details.generalInfo }}
+                    />
                   </div>
                 )}
 
                 {/* Day programs */}
-                {tour.programs.length > 0 && (
+                {programs.length > 0 && (
                   <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-6">
                     <h2 className="text-lg font-bold text-gray-900 mb-4">Gün Gün Program</h2>
                     <div className="space-y-4">
-                      {tour.programs.map((p, i) => (
-                        <div key={i} className="flex gap-4">
+                      {programs.map((p: any, i: number) => (
+                        <div key={p.id || i} className="flex gap-4">
                           <div className="w-10 h-10 rounded-full bg-brand-red/10 text-brand-red flex items-center justify-center text-sm font-bold flex-shrink-0">
                             {p.day || i + 1}
                           </div>
                           <div className="flex-1 pt-1.5">
-                            {p.title && <h3 className="font-semibold text-gray-900 mb-1">{p.title}</h3>}
-                            {p.description && (
-                              <div className="text-sm text-brand-gray/60 leading-relaxed prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: p.description }} />
+                            {p.name && <h3 className="font-semibold text-gray-900 mb-1">{p.name}</h3>}
+                            {p.program && (
+                              <div
+                                className="text-sm text-brand-gray/60 leading-relaxed prose prose-sm max-w-none"
+                                dangerouslySetInnerHTML={{ __html: p.program }}
+                              />
                             )}
                           </div>
                         </div>
@@ -267,42 +338,75 @@ export default function TurDetailPage() {
                 )}
 
                 {/* Inclusions/Exclusions */}
-                {tour.extras.length > 0 && tour.extras[0]?.inclusions && (
+                {(details.servicesIncluded || details.servicesNotIncluded) && (
                   <div className="grid sm:grid-cols-2 gap-6">
-                    {tour.extras[0].inclusions && (
+                    {details.servicesIncluded && (
                       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-6">
                         <h2 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
                           <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                           Dahil Olanlar
                         </h2>
-                        <div className="text-sm text-brand-gray/60 leading-relaxed prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: tour.extras[0].inclusions }} />
+                        <div className="text-sm text-brand-gray/60 leading-relaxed prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: details.servicesIncluded }} />
                       </div>
                     )}
-                    {tour.extras[0].exclusions && (
+                    {details.servicesNotIncluded && (
                       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-6">
                         <h2 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
                           <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                           Hariç Olanlar
                         </h2>
-                        <div className="text-sm text-brand-gray/60 leading-relaxed prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: tour.extras[0].exclusions }} />
+                        <div className="text-sm text-brand-gray/60 leading-relaxed prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: details.servicesNotIncluded }} />
                       </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Departure stops */}
+                {departureStops.length > 0 && (
+                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-6">
+                    <h2 className="text-lg font-bold text-gray-900 mb-3">Kalkış Noktaları</h2>
+                    <div className="space-y-2">
+                      {departureStops.map((s: any, i: number) => (
+                        <div key={s.id || i} className="flex items-center justify-between text-sm py-2 border-b border-gray-50 last:border-0">
+                          <span className="text-gray-700 font-medium">{s.name}</span>
+                          {s.time && <span className="text-brand-gray/50">{s.time}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Cancellation & Notes */}
+                {(details.cancellationConditions || details.notes) && (
+                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-6">
+                    {details.cancellationConditions && (
+                      <>
+                        <h2 className="text-lg font-bold text-gray-900 mb-3">İptal Koşulları</h2>
+                        <div className="text-sm text-brand-gray/60 leading-relaxed prose prose-sm max-w-none mb-4" dangerouslySetInnerHTML={{ __html: details.cancellationConditions }} />
+                      </>
+                    )}
+                    {details.notes && (
+                      <>
+                        <h2 className="text-lg font-bold text-gray-900 mb-3">Notlar</h2>
+                        <div className="text-sm text-brand-gray/60 leading-relaxed prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: details.notes }} />
+                      </>
                     )}
                   </div>
                 )}
               </div>
 
-              {/* Sidebar - Booking Flow */}
+              {/* Sidebar - Booking */}
               <div className="space-y-5">
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden sticky top-24">
-                  {/* Steps indicator */}
+                  {/* Steps */}
                   <div className="flex border-b border-gray-100">
                     {[
-                      { id: "details", label: "Fiyat" },
+                      { id: "select", label: "Tarih & Fiyat" },
                       { id: "passengers", label: "Yolcular" },
                       { id: "done", label: "Onay" },
                     ].map((s, i) => {
-                      const stepOrder = ["details", "pricing", "passengers", "confirm", "done"];
-                      const currentIdx = stepOrder.indexOf(step);
+                      const stepOrder = ["select", "passengers", "done"];
+                      const currentIdx = stepOrder.indexOf(bookingStep);
                       const thisIdx = stepOrder.indexOf(s.id);
                       const isActive = currentIdx >= thisIdx;
                       return (
@@ -317,152 +421,145 @@ export default function TurDetailPage() {
                   </div>
 
                   <div className="p-5">
-                    {/* Step: Details - Get Price */}
-                    {(step === "details" || step === "pricing") && (
+                    {/* Step: Select date */}
+                    {bookingStep === "select" && (
                       <div>
-                        <div className="space-y-3 mb-5">
-                          <InfoRow label="Süre" value={`${tour.dayCount} Gün / ${tour.nightCount} Gece`} />
-                          {tour.regions[0] && <InfoRow label="Bölge" value={`${tour.regions[0].city}, ${tour.regions[0].country}`} />}
-                          <InfoRow label="Kontenjan" value={`${tour.allotment} kişi`} />
-                        </div>
-
-                        {/* Adults selector */}
-                        <div className="mb-4">
-                          <label className="text-xs text-brand-gray/50 font-medium mb-1.5 block">Yetişkin Sayısı</label>
-                          <div className="flex items-center gap-3">
-                            <button
-                              onClick={() => setAdults(Math.max(1, adults - 1))}
-                              className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:border-brand-red hover:text-brand-red transition"
-                            >
-                              -
-                            </button>
-                            <span className="text-lg font-bold text-gray-900 w-8 text-center">{adults}</span>
-                            <button
-                              onClick={() => setAdults(Math.min(6, adults + 1))}
-                              className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:border-brand-red hover:text-brand-red transition"
-                            >
-                              +
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Price display or get price button */}
-                        {step === "details" && (
-                          <button
-                            onClick={handleGetPrices}
-                            disabled={pricingLoading}
-                            className="w-full py-3.5 bg-brand-red text-white font-semibold rounded-xl hover:bg-red-700 transition shadow-sm shadow-brand-red/20 text-sm disabled:opacity-50"
-                          >
-                            {pricingLoading ? "Fiyat alınıyor..." : "Fiyat Sorgula"}
-                          </button>
-                        )}
-
-                        {step === "pricing" && packages.length > 0 && (
-                          <div className="space-y-3">
-                            {packages.map((pkg, i) => (
-                              <button
-                                key={i}
-                                onClick={() => setSelectedPackage(pkg)}
-                                className={`w-full p-3 rounded-xl border-2 text-left transition ${selectedPackage?.packageId === pkg.packageId ? "border-brand-red bg-brand-red/5" : "border-gray-100 hover:border-gray-200"}`}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <span className="text-xs text-brand-gray/50">Paket {i + 1}</span>
-                                  <div className="text-right">
-                                    <p className="text-lg font-bold text-brand-red">
-                                      {pkg.price.total?.toLocaleString("tr-TR")}
-                                    </p>
-                                    <p className="text-[11px] text-brand-gray/40">{pkg.price.currency} toplam</p>
-                                  </div>
-                                </div>
-                              </button>
+                        <h3 className="font-bold text-gray-900 text-sm mb-3">Tarih Seçin</h3>
+                        {datesLoading ? (
+                          <div className="space-y-2">
+                            {[1, 2, 3].map((i) => (
+                              <div key={i} className="h-16 bg-gray-100 rounded-xl animate-pulse" />
                             ))}
+                          </div>
+                        ) : dates.length === 0 ? (
+                          <p className="text-sm text-brand-gray/50 text-center py-4">
+                            Uygun tarih bulunamadı.
+                          </p>
+                        ) : (
+                          <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1 mb-4">
+                            {dates.map((d, idx) => {
+                              const remaining = d.quota - (d.sold || 0);
+                              const isSelected = selectedDate === d;
+                              const dateStr = formatDate(d.date);
+                              // Get min valid price (> 0, not NaN) from list items or direct dpp
+                              const options = Array.isArray(d.list) && d.list.length > 0 ? d.list : [d];
+                              const validPrices = options
+                                .map((o: any) => Number(o.dpp))
+                                .filter((p: number) => !isNaN(p) && p > 0);
+                              const minDpp = validPrices.length > 0 ? Math.min(...validPrices) : null;
+                              const minCurrency = minDpp !== null
+                                ? options.find((o: any) => Number(o.dpp) === minDpp)?.currency || "TRY"
+                                : null;
 
-                            <button
-                              onClick={() => setStep("passengers")}
-                              disabled={!selectedPackage}
-                              className="w-full py-3.5 bg-brand-red text-white font-semibold rounded-xl hover:bg-red-700 transition shadow-sm shadow-brand-red/20 text-sm disabled:opacity-50 mt-2"
-                            >
-                              Devam Et
-                            </button>
+                              // Skip dates with no valid price
+                              if (minDpp === null) return null;
+
+                              return (
+                                <button
+                                  key={idx}
+                                  onClick={() => { setSelectedDate(d); setPriceResult(null); }}
+                                  className={`w-full p-3 rounded-xl border-2 text-left transition ${isSelected ? "border-brand-red bg-brand-red/5" : "border-gray-100 hover:border-gray-200"}`}
+                                >
+                                  <div className="flex items-center justify-between gap-2">
+                                    <div className="min-w-0">
+                                      <p className="text-sm font-medium text-gray-900">{dateStr}</p>
+                                      <p className="text-xs text-brand-gray/40 mt-0.5">
+                                        Kalan: {remaining > 0 ? remaining : "—"} kişi
+                                      </p>
+                                      {options.length > 1 && (
+                                        <p className="text-[10px] text-brand-gray/30 mt-0.5">{options.length} konaklama seçeneği</p>
+                                      )}
+                                    </div>
+                                    <div className="text-right flex-shrink-0">
+                                      <p className="text-lg font-bold text-brand-red">
+                                        {minDpp.toLocaleString("tr-TR")}
+                                      </p>
+                                      <p className="text-[10px] text-brand-gray/40">{minCurrency} / kişi</p>
+                                    </div>
+                                  </div>
+                                </button>
+                              );
+                            })}
                           </div>
                         )}
 
-                        {step === "pricing" && packages.length === 0 && (
-                          <p className="text-sm text-brand-gray/50 text-center py-4">Bu tarih için fiyat bulunamadı.</p>
+                        {selectedDate && (
+                          <>
+                            <div className="mb-4">
+                              <label className="text-xs text-brand-gray/50 font-medium mb-1.5 block">Yetişkin Sayısı</label>
+                              <div className="flex items-center gap-3">
+                                <button onClick={() => setAdults(Math.max(1, adults - 1))} className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:border-brand-red hover:text-brand-red transition">-</button>
+                                <span className="text-lg font-bold text-gray-900 w-8 text-center">{adults}</span>
+                                <button onClick={() => setAdults(Math.min(6, adults + 1))} className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:border-brand-red hover:text-brand-red transition">+</button>
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={handleCalculatePrice}
+                              disabled={priceLoading}
+                              className="w-full py-3.5 bg-brand-red text-white font-semibold rounded-xl hover:bg-red-700 transition shadow-sm shadow-brand-red/20 text-sm disabled:opacity-50"
+                            >
+                              {priceLoading ? "Fiyat hesaplanıyor..." : "Fiyat Hesapla"}
+                            </button>
+
+                            {priceResult && (
+                              <div className="mt-4 space-y-3">
+                                {/* Display price options */}
+                                {priceResult.price?.map((p: any, i: number) => (
+                                  <div key={i} className="bg-brand-red/5 rounded-xl p-3">
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-sm text-brand-gray/60">{p.title || "Fiyat"}</span>
+                                      <span className="text-xl font-bold text-brand-red">
+                                        {Number(p.price).toLocaleString("tr-TR")} {p.currency || "TRY"}
+                                      </span>
+                                    </div>
+                                    {p.errorDescription && (
+                                      <p className="text-xs text-red-500 mt-1">{p.errorDescription}</p>
+                                    )}
+                                  </div>
+                                ))}
+
+                                <button
+                                  onClick={() => setBookingStep("passengers")}
+                                  className="w-full py-3.5 bg-brand-red text-white font-semibold rounded-xl hover:bg-red-700 transition shadow-sm shadow-brand-red/20 text-sm"
+                                >
+                                  Devam Et
+                                </button>
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                     )}
 
                     {/* Step: Passengers */}
-                    {(step === "passengers" || step === "confirm") && (
+                    {bookingStep === "passengers" && (
                       <div>
-                        {selectedPackage && (
-                          <div className="bg-brand-red/5 rounded-xl p-3 mb-5">
-                            <div className="flex justify-between items-center">
-                              <span className="text-sm text-brand-gray/60">Toplam Fiyat</span>
-                              <span className="text-xl font-bold text-brand-red">
-                                {selectedPackage.price.total?.toLocaleString("tr-TR")} {selectedPackage.price.currency}
-                              </span>
-                            </div>
-                          </div>
-                        )}
-
                         <h3 className="font-bold text-gray-900 text-sm mb-3">Yolcu Bilgileri</h3>
-                        <div className="space-y-4 mb-4 max-h-[250px] sm:max-h-[300px] overflow-y-auto pr-1">
+                        <div className="space-y-4 mb-4 max-h-[280px] overflow-y-auto pr-1">
                           {passengers.map((p, i) => (
                             <div key={i} className="space-y-2 pb-3 border-b border-gray-50 last:border-0">
                               <p className="text-xs text-brand-gray/40 font-medium">Yolcu {i + 1}</p>
                               <div className="grid grid-cols-2 gap-2">
-                                <input
-                                  placeholder="Ad"
-                                  value={p.firstName}
-                                  onChange={(e) => updatePassenger(i, "firstName", e.target.value)}
-                                  className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition"
-                                />
-                                <input
-                                  placeholder="Soyad"
-                                  value={p.lastName}
-                                  onChange={(e) => updatePassenger(i, "lastName", e.target.value)}
-                                  className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition"
-                                />
+                                <input placeholder="Ad" value={p.name} onChange={(e) => updatePassenger(i, "name", e.target.value)} className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition" />
+                                <input placeholder="Soyad" value={p.surname} onChange={(e) => updatePassenger(i, "surname", e.target.value)} className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition" />
                               </div>
                               <div className="grid grid-cols-2 gap-2">
-                                <input
-                                  type="date"
-                                  placeholder="Doğum Tarihi"
-                                  value={p.birthDate}
-                                  onChange={(e) => updatePassenger(i, "birthDate", e.target.value)}
-                                  className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition"
-                                />
-                                <select
-                                  value={p.gender}
-                                  onChange={(e) => updatePassenger(i, "gender", e.target.value)}
-                                  className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition"
-                                >
-                                  <option value="M">Erkek</option>
-                                  <option value="F">Kadın</option>
+                                <input type="date" value={p.birthDate} onChange={(e) => updatePassenger(i, "birthDate", e.target.value)} className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition" />
+                                <select value={p.gender} onChange={(e) => updatePassenger(i, "gender", e.target.value)} className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition">
+                                  <option value="E">Erkek</option>
+                                  <option value="K">Kadın</option>
                                 </select>
                               </div>
+                              <input placeholder="T.C. Kimlik No" value={p.tckn} onChange={(e) => updatePassenger(i, "tckn", e.target.value)} className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition" />
                             </div>
                           ))}
                         </div>
 
                         <h3 className="font-bold text-gray-900 text-sm mb-3">İletişim Bilgileri</h3>
                         <div className="space-y-2 mb-5">
-                          <input
-                            type="email"
-                            placeholder="E-posta"
-                            value={contactEmail}
-                            onChange={(e) => setContactEmail(e.target.value)}
-                            className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition"
-                          />
-                          <input
-                            type="tel"
-                            placeholder="Telefon"
-                            value={contactPhone}
-                            onChange={(e) => setContactPhone(e.target.value)}
-                            className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition"
-                          />
+                          <input type="email" placeholder="E-posta" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition" />
+                          <input type="tel" placeholder="Telefon" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition" />
                         </div>
 
                         {bookingError && (
@@ -472,17 +569,8 @@ export default function TurDetailPage() {
                         )}
 
                         <div className="flex gap-2">
-                          <button
-                            onClick={() => setStep("pricing")}
-                            className="flex-1 py-3 border border-gray-200 text-brand-gray/60 font-medium rounded-xl hover:bg-gray-50 transition text-sm"
-                          >
-                            Geri
-                          </button>
-                          <button
-                            onClick={handleBook}
-                            disabled={!canBook || bookingLoading}
-                            className="flex-[2] py-3 bg-brand-red text-white font-semibold rounded-xl hover:bg-red-700 transition shadow-sm shadow-brand-red/20 text-sm disabled:opacity-50"
-                          >
+                          <button onClick={() => setBookingStep("select")} className="flex-1 py-3 border border-gray-200 text-brand-gray/60 font-medium rounded-xl hover:bg-gray-50 transition text-sm">Geri</button>
+                          <button onClick={handleBook} disabled={!canBook || bookingLoading} className="flex-[2] py-3 bg-brand-red text-white font-semibold rounded-xl hover:bg-red-700 transition shadow-sm shadow-brand-red/20 text-sm disabled:opacity-50">
                             {bookingLoading ? "Rezervasyon yapılıyor..." : "Rezervasyon Yap"}
                           </button>
                         </div>
@@ -490,7 +578,7 @@ export default function TurDetailPage() {
                     )}
 
                     {/* Step: Done */}
-                    {step === "done" && bookingResult && (
+                    {bookingStep === "done" && bookingResult && (
                       <div className="text-center py-4">
                         <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
                           <svg className="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -499,12 +587,11 @@ export default function TurDetailPage() {
                         </div>
                         <h3 className="text-lg font-bold text-gray-900 mb-2">Rezervasyon Tamamlandı</h3>
                         <p className="text-sm text-brand-gray/60 mb-1">PNR Kodu:</p>
-                        <p className="text-2xl font-bold text-brand-red mb-4 font-mono">{bookingResult.systemPnr || "—"}</p>
-                        <p className="text-xs text-brand-gray/40 mb-5">Durum: {bookingResult.status || "Onay Bekliyor"}</p>
-                        <button
-                          onClick={() => router.push("/")}
-                          className="w-full py-3 bg-brand-dark text-white font-semibold rounded-xl hover:bg-brand-dark/90 transition text-sm"
-                        >
+                        <p className="text-2xl font-bold text-brand-red mb-4 font-mono">{bookingResult.pnr || "—"}</p>
+                        {bookingResult.saleID && (
+                          <p className="text-xs text-brand-gray/40 mb-5">Satış No: {bookingResult.saleID}</p>
+                        )}
+                        <button onClick={() => router.push("/")} className="w-full py-3 bg-brand-dark text-white font-semibold rounded-xl hover:bg-brand-dark/90 transition text-sm">
                           Ana Sayfaya Dön
                         </button>
                       </div>
@@ -521,18 +608,19 @@ export default function TurDetailPage() {
   );
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between items-center text-sm">
-      <span className="text-brand-gray/50">{label}</span>
-      <span className="font-medium text-gray-800">{value}</span>
-    </div>
-  );
+function formatDate(dateStr: string): string {
+  if (!dateStr) return "";
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("tr-TR", { day: "2-digit", month: "long", year: "numeric" });
+  } catch {
+    return dateStr;
+  }
 }
 
 function DetailSkeleton() {
   return (
-    <div className="grid lg:grid-cols-[1fr_360px] gap-6">
+    <div className="grid lg:grid-cols-[1fr_380px] gap-6">
       <div className="space-y-6">
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden animate-pulse">
           <div className="aspect-[16/9] bg-gray-100" />
@@ -546,7 +634,6 @@ function DetailSkeleton() {
       <div>
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 animate-pulse space-y-4">
           <div className="h-10 bg-gray-100 rounded w-32 mx-auto" />
-          <div className="h-4 bg-gray-100 rounded w-full" />
           <div className="h-4 bg-gray-100 rounded w-full" />
           <div className="h-12 bg-gray-100 rounded-xl w-full" />
         </div>
