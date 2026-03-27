@@ -31,7 +31,10 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const agencyId = forcedAgencyId || searchParams.get("agency_id");
+    const agencyIds = searchParams.get("agency_ids"); // comma-separated for compare mode
     const month = searchParams.get("month"); // YYYY-MM format
+    const dateFrom = searchParams.get("date_from"); // YYYY-MM-DD
+    const dateTo = searchParams.get("date_to"); // YYYY-MM-DD
     const status = searchParams.get("status");
 
     let query = supabase
@@ -39,9 +42,21 @@ export async function GET(req: NextRequest) {
       .select("*, agencies(name, slug)")
       .order("created_at", { ascending: false });
 
-    if (agencyId) query = query.eq("agency_id", agencyId);
+    if (forcedAgencyId) {
+      query = query.eq("agency_id", forcedAgencyId);
+    } else if (agencyIds) {
+      const ids = agencyIds.split(",").filter(Boolean);
+      if (ids.length > 0) query = query.in("agency_id", ids);
+    } else if (agencyId) {
+      query = query.eq("agency_id", agencyId);
+    }
+
     if (status) query = query.eq("status", status);
-    if (month) {
+
+    if (dateFrom || dateTo) {
+      if (dateFrom) query = query.gte("created_at", `${dateFrom}T00:00:00Z`);
+      if (dateTo) query = query.lt("created_at", `${dateTo}T23:59:59Z`);
+    } else if (month) {
       const start = `${month}-01T00:00:00Z`;
       const [y, m] = month.split("-").map(Number);
       const end = new Date(y, m, 1).toISOString(); // first day of next month
