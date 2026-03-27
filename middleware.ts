@@ -6,6 +6,8 @@ const MAIN_DOMAINS = [
   "localhost",
   "myxtravel.com.tr",
   "www.myxtravel.com.tr",
+  "xturizm.com",
+  "www.xturizm.com",
   "myxtravel.vercel.app",
 ];
 

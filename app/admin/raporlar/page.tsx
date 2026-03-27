@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/header";
-import { useAdmin } from "@/lib/supabase/use-admin";
+import { useAdmin, hasPermission } from "@/lib/supabase/use-admin";
 
 const LazyCharts = dynamic(() => import("./charts"), { ssr: false });
 
@@ -270,7 +270,7 @@ function AdminRaporlar() {
   const [selectedMonth, setSelectedMonth] = useState(getMonthOptions()[0].value);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [loading, setLoading] = useState(true);
-  const { isAdmin, isLoggedIn, loading: authLoading } = useAdmin();
+  const { isAdmin, isLoggedIn, loading: authLoading, permissions } = useAdmin();
 
   // Date range state
   const [dateMode, setDateMode] = useState<DateMode>("month");
@@ -351,6 +351,20 @@ function AdminRaporlar() {
             <p className="text-gray-600 mb-4">
               {!isLoggedIn ? "Bu sayfayi goruntulemek icin giris yapmalisiniz." : "Bu sayfaya erisim yetkiniz bulunmamaktadir."}
             </p>
+          </div>
+        </main>
+      </>
+    );
+  }
+
+  if (!hasPermission(permissions, "raporlar")) {
+    return (
+      <>
+        <Header variant="solid" />
+        <main className="min-h-screen bg-[#f5f0e8] flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-sm p-8 text-center max-w-sm">
+            <p className="text-gray-600 mb-4">Bu modüle erişim yetkiniz bulunmamaktadır.</p>
+            <a href="/admin" className="text-brand-red font-semibold hover:underline">Admin Paneli</a>
           </div>
         </main>
       </>

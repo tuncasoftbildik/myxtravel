@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Header } from "@/components/header";
 import { createClient } from "@/lib/supabase/client";
-import { useAdmin } from "@/lib/supabase/use-admin";
+import { useAdmin, hasPermission } from "@/lib/supabase/use-admin";
 
 interface Promotion {
   id?: string;
@@ -35,7 +35,7 @@ export default function AdminKampanyalar() {
   const [editing, setEditing] = useState<Promotion | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const { isAdmin, isLoggedIn, loading: authLoading } = useAdmin();
+  const { isAdmin, isLoggedIn, loading: authLoading, permissions } = useAdmin();
 
   useEffect(() => {
     fetchPromotions();
@@ -121,6 +121,20 @@ export default function AdminKampanyalar() {
             ) : (
               <a href="/" className="text-brand-red font-semibold hover:underline">Ana Sayfa</a>
             )}
+          </div>
+        </main>
+      </>
+    );
+  }
+
+  if (!hasPermission(permissions, "kampanyalar")) {
+    return (
+      <>
+        <Header variant="solid" />
+        <main className="min-h-screen bg-[#f5f0e8] flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-sm p-8 text-center max-w-sm">
+            <p className="text-gray-600 mb-4">Bu modüle erişim yetkiniz bulunmamaktadır.</p>
+            <a href="/admin" className="text-brand-red font-semibold hover:underline">Admin Paneli</a>
           </div>
         </main>
       </>

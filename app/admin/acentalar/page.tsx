@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Header } from "@/components/header";
-import { useAdmin } from "@/lib/supabase/use-admin";
+import { useAdmin, hasPermission } from "@/lib/supabase/use-admin";
 
 interface Agency {
   id?: string;
@@ -69,7 +69,7 @@ export default function AdminAcentalar() {
   const [newPassword, setNewPassword] = useState("");
   const [newRole, setNewRole] = useState("owner");
   const [creating, setCreating] = useState(false);
-  const { isAdmin, isLoggedIn, loading: authLoading } = useAdmin();
+  const { isAdmin, isLoggedIn, loading: authLoading, permissions } = useAdmin();
 
   useEffect(() => {
     fetchAgencies();
@@ -251,6 +251,20 @@ export default function AdminAcentalar() {
             <p className="text-gray-600 mb-4">
               {!isLoggedIn ? "Bu sayfayı görüntülemek için giriş yapmalısınız." : "Bu sayfaya erişim yetkiniz bulunmamaktadır."}
             </p>
+          </div>
+        </main>
+      </>
+    );
+  }
+
+  if (!hasPermission(permissions, "acentalar")) {
+    return (
+      <>
+        <Header variant="solid" />
+        <main className="min-h-screen bg-[#f5f0e8] flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-sm p-8 text-center max-w-sm">
+            <p className="text-gray-600 mb-4">Bu modüle erişim yetkiniz bulunmamaktadır.</p>
+            <a href="/admin" className="text-brand-red font-semibold hover:underline">Admin Paneli</a>
           </div>
         </main>
       </>
