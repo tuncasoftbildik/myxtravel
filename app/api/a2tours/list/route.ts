@@ -8,11 +8,10 @@ export async function GET() {
     const raw = result?.result as unknown as Record<string, unknown>;
     const tours = ((raw?.list ?? raw) || []) as Record<string, unknown>[];
 
-    return NextResponse.json({
-      success: true,
-      count: tours.length,
-      tours,
-    });
+    return NextResponse.json(
+      { success: true, count: tours.length, tours },
+      { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=1800" } },
+    );
   } catch (error) {
     if (error instanceof Acente2Error) {
       return NextResponse.json(

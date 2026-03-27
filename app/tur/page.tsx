@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-interface A2Tour {
+interface EnrichedTour {
   id: number;
   name: string;
   nights: number;
@@ -23,13 +23,17 @@ interface A2Tour {
   tourCode: string;
   overnightInfo: string;
   accommodationInfo: string;
+  image: string | null;
+  minPrice: number | null;
+  currency: string | null;
+  nextDepartureDate: string | null;
   [key: string]: any;
 }
 
 type TransportFilter = "all" | "bus" | "flight" | "ship";
 type DurationFilter = "all" | "1-3" | "4-5" | "6-7" | "8+";
 
-function getTransportCategory(t: A2Tour): "bus" | "flight" | "ship" {
+function getTransportCategory(t: EnrichedTour): "bus" | "flight" | "ship" {
   const raw = (t.transport || t.transportationType || "").toLowerCase();
   if (raw.includes("gemi") || raw.includes("cruise")) return "ship";
   if (raw.includes("otobüs") || raw.includes("otobüslü")) return "bus";
@@ -37,7 +41,7 @@ function getTransportCategory(t: A2Tour): "bus" | "flight" | "ship" {
 }
 
 export default function TurPage() {
-  const [tours, setTours] = useState<A2Tour[]>([]);
+  const [tours, setTours] = useState<EnrichedTour[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,12 +53,11 @@ export default function TurPage() {
   const [visaFreeOnly, setVisaFreeOnly] = useState(false);
   const [cruiseOnly, setCruiseOnly] = useState(false);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const [priceVersion, setPriceVersion] = useState(0);
 
   useEffect(() => {
     async function fetchTours() {
       try {
-        const res = await fetch("/api/a2tours/list");
+        const res = await fetch("/api/a2tours/enriched-list");
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Turlar alınamadı");
         setTours(data.tours || []);
@@ -110,19 +113,9 @@ export default function TurPage() {
     if (visaFreeOnly) result = result.filter((t) => t.visaFree === 1);
     if (cruiseOnly) result = result.filter((t) => t.cruise === 1);
 
-    // Sort by price: cheapest first, unloaded prices at end
-    // priceVersion dependency triggers re-sort when new prices arrive
-    result = [...result].sort((a, b) => {
-      const pa = cardCache.get(a.id)?.minPrice;
-      const pb = cardCache.get(b.id)?.minPrice;
-      if (pa && pb) return pa - pb;
-      if (pa) return -1;
-      if (pb) return 1;
-      return 0;
-    });
-
+    // Already sorted by price from API, no need to re-sort
     return result;
-  }, [tours, search, departureFilter, transportFilter, durationFilter, visaFreeOnly, cruiseOnly, priceVersion]);
+  }, [tours, search, departureFilter, transportFilter, durationFilter, visaFreeOnly, cruiseOnly]);
 
   const hasActiveFilters = search || departureFilter || transportFilter !== "all" || durationFilter !== "all" || visaFreeOnly || cruiseOnly;
 
@@ -135,7 +128,6 @@ export default function TurPage() {
     setCruiseOnly(false);
   }
 
-  // Count per transport category
   const transportCounts = useMemo(() => {
     const c = { bus: 0, flight: 0, ship: 0 };
     tours.forEach((t) => { c[getTransportCategory(t)]++; });
@@ -248,34 +240,34 @@ export default function TurPage() {
           Özellikler
         </label>
         <div className="space-y-2">
-          <label className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition cursor-pointer">
+          <button
+            onClick={() => setVisaFreeOnly(!visaFreeOnly)}
+            className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition"
+          >
             <span className="flex items-center gap-2 text-sm text-gray-700">
               <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
               Vizesiz
             </span>
-            <div
-              onClick={() => setVisaFreeOnly(!visaFreeOnly)}
-              className={`w-10 h-5.5 rounded-full transition relative cursor-pointer ${visaFreeOnly ? "bg-brand-red" : "bg-gray-300"}`}
-            >
-              <div className={`absolute top-0.5 w-4.5 h-4.5 bg-white rounded-full shadow transition-transform ${visaFreeOnly ? "translate-x-5" : "translate-x-0.5"}`} />
+            <div className={`w-9 h-5 rounded-full transition relative ${visaFreeOnly ? "bg-brand-red" : "bg-gray-300"}`}>
+              <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${visaFreeOnly ? "translate-x-4" : ""}`} />
             </div>
-          </label>
-          <label className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition cursor-pointer">
+          </button>
+          <button
+            onClick={() => setCruiseOnly(!cruiseOnly)}
+            className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition"
+          >
             <span className="flex items-center gap-2 text-sm text-gray-700">
               <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 17h1l2-3h12l2 3h1M5 17l-2 4h18l-2-4M12 3v10m-4-6l4-4 4 4" />
               </svg>
               Cruise
             </span>
-            <div
-              onClick={() => setCruiseOnly(!cruiseOnly)}
-              className={`w-10 h-5.5 rounded-full transition relative cursor-pointer ${cruiseOnly ? "bg-brand-red" : "bg-gray-300"}`}
-            >
-              <div className={`absolute top-0.5 w-4.5 h-4.5 bg-white rounded-full shadow transition-transform ${cruiseOnly ? "translate-x-5" : "translate-x-0.5"}`} />
+            <div className={`w-9 h-5 rounded-full transition relative ${cruiseOnly ? "bg-brand-red" : "bg-gray-300"}`}>
+              <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${cruiseOnly ? "translate-x-4" : ""}`} />
             </div>
-          </label>
+          </button>
         </div>
       </div>
 
@@ -404,7 +396,7 @@ export default function TurPage() {
               {!loading && !error && filtered.length > 0 && (
                 <div className="grid gap-4 sm:gap-5">
                   {filtered.map((tour) => (
-                    <TourCard key={tour.id} tour={tour} onPriceLoaded={() => setPriceVersion((v) => v + 1)} />
+                    <TourCard key={tour.id} tour={tour} />
                   ))}
                 </div>
               )}
@@ -417,136 +409,37 @@ export default function TurPage() {
   );
 }
 
-// Cache to avoid re-fetching
-const cardCache = new Map<number, { image: string | null; minPrice: number | null; currency: string | null }>();
+// ─── Tour Card (no lazy loading needed) ─────────────────────────────
 
-function TourCard({ tour, onPriceLoaded }: { tour: A2Tour; onPriceLoaded?: () => void }) {
+function TourCard({ tour }: { tour: EnrichedTour }) {
   const nights = tour.nights || 0;
   const days = nights + 1;
   const transport = tour.transport || tour.transportationType || "";
   const places = tour.placesToVisitStr || "";
   const departure = tour.departureCity || "";
-  const cached = cardCache.get(tour.id);
-  const [imageUrl, setImageUrl] = useState<string | null>(cached?.image ?? null);
-  const [minPrice, setMinPrice] = useState<number | null>(cached?.minPrice ?? null);
-  const [currency, setCurrency] = useState<string | null>(cached?.currency ?? null);
-  const [cardLoading, setCardLoading] = useState(!cardCache.has(tour.id));
-  const [hidden, setHidden] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  // Lazy load image + price via IntersectionObserver
-  useEffect(() => {
-    if (cardCache.has(tour.id)) {
-      const c = cardCache.get(tour.id)!;
-      setImageUrl(c.image);
-      setMinPrice(c.minPrice);
-      setCurrency(c.currency);
-      setCardLoading(false);
-      if (!c.minPrice || c.minPrice <= 0) setHidden(true);
-      return;
-    }
-
-    const el = cardRef.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          observer.disconnect();
-          // Fetch image and dates in parallel
-          const detailP = fetch("/api/a2tours/detail", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ tourId: tour.id }),
-          }).then((r) => r.json()).catch(() => null);
-
-          const datesP = fetch("/api/a2tours/dates", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ tourId: tour.id }),
-          }).then((r) => r.json()).catch(() => null);
-
-          Promise.all([detailP, datesP]).then(([detailData, datesData]) => {
-            const img = detailData?.tour?.images?.[0]?.url || null;
-            setImageUrl(img);
-
-            // Find min dpp price from future, available dates
-            const datesList = Array.isArray(datesData?.dates) ? datesData.dates : [];
-            const tomorrow = new Date();
-            tomorrow.setHours(0, 0, 0, 0);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-
-            const validDates = datesList
-              .filter((d: any) => {
-                const dt = new Date(d.date);
-                if (dt < tomorrow) return false; // skip past dates
-                const remaining = (d.quota || 0) - (d.sold || 0);
-                if (remaining <= 0) return false; // skip full quota
-                return true;
-              })
-              .slice(0, 50); // max 50 future dates
-
-            let mp: number | null = null;
-            let cur: string | null = null;
-            for (const d of validDates) {
-              const dpp = Number(d.dpp);
-              if (!isNaN(dpp) && dpp > 0 && (mp === null || dpp < mp)) {
-                mp = dpp;
-                cur = d.currency || "TRY";
-              }
-              // Also check nested list items (multi-price tours)
-              if (Array.isArray(d.list)) {
-                for (const sub of d.list) {
-                  const sdpp = Number(sub.dpp);
-                  if (!isNaN(sdpp) && sdpp > 0 && (mp === null || sdpp < mp)) {
-                    mp = sdpp;
-                    cur = sub.currency || "TRY";
-                  }
-                }
-              }
-            }
-            setMinPrice(mp);
-            setCurrency(cur);
-
-            cardCache.set(tour.id, { image: img, minPrice: mp, currency: cur });
-            if (!mp || mp <= 0) setHidden(true);
-            onPriceLoaded?.();
-          }).finally(() => setCardLoading(false));
-        }
-      },
-      { rootMargin: "200px" },
-    );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [tour.id]);
-
-  if (hidden) return null;
 
   return (
-    <div ref={cardRef} className="bg-white rounded-2xl border border-gray-100 hover:border-gray-200 shadow-sm hover:shadow-xl transition-all overflow-hidden group">
+    <Link
+      href={`/tur/${tour.id}`}
+      className="block bg-white rounded-2xl border border-gray-100 hover:border-gray-200 shadow-sm hover:shadow-xl transition-all overflow-hidden group"
+    >
       <div className="flex flex-col sm:flex-row">
         {/* Tour image */}
-        {imageUrl ? (
+        {tour.image ? (
           <div className="sm:w-52 h-40 sm:h-auto bg-gray-100 flex-shrink-0 overflow-hidden">
             <img
-              src={imageUrl}
+              src={tour.image}
               alt={tour.name}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              loading="lazy"
             />
           </div>
         ) : (
           <div className="sm:w-52 h-40 sm:h-auto bg-gradient-to-br from-brand-dark/5 to-brand-dark/10 flex-shrink-0 flex items-center justify-center relative overflow-hidden">
-            {cardLoading ? (
-              <div className="w-8 h-8 border-2 border-brand-dark/10 border-t-brand-dark/30 rounded-full animate-spin" />
-            ) : (
-              <>
-                <div className="absolute inset-0 bg-gradient-to-br from-brand-dark/5 via-transparent to-brand-red/5" />
-                <svg className="w-12 h-12 text-brand-dark/15 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </>
-            )}
+            <div className="absolute inset-0 bg-gradient-to-br from-brand-dark/5 via-transparent to-brand-red/5" />
+            <svg className="w-12 h-12 text-brand-dark/15 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
           </div>
         )}
 
@@ -588,41 +481,45 @@ function TourCard({ tour, onPriceLoaded }: { tour: A2Tour; onPriceLoaded?: () =>
                   Kalkış: {departure}
                 </p>
               )}
-              {tour.accommodationInfo && (
-                <p className="text-xs text-brand-gray/50">
-                  {tour.accommodationInfo}
+              {tour.nextDepartureDate && (
+                <p className="text-xs text-brand-gray/50 flex items-center gap-1">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  {formatDate(tour.nextDepartureDate)}
                 </p>
               )}
             </div>
           </div>
         </div>
 
-        {/* Price + Action */}
+        {/* Price */}
         <div className="sm:w-44 p-4 sm:p-5 flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 sm:border-l border-gray-100 bg-gradient-to-b from-gray-50/50 to-gray-50">
-          {minPrice ? (
+          {tour.minPrice && (
             <div className="text-right mb-0 sm:mb-3">
               <p className="text-[10px] text-brand-gray/40 uppercase tracking-wide">kişi başı</p>
               <p className="text-2xl sm:text-3xl font-bold text-brand-red">
-                {minPrice.toLocaleString("tr-TR")}
+                {tour.minPrice.toLocaleString("tr-TR")}
               </p>
-              <p className="text-xs text-brand-gray/50 font-medium">{currency}</p>
+              <p className="text-xs text-brand-gray/50 font-medium">{tour.currency}</p>
             </div>
-          ) : cardLoading ? (
-            <div className="text-right mb-0 sm:mb-3">
-              <div className="h-4 w-16 bg-gray-100 rounded animate-pulse mb-1" />
-              <div className="h-7 w-24 bg-gray-100 rounded animate-pulse" />
-            </div>
-          ) : null}
-          <Link
-            href={`/tur/${tour.id}`}
-            className="px-6 py-2.5 bg-brand-red text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition shadow-sm shadow-brand-red/20 hover:shadow-brand-red/30 text-center"
-          >
+          )}
+          <span className="px-6 py-2.5 bg-brand-red text-white text-sm font-semibold rounded-xl group-hover:bg-red-700 transition shadow-sm shadow-brand-red/20 group-hover:shadow-brand-red/30 text-center">
             İncele
-          </Link>
+          </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
+}
+
+function formatDate(dateStr: string): string {
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("tr-TR", { day: "2-digit", month: "short" });
+  } catch {
+    return dateStr;
+  }
 }
 
 function LoadingSkeleton() {

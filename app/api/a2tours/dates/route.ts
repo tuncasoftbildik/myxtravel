@@ -11,10 +11,10 @@ export async function POST(req: NextRequest) {
 
     const result = await a2tour.getTourDates(Number(tourId));
 
-    return NextResponse.json({
-      success: true,
-      dates: result?.result ?? [],
-    });
+    return NextResponse.json(
+      { success: true, dates: result?.result ?? [] },
+      { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=1800" } },
+    );
   } catch (error) {
     if (error instanceof Acente2Error) {
       return NextResponse.json(
