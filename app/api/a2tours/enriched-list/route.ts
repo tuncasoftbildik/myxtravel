@@ -53,6 +53,8 @@ async function pMap<T, R>(
 // ─── Enrich a single tour ───────────────────────────────────────────
 async function enrichTour(tour: any): Promise<EnrichedTour | null> {
   try {
+    // Skip "Kapalı Grup" tours
+    if (tour.name && tour.name.toLowerCase().includes("kapalı grup")) return null;
     const [detailRes, datesRes] = await Promise.all([
       a2tour.getTourDetail(tour.id).catch(() => null),
       a2tour.getTourDates(tour.id).catch(() => null),
