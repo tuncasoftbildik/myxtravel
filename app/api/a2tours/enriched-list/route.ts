@@ -107,8 +107,9 @@ async function enrichTour(tour: any): Promise<EnrichedTour | null> {
       }
     }
 
-    // Skip tours with no valid price
+    // Skip tours with no valid price or no image
     if (!minPrice || minPrice <= 0) return null;
+    if (!image) return null;
 
     // Next departure date (first valid date)
     const nextDepartureDate = validDates.length > 0 ? validDates[0].date : null;
