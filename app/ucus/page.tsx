@@ -174,9 +174,7 @@ function UcusContent() {
                     "Uçuş Sonuçları"
                   )}
                 </h1>
-                {loading ? (
-                  <p className="text-sm text-white/50 mt-2">Uçuşlar aranıyor...</p>
-                ) : !error && (
+                {!loading && !error && (
                   <p className="text-sm text-white/50 mt-2">
                     <span className="text-white/80 font-semibold">{count}</span> uçuş bulundu
                     {departDate && <> &middot; {departDate}</>}
@@ -699,18 +697,9 @@ function EmptyState({ message, onBack }: { message: string; onBack: () => void }
 
 function LoadingSkeleton() {
   return (
-    <div className="space-y-5">
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 overflow-hidden">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-5 h-5 border-2 border-brand-red border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm font-medium text-gray-600">Uçuşlar aranıyor...</p>
-        </div>
-        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-brand-red/60 via-brand-red to-brand-red/60 rounded-full animate-[loading_1.5s_ease-in-out_infinite]" style={{ width: '40%' }} />
-        </div>
-      </div>
+    <div className="grid gap-4 sm:gap-5">
       {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden" style={{ animation: `pulse 1.5s ease-in-out infinite`, animationDelay: `${i * 200}ms` }}>
+        <div key={i} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden animate-pulse">
           <div className="flex flex-col sm:flex-row">
             <div className="flex-1 p-5 space-y-4">
               <div className="flex gap-2">
