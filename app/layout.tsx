@@ -9,6 +9,7 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://xturizm.com"),
   title: "X Travel — Live Your Dream",
   description: "Uçak bileti, otel, transfer ve tur rezervasyonu",
   icons: {
