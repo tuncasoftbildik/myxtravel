@@ -47,6 +47,8 @@ export default function AdminBlog() {
   const [editing, setEditing] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
   const [filter, setFilter] = useState<"all" | "published" | "draft">("all");
   const { isAdmin, isLoggedIn, loading: authLoading, permissions } = useAdmin();
 
@@ -115,6 +117,36 @@ export default function AdminBlog() {
     } catch {
       alert("Güncellenemedi");
     }
+  }
+
+  async function handleImageUpload(file: File) {
+    if (!editing) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setEditing({ ...editing, cover_image: data.url });
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Gorsel yuklenemedi");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith("image/")) handleImageUpload(file);
+  }
+
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) handleImageUpload(file);
+    e.target.value = "";
   }
 
   const filtered = posts.filter((p) => {
@@ -270,13 +302,49 @@ export default function AdminBlog() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Kapak Görseli URL</label>
-                    <input
-                      value={editing.cover_image}
-                      onChange={(e) => setEditing({ ...editing, cover_image: e.target.value })}
-                      placeholder="https://... veya /images/blog/gorsel.jpg"
-                      className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none"
-                    />
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Kapak Görseli</label>
+                    {editing.cover_image ? (
+                      <div className="relative group">
+                        <img src={editing.cover_image} alt="Kapak" className="w-full h-48 object-cover rounded-lg border border-gray-200" />
+                        <button
+                          type="button"
+                          onClick={() => setEditing({ ...editing, cover_image: "" })}
+                          className="absolute top-2 right-2 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-sm font-bold"
+                        >
+                          &times;
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                        onDragLeave={() => setDragOver(false)}
+                        onDrop={handleDrop}
+                        className={`relative flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-lg cursor-pointer transition ${
+                          dragOver ? "border-brand-red bg-red-50" : "border-gray-300 hover:border-gray-400 hover:bg-gray-50"
+                        }`}
+                      >
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp,image/gif"
+                          onChange={handleFileSelect}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
+                        {uploading ? (
+                          <div className="flex flex-col items-center gap-2">
+                            <div className="w-6 h-6 border-2 border-brand-red border-t-transparent rounded-full animate-spin" />
+                            <span className="text-xs text-gray-500">Yükleniyor...</span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center gap-2">
+                            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span className="text-xs text-gray-500">Sürükle bırak veya tıklayarak seç</span>
+                            <span className="text-[10px] text-gray-400">JPG, PNG, WebP, GIF - Maks 5MB</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div>
