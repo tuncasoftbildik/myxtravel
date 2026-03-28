@@ -200,7 +200,9 @@ export function Header({ variant = "transparent" }: HeaderProps) {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <nav className={`sm:hidden mx-4 rounded-2xl p-4 space-y-1 mb-2 ${isSolid ? "bg-white/10 border border-white/10" : "glass"}`}>
+        <>
+        <div className="fixed inset-0 z-40 sm:hidden" onClick={() => setMenuOpen(false)} />
+        <nav className={`sm:hidden mx-4 rounded-2xl p-4 space-y-1 mb-2 relative z-50 ${isSolid ? "bg-white/10 border border-white/10" : "glass"}`}>
           {navItems.map((item) => (
             <Link key={item.label} href={item.href} className="block px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-xl text-sm transition">
               {item.label}
@@ -278,6 +280,7 @@ export function Header({ variant = "transparent" }: HeaderProps) {
             </div>
           )}
         </nav>
+        </>
       )}
     </header>
   );

@@ -590,32 +590,39 @@ function EmptyState({ message, onBack }: { message: string; onBack: () => void }
 
 function LoadingSkeleton() {
   return (
-    <div className="space-y-4">
-      {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="bg-white rounded-lg border border-gray-200 overflow-hidden animate-pulse">
-          <div className="flex flex-col sm:flex-row">
-            <div className="sm:w-[200px] h-48 sm:h-52 bg-gray-100" />
-            <div className="flex-1 p-4 space-y-3">
-              <div className="flex justify-between">
-                <div className="space-y-2 flex-1">
-                  <div className="h-3 bg-gray-100 rounded w-20" />
-                  <div className="h-5 bg-gray-100 rounded w-3/4" />
-                  <div className="h-3 bg-gray-100 rounded w-1/2" />
+    <div>
+      <div className="flex items-center gap-3 mb-5">
+        <div className="w-5 h-5 border-2 border-brand-red/20 border-t-brand-red rounded-full animate-spin" />
+        <p className="text-sm text-brand-gray/50">Oteller aranıyor...</p>
+      </div>
+      <div className="space-y-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="bg-white rounded-lg border border-gray-200 overflow-hidden relative">
+            <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent z-10" />
+            <div className="flex flex-col sm:flex-row">
+              <div className="sm:w-[200px] h-48 sm:h-52 bg-gray-100/80" />
+              <div className="flex-1 p-4 space-y-3">
+                <div className="flex justify-between">
+                  <div className="space-y-2 flex-1">
+                    <div className="h-3 bg-gray-100/80 rounded w-20" />
+                    <div className="h-5 bg-gray-100/80 rounded w-3/4" />
+                    <div className="h-3 bg-gray-100 rounded w-1/2" />
+                  </div>
+                  <div className="w-9 h-9 bg-gray-100/80 rounded-lg" />
                 </div>
-                <div className="w-9 h-9 bg-gray-100 rounded-lg" />
-              </div>
-              <div className="flex gap-2 mt-3">
-                <div className="h-6 bg-gray-100 rounded w-24" />
-                <div className="h-6 bg-gray-100 rounded w-20" />
-              </div>
-              <div className="border-t border-gray-100 pt-3 flex justify-between items-end">
-                <div className="h-6 bg-gray-100 rounded w-28" />
-                <div className="h-10 bg-gray-100 rounded-lg w-32" />
+                <div className="flex gap-2 mt-3">
+                  <div className="h-6 bg-gray-100/80 rounded w-24" />
+                  <div className="h-6 bg-gray-100/80 rounded w-20" />
+                </div>
+                <div className="border-t border-gray-100 pt-3 flex justify-between items-end">
+                  <div className="h-6 bg-gray-100 rounded w-28" />
+                  <div className="h-10 bg-gray-100 rounded-lg w-32" />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
