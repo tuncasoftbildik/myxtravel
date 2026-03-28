@@ -343,7 +343,9 @@ function TransferContent() {
                     "Transfer Sonuçları"
                   )}
                 </h1>
-                {!loading && !error && (
+                {loading ? (
+                  <p className="text-sm text-white/50 mt-2">Transferler aranıyor...</p>
+                ) : !error && (
                   <p className="text-sm text-white/50 mt-2">
                     <span className="text-white/80 font-semibold">{count}</span> transfer bulundu
                     {date && <> &middot; {date} {time}</>}
@@ -483,26 +485,33 @@ function EmptyState({ message, onBack }: { message: string; onBack: () => void }
 
 function LoadingSkeleton() {
   return (
-    <div className="grid gap-4 sm:gap-5">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden animate-pulse">
-          <div className="flex flex-col sm:flex-row">
-            <div className="sm:w-48 h-36 sm:h-40 bg-gray-100" />
-            <div className="flex-1 p-5 space-y-3">
-              <div className="flex gap-2">
-                <div className="h-6 bg-gray-100 rounded-lg w-20" />
-                <div className="h-6 bg-gray-100 rounded-lg w-28" />
+    <div>
+      <div className="flex items-center gap-3 mb-5">
+        <div className="w-5 h-5 border-2 border-brand-red/20 border-t-brand-red rounded-full animate-spin" />
+        <p className="text-sm text-brand-gray/50">Transferler aranıyor...</p>
+      </div>
+      <div className="grid gap-4 sm:gap-5">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden relative">
+            <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent z-10" />
+            <div className="flex flex-col sm:flex-row">
+              <div className="sm:w-48 h-36 sm:h-40 bg-gray-100/80" />
+              <div className="flex-1 p-5 space-y-3">
+                <div className="flex gap-2">
+                  <div className="h-6 bg-gray-100/80 rounded-lg w-20" />
+                  <div className="h-6 bg-gray-100/80 rounded-lg w-28" />
+                </div>
+                <div className="h-5 bg-gray-100/80 rounded w-1/2" />
+                <div className="h-4 bg-gray-100 rounded w-1/3" />
               </div>
-              <div className="h-5 bg-gray-100 rounded w-1/2" />
-              <div className="h-4 bg-gray-100 rounded w-1/3" />
-            </div>
-            <div className="sm:w-48 p-5 bg-gray-50/50 flex flex-col items-end justify-center gap-3">
-              <div className="h-8 bg-gray-100 rounded w-24" />
-              <div className="h-10 bg-gray-100 rounded-xl w-24" />
+              <div className="sm:w-48 p-5 bg-gray-50/50 flex flex-col items-end justify-center gap-3">
+                <div className="h-8 bg-gray-100/80 rounded w-24" />
+                <div className="h-10 bg-gray-100 rounded-xl w-24" />
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
