@@ -590,11 +590,20 @@ function EmptyState({ message, onBack }: { message: string; onBack: () => void }
 
 function LoadingSkeleton() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 overflow-hidden">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-5 h-5 border-2 border-brand-red border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm font-medium text-gray-600">Oteller aranıyor...</p>
+        </div>
+        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-brand-red/60 via-brand-red to-brand-red/60 rounded-full animate-[loading_1.5s_ease-in-out_infinite]" style={{ width: '40%' }} />
+        </div>
+      </div>
       {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="bg-white rounded-lg border border-gray-200 overflow-hidden animate-pulse">
+        <div key={i} className="bg-white rounded-lg border border-gray-200 overflow-hidden" style={{ animation: `pulse 1.5s ease-in-out infinite`, animationDelay: `${i * 200}ms` }}>
           <div className="flex flex-col sm:flex-row">
-            <div className="sm:w-[200px] h-48 sm:h-52 bg-gray-100" />
+            <div className="sm:w-[200px] h-48 sm:h-52 shimmer" />
             <div className="flex-1 p-4 space-y-3">
               <div className="flex justify-between">
                 <div className="space-y-2 flex-1">
