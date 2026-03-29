@@ -72,17 +72,17 @@ export function AirlineMarquee() {
   }, []);
 
   return (
-    <section className="border-b border-gray-100 py-5 overflow-hidden space-y-4">
+    <section className="border-b border-gray-100 py-2 overflow-hidden space-y-1">
       {/* Havayolu logoları — sağdan sola */}
       <div className="relative">
-        <div className="flex items-center gap-6 sm:gap-10 animate-marquee w-max">
+        <div className="flex items-center gap-8 sm:gap-12 animate-marquee w-max">
           {[...airlines, ...airlines, ...airlines].map((airline, i) => (
-            <div key={i} className="shrink-0 w-[140px] sm:w-[180px] h-[36px] sm:h-[48px] flex items-center justify-center">
+            <div key={i} className="shrink-0 w-[120px] sm:w-[150px] h-[28px] sm:h-[34px] flex items-center justify-center">
               <Image
                 src={airline.image_url}
                 alt={airline.name}
                 width={150}
-                height={40}
+                height={34}
                 className="max-h-full max-w-full opacity-40 hover:opacity-70 transition-opacity duration-300 object-contain"
               />
             </div>
@@ -92,14 +92,14 @@ export function AirlineMarquee() {
 
       {/* Otobüs firmaları — soldan sağa */}
       <div className="relative">
-        <div className="flex items-center gap-6 sm:gap-10 animate-marquee-reverse w-max">
+        <div className="flex items-center gap-8 sm:gap-12 animate-marquee-reverse w-max">
           {[...DEFAULT_BUSES, ...DEFAULT_BUSES, ...DEFAULT_BUSES].map((bus, i) => (
-            <div key={i} className="shrink-0 w-[140px] sm:w-[180px] h-[36px] sm:h-[48px] flex items-center justify-center">
+            <div key={i} className="shrink-0 w-[120px] sm:w-[150px] h-[28px] sm:h-[34px] flex items-center justify-center">
               <Image
                 src={bus.image_url}
                 alt={bus.name}
                 width={150}
-                height={40}
+                height={34}
                 className="max-h-full max-w-full opacity-40 hover:opacity-70 transition-opacity duration-300 object-contain"
               />
             </div>
