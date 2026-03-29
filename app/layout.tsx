@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { OrganizationJsonLd, WebSiteJsonLd } from "@/components/json-ld";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { AgencyProvider } from "@/lib/agency-context";
@@ -12,6 +13,8 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://xturizm.com"),
   title: "X Travel — Live Your Dream",
   description: "Uçak bileti, otel, transfer ve tur rezervasyonu",
+  alternates: { canonical: "https://xturizm.com" },
+  robots: { index: true, follow: true },
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
@@ -48,6 +51,8 @@ export default function RootLayout({
   return (
     <html lang="tr" className={`${geistSans.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
+        <OrganizationJsonLd />
+        <WebSiteJsonLd />
         <AgencyProvider>{children}</AgencyProvider>
       </body>
     </html>

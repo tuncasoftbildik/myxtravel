@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+
+export const metadata: Metadata = {
+  title: "Cerez Politikasi | X Travel",
+  description: "X Travel cerez (cookie) kullanim politikasi hakkinda bilgilendirme.",
+  alternates: { canonical: "https://xturizm.com/cerez" },
+};
 
 export default function CerezPage() {
   return (

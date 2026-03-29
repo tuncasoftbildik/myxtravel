@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+
+export const metadata: Metadata = {
+  title: "Kariyer | X Travel",
+  description: "X Travel kariyer firsatlari. Seyahat sektorunde yerinizi alin, ekibimize katilin.",
+  alternates: { canonical: "https://xturizm.com/kariyer" },
+};
 
 export default function KariyerPage() {
   return (

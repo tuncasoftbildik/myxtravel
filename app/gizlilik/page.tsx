@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+
+export const metadata: Metadata = {
+  title: "Gizlilik Politikasi | X Travel",
+  description: "X Travel gizlilik politikasi ve kisisel verilerin korunmasi hakkinda bilgilendirme.",
+  alternates: { canonical: "https://xturizm.com/gizlilik" },
+};
 
 export default function GizlilikPage() {
   return (
