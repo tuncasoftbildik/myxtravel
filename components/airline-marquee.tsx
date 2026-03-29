@@ -22,6 +22,21 @@ const DEFAULT_AIRLINES = [
   { name: "AtlasGlobal", image_url: "/airlines/atlasglobal.png" },
 ];
 
+const DEFAULT_RENTALS = [
+  { name: "Enterprise", image_url: "/rentals/enterprise.png" },
+  { name: "Hertz", image_url: "/rentals/hertz.png" },
+  { name: "Avis", image_url: "/rentals/avis.png" },
+  { name: "Budget", image_url: "/rentals/budget.png" },
+  { name: "Europcar", image_url: "/rentals/europcar.png" },
+  { name: "Sixt", image_url: "/rentals/sixt.png" },
+  { name: "National", image_url: "/rentals/national.png" },
+  { name: "Garenta", image_url: "/rentals/garenta.png" },
+  { name: "İnterCity", image_url: "/rentals/intercity.png" },
+  { name: "Circular", image_url: "/rentals/circular.png" },
+  { name: "GreenMotion", image_url: "/rentals/greenmotion.png" },
+  { name: "Alamo", image_url: "/rentals/alamo.png" },
+];
+
 const DEFAULT_BUSES = [
   { name: "Metro Turizm", image_url: "/buses/metro.png" },
   { name: "Kamil Koç", image_url: "/buses/kamilkoc.png" },
@@ -91,6 +106,7 @@ export function AirlineMarquee() {
           ))}
         </div>
       </div>
+
     </section>
   );
 }
