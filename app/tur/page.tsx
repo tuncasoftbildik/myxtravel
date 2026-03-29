@@ -403,6 +403,60 @@ export default function TurPage() {
             </div>
           </div>
         </div>
+
+        {/* SEO: Blog rehber linkleri */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">Tur Rehberleri</h2>
+            <p className="text-sm text-gray-500 mb-5">
+              Seyahatinizi planlamadan once rehberlerimize goz atin. Vizesiz ulkeler, destinasyon onerileri ve pratik ipuclari.
+            </p>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Link
+                href="/blog/2026-vizesiz-ulkeler-ve-tur-rehberi-xturizm-blog"
+                className="flex items-center gap-3 p-4 rounded-xl bg-gray-50 hover:bg-brand-red/5 border border-gray-100 hover:border-brand-red/20 transition group"
+              >
+                <div className="w-10 h-10 bg-brand-red/10 rounded-lg flex items-center justify-center shrink-0">
+                  <svg className="w-5 h-5 text-brand-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900 group-hover:text-brand-red transition">2026 Vizesiz Ulkeler ve Tur Rehberi</p>
+                  <p className="text-xs text-gray-400">Vizesiz gidebileceginiz ulkeler</p>
+                </div>
+              </Link>
+              <Link
+                href="/blog"
+                className="flex items-center gap-3 p-4 rounded-xl bg-gray-50 hover:bg-brand-red/5 border border-gray-100 hover:border-brand-red/20 transition group"
+              >
+                <div className="w-10 h-10 bg-brand-red/10 rounded-lg flex items-center justify-center shrink-0">
+                  <svg className="w-5 h-5 text-brand-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900 group-hover:text-brand-red transition">Tum Blog Yazilari</p>
+                  <p className="text-xs text-gray-400">Seyahat ipuclari ve rehberler</p>
+                </div>
+              </Link>
+              <Link
+                href="/kampanyalar"
+                className="flex items-center gap-3 p-4 rounded-xl bg-gray-50 hover:bg-brand-red/5 border border-gray-100 hover:border-brand-red/20 transition group"
+              >
+                <div className="w-10 h-10 bg-brand-red/10 rounded-lg flex items-center justify-center shrink-0">
+                  <svg className="w-5 h-5 text-brand-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900 group-hover:text-brand-red transition">Tur Kampanyalari</p>
+                  <p className="text-xs text-gray-400">Guncel firsatlar ve indirimler</p>
+                </div>
+              </Link>
+            </div>
+          </div>
+        </div>
       </main>
       <Footer />
     </>

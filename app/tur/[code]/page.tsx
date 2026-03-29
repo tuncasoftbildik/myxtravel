@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 
@@ -601,6 +602,45 @@ export default function TurDetailPage() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* SEO: Ilgili blog rehberi */}
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+          <div className="bg-gradient-to-br from-brand-dark to-[#2d1b69] rounded-2xl p-6 sm:p-8 text-white">
+            <h3 className="text-lg font-bold mb-2">Seyahatinizi Planlayin</h3>
+            <p className="text-white/60 text-sm mb-4">
+              Tur oncesi rehberlerimize goz atin, vizesiz ulkeleri ve seyahat ipuclarini kesfet.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/blog/2026-vizesiz-ulkeler-ve-tur-rehberi-xturizm-blog"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-medium transition"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                2026 Vizesiz Ulkeler Rehberi
+              </Link>
+              <Link
+                href="/tur"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-medium transition"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+                Tum Turlar
+              </Link>
+              <Link
+                href="/blog"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-medium transition"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                Blog
+              </Link>
+            </div>
+          </div>
         </div>
       </main>
       <Footer />
