@@ -38,6 +38,7 @@ export function OrganizationJsonLd() {
       availableLanguage: "Turkish",
     },
     sameAs: [
+      "https://www.linkedin.com/company/x-turizm",
       "https://www.instagram.com/xturizm",
       "https://www.facebook.com/xturizm",
       "https://twitter.com/xturizm",
