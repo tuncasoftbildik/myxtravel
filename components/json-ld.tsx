@@ -1,5 +1,23 @@
 type BreadcrumbItem = { name: string; url: string };
 
+interface TouristTripProps {
+  name: string;
+  description: string;
+  url: string;
+  image: string;
+  nights: number;
+  price: number | null;
+  currency: string;
+  departureCity: string;
+  departureDate: string | null;
+}
+
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+
 export function OrganizationJsonLd() {
   const data = {
     "@context": "https://schema.org",
@@ -109,6 +127,85 @@ export function ArticleJsonLd({
     },
     datePublished,
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  );
+}
+
+export function TouristTripJsonLd({
+  name,
+  description,
+  url,
+  image,
+  nights,
+  price,
+  currency,
+  departureCity,
+  departureDate,
+}: TouristTripProps) {
+  const data: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "TouristTrip",
+    name,
+    description,
+    url,
+    image,
+    touristType: "Seyahat Turu",
+    itinerary: {
+      "@type": "ItemList",
+      numberOfItems: nights + 1,
+      description: `${nights} gece ${nights + 1} gun`,
+    },
+    provider: {
+      "@type": "TravelAgency",
+      name: "X Travel",
+      url: "https://xturizm.com",
+    },
+    tripOrigin: {
+      "@type": "Place",
+      name: departureCity,
+    },
+  };
+
+  if (price) {
+    data.offers = {
+      "@type": "Offer",
+      price: String(price),
+      priceCurrency: currency === "TL" ? "TRY" : currency,
+      availability: "https://schema.org/InStock",
+      seller: { "@type": "TravelAgency", name: "X Travel" },
+    };
+  }
+
+  if (departureDate) {
+    data.departureTime = departureDate;
+  }
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  );
+}
+
+export function FAQJsonLd({ items }: { items: FAQItem[] }) {
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
   };
 
   return (

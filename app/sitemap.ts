@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { a2tour } from "@/lib/acente2";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
@@ -36,7 +37,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
-    return [...staticPages, ...blogPages];
+    // Tur detay sayfalarini ekle
+    let tourPages: MetadataRoute.Sitemap = [];
+    try {
+      const tourList = await a2tour.getTourList();
+      const tours = tourList?.result || [];
+      tourPages = tours.map((t) => ({
+        url: `https://xturizm.com/tur/${t.id}`,
+        changeFrequency: "weekly" as const,
+        priority: 0.7,
+      }));
+    } catch {
+      // tur API erisilemezse atla
+    }
+
+    return [...staticPages, ...blogPages, ...tourPages];
   } catch {
     return staticPages;
   }
