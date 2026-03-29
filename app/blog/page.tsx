@@ -145,6 +145,30 @@ export default function BlogPage() {
             </div>
           )}
         </div>
+
+        {/* SEO: Hizmet linkleri */}
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-10 sm:pb-14">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">Hizmetlerimizi Kesfedin</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[
+                { href: "/tur", label: "Turlar", desc: "Yurt ici & disi turlar" },
+                { href: "/otel", label: "Oteller", desc: "10.000+ otel" },
+                { href: "/ucus", label: "Ucus", desc: "500+ havayolu" },
+                { href: "/transfer", label: "Transfer", desc: "Havaalani transferi" },
+              ].map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="p-4 rounded-xl bg-gray-50 hover:bg-brand-red/5 border border-gray-100 hover:border-brand-red/20 transition text-center group"
+                >
+                  <p className="text-sm font-semibold text-gray-900 group-hover:text-brand-red transition">{item.label}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{item.desc}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
       </main>
       <Footer />
     </>
