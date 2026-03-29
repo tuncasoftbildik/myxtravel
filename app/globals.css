@@ -119,3 +119,8 @@ body {
 @keyframes shimmer {
   100% { transform: translateX(100%); }
 }
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
