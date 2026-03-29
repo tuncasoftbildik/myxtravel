@@ -66,17 +66,17 @@ export function Header({ variant = "transparent" }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-md shadow-black/5 border-b border-gray-100">
-      <div className="w-full px-4 sm:px-8 h-20 sm:h-24 flex items-center">
+      <div className="w-full px-4 sm:px-8 h-22 sm:h-28 flex items-center">
         {/* Logo — far left */}
-        <Link href="/" className="shrink-0 flex items-center gap-2.5">
+        <Link href="/" className="shrink-0 flex items-center gap-3">
           <Image
             src="/logo.png"
             alt="X Travel"
             width={200}
             height={200}
-            className="object-contain h-[62px] sm:h-[78px] w-auto"
+            className="object-contain h-[80px] sm:h-[100px] w-auto"
           />
-          <span className="text-[9px] sm:text-[10px] tracking-[0.25em] text-brand-dark/50 font-light">LIVE YOUR DREAM</span>
+          <span className="text-[10px] sm:text-xs tracking-[0.25em] text-brand-dark/50 font-light">LIVE YOUR DREAM</span>
         </Link>
 
         {/* Spacer */}
