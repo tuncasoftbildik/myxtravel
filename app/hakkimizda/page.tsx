@@ -1,9 +1,26 @@
+import type { Metadata } from "next";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { BreadcrumbJsonLd } from "@/components/json-ld";
+
+export const metadata: Metadata = {
+  title: "Hakkimizda | X Travel",
+  description: "X Travel hakkinda bilgi edinin. Turkiye'nin yeni nesil online seyahat platformu. 500+ havayolu, 10.000+ otel, 50+ ulke.",
+  alternates: { canonical: "https://xturizm.com/hakkimizda" },
+  openGraph: {
+    title: "Hakkimizda | X Travel",
+    description: "X Travel hakkinda bilgi edinin. Turkiye'nin yeni nesil online seyahat platformu.",
+    url: "https://xturizm.com/hakkimizda",
+    siteName: "X Travel",
+    locale: "tr_TR",
+    type: "website",
+  },
+};
 
 export default function HakkimizdaPage() {
   return (
     <>
+      <BreadcrumbJsonLd items={[{ name: "Ana Sayfa", url: "https://xturizm.com" }, { name: "Hakkimizda", url: "https://xturizm.com/hakkimizda" }]} />
       <Header variant="solid" />
       <main className="flex-1 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-16">

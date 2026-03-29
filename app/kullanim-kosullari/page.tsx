@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+
+export const metadata: Metadata = {
+  title: "Kullanim Kosullari | X Travel",
+  description: "X Travel web sitesi kullanim kosullari ve sartlari.",
+  alternates: { canonical: "https://xturizm.com/kullanim-kosullari" },
+};
 
 export default function KullanimKosullariPage() {
   return (

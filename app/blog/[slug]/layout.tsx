@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { ArticleJsonLd, BreadcrumbJsonLd } from "@/components/json-ld";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -54,6 +55,39 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default function BlogPostLayout({ children }: Props) {
-  return children;
+export default async function BlogPostLayout({ children, params }: Props) {
+  const { slug } = await params;
+
+  const supabase = await createClient();
+  const { data: post } = await supabase
+    .from("blog_posts")
+    .select("title, excerpt, cover_image, author, published_at")
+    .eq("slug", slug)
+    .eq("is_published", true)
+    .single();
+
+  return (
+    <>
+      {post && (
+        <>
+          <ArticleJsonLd
+            title={post.title}
+            description={post.excerpt || post.title}
+            url={`https://xturizm.com/blog/${slug}`}
+            image={post.cover_image || "https://xturizm.com/og-image.png"}
+            author={post.author}
+            datePublished={post.published_at || ""}
+          />
+          <BreadcrumbJsonLd
+            items={[
+              { name: "Ana Sayfa", url: "https://xturizm.com" },
+              { name: "Blog", url: "https://xturizm.com/blog" },
+              { name: post.title, url: `https://xturizm.com/blog/${slug}` },
+            ]}
+          />
+        </>
+      )}
+      {children}
+    </>
+  );
 }

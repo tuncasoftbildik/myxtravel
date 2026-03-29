@@ -1,0 +1,33 @@
+# X Travel (xturizm.com)
+
+> X Travel is a TURSAB-certified Turkish online travel agency offering flight tickets, hotel reservations, airport transfers, bus tickets, car rentals, and tour packages across 50+ countries.
+
+## Services
+- [Flights](https://xturizm.com/ucus): Domestic and international flight booking with 500+ airlines
+- [Hotels](https://xturizm.com/otel): 10,000+ hotel options worldwide
+- [Transfers](https://xturizm.com/transfer): Airport and city transfers
+- [Tours](https://xturizm.com/tur): Domestic and international tour packages
+- [Bus Tickets](https://xturizm.com/otobus): Intercity bus tickets across Turkey
+- [Car Rental](https://xturizm.com/arac-kiralama): Vehicle rental services
+- [Campaigns](https://xturizm.com/kampanyalar): Current deals and promotions
+
+## Content
+- [Blog](https://xturizm.com/blog): Travel tips, destination guides, and industry news in Turkish
+
+## Company
+- [About](https://xturizm.com/hakkimizda): Company information
+- [Contact](https://xturizm.com/iletisim): Contact details
+- [Careers](https://xturizm.com/kariyer): Job opportunities
+
+## Key Facts
+- Website: https://xturizm.com
+- Language: Turkish
+- Market: Turkey
+- Certification: TURSAB (Association of Turkish Travel Agencies)
+- Airline partners: 500+
+- Hotel options: 10,000+
+- Countries served: 50+
+
+## Optional
+- [Sitemap](https://xturizm.com/sitemap.xml)
+- [Robots](https://xturizm.com/robots.txt)

@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+
+export const metadata: Metadata = {
+  title: "KVKK Aydinlatma Metni | X Travel",
+  description: "X Travel KVKK kapsaminda kisisel verilerin islenmesine iliskin aydinlatma metni.",
+  alternates: { canonical: "https://xturizm.com/kvkk" },
+};
 
 export default function KVKKPage() {
   return (

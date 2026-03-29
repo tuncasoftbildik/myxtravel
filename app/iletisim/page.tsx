@@ -1,9 +1,26 @@
+import type { Metadata } from "next";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { BreadcrumbJsonLd } from "@/components/json-ld";
+
+export const metadata: Metadata = {
+  title: "Iletisim | X Travel",
+  description: "X Travel iletisim bilgileri. Sorulariniz ve destekleriniz icin bize ulasin.",
+  alternates: { canonical: "https://xturizm.com/iletisim" },
+  openGraph: {
+    title: "Iletisim | X Travel",
+    description: "X Travel iletisim bilgileri. Bize ulasin.",
+    url: "https://xturizm.com/iletisim",
+    siteName: "X Travel",
+    locale: "tr_TR",
+    type: "website",
+  },
+};
 
 export default function IletisimPage() {
   return (
     <>
+      <BreadcrumbJsonLd items={[{ name: "Ana Sayfa", url: "https://xturizm.com" }, { name: "Iletisim", url: "https://xturizm.com/iletisim" }]} />
       <Header variant="solid" />
       <main className="flex-1 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
