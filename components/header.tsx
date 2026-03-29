@@ -65,8 +65,8 @@ export function Header({ variant = "transparent" }: HeaderProps) {
   const initials = displayName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
 
   return (
-    <header className={isSolid ? "sticky top-0 z-50 bg-brand-dark shadow-lg shadow-brand-dark/20" : "sticky top-0 z-50 bg-brand-dark shadow-lg shadow-brand-dark/20"}>
-      <div className="w-full px-4 sm:px-8 h-16 sm:h-20 flex items-center">
+    <header className="sticky top-0 z-50 bg-white shadow-md shadow-black/5 border-b border-gray-100">
+      <div className="w-full px-4 sm:px-8 h-20 sm:h-24 flex items-center">
         {/* Logo — far left */}
         <Link href="/" className="shrink-0 flex items-center gap-2.5">
           <Image
@@ -74,9 +74,9 @@ export function Header({ variant = "transparent" }: HeaderProps) {
             alt="X Travel"
             width={200}
             height={200}
-            className="object-contain h-[44px] sm:h-[56px] w-auto"
+            className="object-contain h-[62px] sm:h-[78px] w-auto"
           />
-          <span className="text-[9px] sm:text-[10px] tracking-[0.25em] text-white/60 font-light">LIVE YOUR DREAM</span>
+          <span className="text-[9px] sm:text-[10px] tracking-[0.25em] text-brand-dark/50 font-light">LIVE YOUR DREAM</span>
         </Link>
 
         {/* Spacer */}
@@ -88,7 +88,7 @@ export function Header({ variant = "transparent" }: HeaderProps) {
             <div className="relative">
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-2.5 px-3 py-1.5 rounded-full hover:bg-white/10 transition"
+                className="flex items-center gap-2.5 px-3 py-1.5 rounded-full hover:bg-gray-100 transition"
               >
                 {avatarUrl ? (
                   <Image src={avatarUrl} alt={displayName} width={32} height={32} className="w-8 h-8 rounded-full" />
@@ -97,8 +97,8 @@ export function Header({ variant = "transparent" }: HeaderProps) {
                     {initials}
                   </div>
                 )}
-                <span className="text-sm text-white/90 font-medium max-w-[120px] truncate">{displayName}</span>
-                <svg className={`w-4 h-4 text-white/60 transition ${dropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span className="text-sm text-gray-700 font-medium max-w-[120px] truncate">{displayName}</span>
+                <svg className={`w-4 h-4 text-gray-400 transition ${dropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
@@ -173,7 +173,7 @@ export function Header({ variant = "transparent" }: HeaderProps) {
             </div>
           ) : (
             <>
-              <Link href="/giris" className="px-5 py-2.5 text-sm text-white/80 hover:text-white transition">
+              <Link href="/giris" className="px-5 py-2.5 text-sm text-gray-600 hover:text-gray-900 transition">
                 Giriş Yap
               </Link>
               <Link
@@ -187,7 +187,7 @@ export function Header({ variant = "transparent" }: HeaderProps) {
         </div>
 
         {/* Mobile hamburger */}
-        <button className="sm:hidden p-3 text-white" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menü">
+        <button className="sm:hidden p-3 text-gray-700" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menü">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             {menuOpen ? (
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -202,14 +202,14 @@ export function Header({ variant = "transparent" }: HeaderProps) {
       {menuOpen && (
         <>
         <div className="fixed inset-0 z-40 sm:hidden" onClick={() => setMenuOpen(false)} />
-        <nav className={`sm:hidden mx-4 rounded-2xl p-4 space-y-1 mb-2 relative z-50 ${isSolid ? "bg-white/10 border border-white/10" : "glass"}`}>
+        <nav className="sm:hidden mx-4 rounded-2xl p-4 space-y-1 mb-2 relative z-50 bg-white border border-gray-100 shadow-lg">
           {navItems.map((item) => (
-            <Link key={item.label} href={item.href} className="block px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-xl text-sm transition">
+            <Link key={item.label} href={item.href} className="block px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm transition">
               {item.label}
             </Link>
           ))}
           {user ? (
-            <div className="pt-3 border-t border-white/10 mt-2 space-y-1">
+            <div className="pt-3 border-t border-gray-100 mt-2 space-y-1">
               {/* User info */}
               <div className="flex items-center gap-3 px-4 py-2">
                 {avatarUrl ? (
@@ -220,62 +220,62 @@ export function Header({ variant = "transparent" }: HeaderProps) {
                   </div>
                 )}
                 <div className="min-w-0">
-                  <p className="text-sm text-white font-medium truncate">{displayName}</p>
-                  <p className="text-xs text-white/50 truncate">{user.email}</p>
+                  <p className="text-sm text-gray-900 font-medium truncate">{displayName}</p>
+                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
                 </div>
               </div>
 
               {/* Hesap */}
-              <p className="px-4 pt-2 text-[10px] font-bold text-white/30 uppercase tracking-wider">Hesap</p>
-              <Link href="/hesap/profil" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+              <p className="px-4 pt-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Hesap</p>
+              <Link href="/hesap/profil" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                 Profilim
               </Link>
-              <Link href="/hesap/sifre" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+              <Link href="/hesap/sifre" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                 Şifremi Değiştir
               </Link>
 
               {/* Rezervasyonlarım */}
-              <p className="px-4 pt-2 text-[10px] font-bold text-white/30 uppercase tracking-wider">Rezervasyonlarım</p>
-              <Link href="/hesap/ucak-biletlerim" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 00-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" /></svg>
+              <p className="px-4 pt-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Rezervasyonlarım</p>
+              <Link href="/hesap/ucak-biletlerim" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition">
+                <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 00-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" /></svg>
                 Uçak Biletlerim
               </Link>
-              <Link href="/hesap/otel-rezervasyonlarim" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M7 21H3v-8l9-6 9 6v8h-4v-6h-2v6H9v-6H7v6zm5-18l12 8h-3v10h-5v-6H8v6H3V11H0l12-8z" /></svg>
+              <Link href="/hesap/otel-rezervasyonlarim" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition">
+                <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M7 21H3v-8l9-6 9 6v8h-4v-6h-2v6H9v-6H7v6zm5-18l12 8h-3v10h-5v-6H8v6H3V11H0l12-8z" /></svg>
                 Otel Rezervasyonlarım
               </Link>
-              <Link href="/hesap/otobus-biletlerim" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z" /></svg>
+              <Link href="/hesap/otobus-biletlerim" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition">
+                <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z" /></svg>
                 Otobüs Biletlerim
               </Link>
-              <Link href="/hesap/transfer-rezervasyonlarim" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16C5.67 16 5 15.33 5 14.5S5.67 13 6.5 13 8 13.67 8 14.5 7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" /></svg>
+              <Link href="/hesap/transfer-rezervasyonlarim" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition">
+                <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16C5.67 16 5 15.33 5 14.5S5.67 13 6.5 13 8 13.67 8 14.5 7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" /></svg>
                 Transfer Rezervasyonlarım
               </Link>
-              <Link href="/hesap/arac-kiralama" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" /></svg>
+              <Link href="/hesap/arac-kiralama" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition">
+                <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" /></svg>
                 Araç Kiralama
               </Link>
 
               {/* Yönetim + Çıkış */}
               {isAdmin && (
-                <Link href="/admin" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white font-semibold hover:bg-white/10 rounded-xl transition mt-2 border-t border-white/10 pt-3">
+                <Link href="/admin" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-brand-dark font-semibold hover:bg-gray-50 rounded-xl transition mt-2 border-t border-gray-100 pt-3">
                   <svg className="w-4 h-4 text-brand-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                   Yönetim Paneli
                 </Link>
               )}
               <button
                 onClick={handleSignOut}
-                className="w-full text-center py-2.5 text-red-400 border border-red-400/30 rounded-full text-sm mt-3"
+                className="w-full text-center py-2.5 text-red-500 border border-red-200 rounded-full text-sm mt-3 hover:bg-red-50 transition"
               >
                 Çıkış Yap
               </button>
             </div>
           ) : (
-            <div className="flex gap-2 pt-3 border-t border-white/10 mt-2">
-              <Link href="/giris" className="flex-1 text-center py-2.5 text-white/80 border border-white/20 rounded-full text-sm">Giriş Yap</Link>
+            <div className="flex gap-2 pt-3 border-t border-gray-100 mt-2">
+              <Link href="/giris" className="flex-1 text-center py-2.5 text-gray-600 border border-gray-200 rounded-full text-sm hover:bg-gray-50 transition">Giriş Yap</Link>
               <Link href="/kayit" className="flex-1 text-center py-2.5 bg-brand-red text-white rounded-full text-sm">Üye Ol</Link>
             </div>
           )}

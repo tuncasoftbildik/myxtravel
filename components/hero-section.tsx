@@ -59,16 +59,16 @@ export function HeroSection() {
     <section className="relative bg-white border-b border-gray-100 overflow-hidden">
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-8 sm:pt-10 pb-8 sm:pb-10">
         {/* Nav items */}
-        <nav className="flex items-stretch justify-center gap-6 sm:gap-8 md:gap-12 flex-wrap">
+        <nav className="flex items-stretch justify-center gap-4 sm:gap-6 md:gap-8 flex-nowrap">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.label}
               href={item.href}
-              className="group flex flex-col items-center gap-2.5 sm:gap-3 w-[72px] sm:w-[88px] hover:-translate-y-1 transition-all duration-300"
+              className="group flex flex-col items-center gap-3 sm:gap-4 w-[88px] sm:w-[110px] hover:-translate-y-1 transition-all duration-300"
             >
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-brand-dark/90 shadow-md flex items-center justify-center group-hover:bg-brand-red group-hover:shadow-lg group-hover:shadow-brand-red/25 transition-all duration-300">
+              <div className="w-[88px] h-[88px] sm:w-[108px] sm:h-[108px] rounded-2xl bg-brand-dark/90 shadow-md flex items-center justify-center group-hover:bg-brand-red group-hover:shadow-lg group-hover:shadow-brand-red/25 transition-all duration-300">
                 <svg
-                  className={`w-9 h-9 sm:w-10 sm:h-10 text-white/80 group-hover:text-white transition-colors duration-300 ${item.anim}`}
+                  className={`w-11 h-11 sm:w-12 sm:h-12 text-white/80 group-hover:text-white transition-colors duration-300 ${item.anim}`}
                   fill={item.fill ? "currentColor" : "none"}
                   stroke={item.fill ? "none" : "currentColor"}
                   viewBox="0 0 24 24"
@@ -76,7 +76,7 @@ export function HeroSection() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
                 </svg>
               </div>
-              <span className="text-xs sm:text-sm font-semibold text-gray-700 group-hover:text-brand-red transition-colors duration-300 text-center leading-tight">{item.label}</span>
+              <span className="text-sm sm:text-base font-semibold text-gray-700 group-hover:text-brand-red transition-colors duration-300 text-center leading-tight">{item.label}</span>
             </Link>
           ))}
         </nav>

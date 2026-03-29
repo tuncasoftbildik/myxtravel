@@ -5,6 +5,7 @@ import { PromotionsCarousel } from "@/components/promotions-carousel";
 import { Features } from "@/components/features";
 import { Footer } from "@/components/footer";
 import { AirlineMarquee } from "@/components/airline-marquee";
+import { RentalMarquee } from "@/components/rental-marquee";
 import { NewsletterCTA } from "@/components/newsletter-cta";
 
 const PAYMENT_CARDS = [
@@ -27,6 +28,7 @@ export default function Home() {
 
       <PromotionsCarousel />
       {/* <PopularDestinations /> */}
+      <RentalMarquee />
       <Features />
 
       {/* Payment Cards */}
