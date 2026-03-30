@@ -580,9 +580,16 @@ function LoadingSkeleton() {
   return (
     <div>
       {/* Loading header */}
-      <div className="flex items-center gap-3 mb-5">
-        <div className="w-5 h-5 border-2 border-brand-red/20 border-t-brand-red rounded-full animate-spin" />
-        <p className="text-sm text-brand-gray/50">Turlar yükleniyor...</p>
+      <div className="flex flex-col items-center justify-center gap-4 mb-8 py-4">
+        <div className="w-10 h-10 border-3 border-brand-red/20 border-t-brand-red rounded-full animate-spin" />
+        <div className="text-center">
+          <p className="text-lg font-semibold text-gray-800 animate-pulse">
+            Sizin için en iyi teklifleri hazırlıyoruz
+          </p>
+          <p className="text-sm text-gray-400 mt-1 animate-[fadeInOut_2s_ease-in-out_infinite]">
+            Lütfen birkaç saniye bekleyin...
+          </p>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:gap-5">

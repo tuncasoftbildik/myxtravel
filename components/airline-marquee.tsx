@@ -22,6 +22,21 @@ const DEFAULT_AIRLINES = [
   { name: "AtlasGlobal", image_url: "/airlines/atlasglobal.png" },
 ];
 
+const DEFAULT_RENTALS = [
+  { name: "Enterprise", image_url: "/rentals/enterprise.png" },
+  { name: "Hertz", image_url: "/rentals/hertz.png" },
+  { name: "Avis", image_url: "/rentals/avis.png" },
+  { name: "Budget", image_url: "/rentals/budget.png" },
+  { name: "Europcar", image_url: "/rentals/europcar.png" },
+  { name: "Sixt", image_url: "/rentals/sixt.png" },
+  { name: "National", image_url: "/rentals/national.png" },
+  { name: "Garenta", image_url: "/rentals/garenta.png" },
+  { name: "İnterCity", image_url: "/rentals/intercity.png" },
+  { name: "Circular", image_url: "/rentals/circular.png" },
+  { name: "GreenMotion", image_url: "/rentals/greenmotion.png" },
+  { name: "Alamo", image_url: "/rentals/alamo.png" },
+];
+
 const DEFAULT_BUSES = [
   { name: "Metro Turizm", image_url: "/buses/metro.png" },
   { name: "Kamil Koç", image_url: "/buses/kamilkoc.png" },
@@ -57,17 +72,17 @@ export function AirlineMarquee() {
   }, []);
 
   return (
-    <section className="border-b border-gray-100 py-5 overflow-hidden space-y-4">
+    <section className="border-b border-sky-200 py-2 overflow-hidden space-y-1">
       {/* Havayolu logoları — sağdan sola */}
       <div className="relative">
-        <div className="flex items-center gap-6 sm:gap-10 animate-marquee w-max">
+        <div className="flex items-center gap-8 sm:gap-12 animate-marquee w-max">
           {[...airlines, ...airlines, ...airlines].map((airline, i) => (
-            <div key={i} className="shrink-0 w-[140px] sm:w-[180px] h-[36px] sm:h-[48px] flex items-center justify-center">
+            <div key={i} className="shrink-0 w-[120px] sm:w-[150px] h-[28px] sm:h-[34px] flex items-center justify-center">
               <Image
                 src={airline.image_url}
                 alt={airline.name}
                 width={150}
-                height={40}
+                height={34}
                 className="max-h-full max-w-full opacity-40 hover:opacity-70 transition-opacity duration-300 object-contain"
               />
             </div>
@@ -77,20 +92,21 @@ export function AirlineMarquee() {
 
       {/* Otobüs firmaları — soldan sağa */}
       <div className="relative">
-        <div className="flex items-center gap-6 sm:gap-10 animate-marquee-reverse w-max">
+        <div className="flex items-center gap-8 sm:gap-12 animate-marquee-reverse w-max">
           {[...DEFAULT_BUSES, ...DEFAULT_BUSES, ...DEFAULT_BUSES].map((bus, i) => (
-            <div key={i} className="shrink-0 w-[140px] sm:w-[180px] h-[36px] sm:h-[48px] flex items-center justify-center">
+            <div key={i} className="shrink-0 w-[120px] sm:w-[150px] h-[28px] sm:h-[34px] flex items-center justify-center">
               <Image
                 src={bus.image_url}
                 alt={bus.name}
                 width={150}
-                height={40}
+                height={34}
                 className="max-h-full max-w-full opacity-40 hover:opacity-70 transition-opacity duration-300 object-contain"
               />
             </div>
           ))}
         </div>
       </div>
+
     </section>
   );
 }

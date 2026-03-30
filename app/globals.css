@@ -16,7 +16,7 @@
 }
 
 body {
-  background: var(--background);
+  background: linear-gradient(to bottom, #e0f2fe, #eff6ff, #ffffff);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
@@ -118,4 +118,9 @@ body {
 
 @keyframes shimmer {
   100% { transform: translateX(100%); }
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
 }
