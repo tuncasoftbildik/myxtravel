@@ -72,7 +72,7 @@ export function AirlineMarquee() {
   }, []);
 
   return (
-    <section className="border-b border-gray-100 py-2 overflow-hidden space-y-1">
+    <section className="border-b border-sky-200 py-2 overflow-hidden space-y-1">
       {/* Havayolu logoları — sağdan sola */}
       <div className="relative">
         <div className="flex items-center gap-8 sm:gap-12 animate-marquee w-max">

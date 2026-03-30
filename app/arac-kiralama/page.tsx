@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Header } from "@/components/header";
+import { RentalMarquee } from "@/components/rental-marquee";
 import { Footer } from "@/components/footer";
 
 const DEFAULT_CITIES = [
@@ -213,6 +214,7 @@ export default function AracKiralamaPage() {
             ))}
           </div>
         </div>
+        <RentalMarquee />
       </main>
       <Footer />
     </>
