@@ -50,7 +50,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tr" className={`${geistSans.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-gradient-to-b from-sky-100 via-blue-50 to-white">
+      <body className="min-h-full flex flex-col bg-white">
         <OrganizationJsonLd />
         <WebSiteJsonLd />
         <AgencyProvider>{children}</AgencyProvider>

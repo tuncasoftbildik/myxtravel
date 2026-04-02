@@ -72,7 +72,7 @@ export function AirlineMarquee() {
   }, []);
 
   return (
-    <section className="border-b border-sky-200 py-2 overflow-hidden space-y-1">
+    <section className="py-8 sm:py-10 overflow-hidden space-y-2 bg-gray-50">
       {/* Havayolu logoları — sağdan sola */}
       <div className="relative">
         <div className="flex items-center gap-8 sm:gap-12 animate-marquee w-max">
@@ -83,7 +83,7 @@ export function AirlineMarquee() {
                 alt={airline.name}
                 width={150}
                 height={34}
-                className="max-h-full max-w-full opacity-40 hover:opacity-70 transition-opacity duration-300 object-contain"
+                className="max-h-full max-w-full opacity-60 hover:opacity-100 transition-opacity duration-300 object-contain grayscale hover:grayscale-0"
               />
             </div>
           ))}
@@ -100,7 +100,7 @@ export function AirlineMarquee() {
                 alt={bus.name}
                 width={150}
                 height={34}
-                className="max-h-full max-w-full opacity-40 hover:opacity-70 transition-opacity duration-300 object-contain"
+                className="max-h-full max-w-full opacity-60 hover:opacity-100 transition-opacity duration-300 object-contain grayscale hover:grayscale-0"
               />
             </div>
           ))}

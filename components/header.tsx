@@ -65,8 +65,8 @@ export function Header({ variant = "transparent" }: HeaderProps) {
   const initials = displayName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
 
   return (
-    <header className="relative z-50 bg-transparent">
-      <div className="w-full px-4 sm:px-8 h-22 sm:h-28 flex items-center">
+    <header className="absolute top-0 left-0 right-0 z-50">
+      <div className="w-full px-4 sm:px-8 h-20 sm:h-24 flex items-center">
         {/* Logo — far left */}
         <Link href="/" className="shrink-0 flex items-center gap-3">
           <Image
@@ -74,9 +74,8 @@ export function Header({ variant = "transparent" }: HeaderProps) {
             alt="X Travel"
             width={200}
             height={200}
-            className="object-contain h-[100px] sm:h-[120px] w-auto"
+            className="object-contain h-[80px] sm:h-[100px] w-auto"
           />
-          <span className="text-[10px] sm:text-xs tracking-[0.25em] text-brand-dark/50 font-light">LIVE YOUR DREAM</span>
         </Link>
 
         {/* Spacer */}
@@ -88,7 +87,7 @@ export function Header({ variant = "transparent" }: HeaderProps) {
             <div className="relative">
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-2.5 px-3 py-1.5 rounded-full hover:bg-gray-100 transition"
+                className="flex items-center gap-2.5 px-3 py-1.5 rounded-full hover:bg-white/10 transition"
               >
                 {avatarUrl ? (
                   <Image src={avatarUrl} alt={displayName} width={32} height={32} className="w-8 h-8 rounded-full" />
@@ -97,8 +96,8 @@ export function Header({ variant = "transparent" }: HeaderProps) {
                     {initials}
                   </div>
                 )}
-                <span className="text-sm text-gray-700 font-medium max-w-[120px] truncate">{displayName}</span>
-                <svg className={`w-4 h-4 text-gray-400 transition ${dropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span className="text-sm text-white font-medium max-w-[120px] truncate">{displayName}</span>
+                <svg className={`w-4 h-4 text-white/60 transition ${dropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
@@ -173,12 +172,12 @@ export function Header({ variant = "transparent" }: HeaderProps) {
             </div>
           ) : (
             <>
-              <Link href="/giris" className="px-5 py-2.5 text-sm text-gray-600 hover:text-gray-900 transition">
+              <Link href="/giris" className="px-5 py-2.5 text-sm text-white/80 hover:text-white transition font-medium">
                 Giriş Yap
               </Link>
               <Link
                 href="/kayit"
-                className="px-5 py-2.5 text-sm bg-brand-red text-white rounded-full hover:bg-red-700 transition font-medium"
+                className="px-5 py-2.5 text-sm bg-white text-gray-900 rounded-full hover:bg-white/90 transition font-semibold shadow-lg"
               >
                 Ücretsiz Üye Ol
               </Link>
@@ -187,7 +186,7 @@ export function Header({ variant = "transparent" }: HeaderProps) {
         </div>
 
         {/* Mobile hamburger */}
-        <button className="sm:hidden p-3 text-gray-700" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menü">
+        <button className="sm:hidden p-3 text-white" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menü">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             {menuOpen ? (
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
