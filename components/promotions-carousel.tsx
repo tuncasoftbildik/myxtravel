@@ -101,8 +101,11 @@ export function PromotionsCarousel() {
   }
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Kampanyalar</h2>
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+      <div className="text-center mb-8 sm:mb-10">
+        <span className="text-xs font-semibold text-brand-red uppercase tracking-widest">Fırsatlar</span>
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">Güncel Kampanyalar</h2>
+      </div>
 
       <div className="relative">
         {/* Left arrow */}
@@ -139,7 +142,7 @@ export function PromotionsCarousel() {
             <Link
               key={promo.id}
               href={promo.link || "#"}
-              className="snap-start shrink-0 w-[200px] sm:w-[240px] md:w-[calc(33.333%-11px)] lg:w-[calc(25%-12px)] border border-gray-200 rounded-2xl p-4 sm:p-5 hover:shadow-lg hover:border-gray-300 transition-all group bg-white relative overflow-hidden"
+              className="snap-start shrink-0 w-[200px] sm:w-[240px] md:w-[calc(33.333%-11px)] lg:w-[calc(25%-12px)] rounded-2xl p-5 sm:p-6 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden border border-gray-100 bg-gradient-to-br from-white to-gray-50"
             >
               {/* Badge row */}
               <div className="flex items-center justify-between mb-3">

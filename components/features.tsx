@@ -55,7 +55,7 @@ export function Features() {
   }, []);
 
   return (
-    <section className="bg-gray-50/80 py-20">
+    <section className="bg-white py-16 sm:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-12">
           <span className="text-xs font-semibold text-brand-red uppercase tracking-widest">{badge}</span>
