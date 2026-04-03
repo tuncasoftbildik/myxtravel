@@ -31,95 +31,44 @@ const SERVICES = [
 
 export function ServiceCards() {
   return (
-    <section
-      style={{
-        maxWidth: "1280px",
-        margin: "0 auto",
-        padding: "3rem 1.5rem",
-      }}
-    >
-      <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-        <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#C41E3A", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-          Hizmetlerimiz
-        </span>
-        <h2 style={{ fontSize: "1.875rem", fontWeight: 700, color: "#111827", marginTop: "0.5rem" }}>
-          Ne Arıyorsunuz?
-        </h2>
-      </div>
-
-      <div
-        style={{
-          display: "flex",
-          gap: "1.5rem",
-          width: "100%",
-        }}
-      >
-        {SERVICES.map((service) => (
-          <Link
-            key={service.title}
-            href={service.link}
-            style={{
-              flex: "1 1 0%",
-              position: "relative",
-              borderRadius: "1rem",
-              overflow: "hidden",
-              height: "280px",
-              display: "block",
-              textDecoration: "none",
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={service.image}
-              alt={service.title}
-              loading="lazy"
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                transition: "transform 0.5s ease",
-              }}
-              onMouseOver={(e) => { (e.target as HTMLImageElement).style.transform = "scale(1.1)"; }}
-              onMouseOut={(e) => { (e.target as HTMLImageElement).style.transform = "scale(1)"; }}
-            />
-
-            {/* Dark gradient overlay */}
-            <div
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.05) 100%)",
-                pointerEvents: "none",
-              }}
-            />
-
-            {/* Text content */}
-            <div
-              style={{
-                position: "absolute",
-                bottom: 0,
-                left: 0,
-                right: 0,
-                padding: "1.5rem",
-                pointerEvents: "none",
-              }}
-            >
-              <h3 style={{ color: "white", fontWeight: 700, fontSize: "1.25rem", marginBottom: "0.25rem" }}>
-                {service.title}
-              </h3>
-              <p style={{ color: "rgba(255,255,255,0.75)", fontSize: "0.875rem", lineHeight: 1.5, margin: 0 }}>
-                {service.description}
-              </p>
-            </div>
-          </Link>
-        ))}
-      </div>
-    </section>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .sc-section { max-width: 1280px; margin: 0 auto; padding: 3rem 1.5rem; }
+        .sc-title-wrap { text-align: center; margin-bottom: 2.5rem; }
+        .sc-subtitle { font-size: 0.75rem; font-weight: 600; color: #C41E3A; text-transform: uppercase; letter-spacing: 0.1em; }
+        .sc-title { font-size: 1.875rem; font-weight: 700; color: #111827; margin-top: 0.5rem; }
+        .sc-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 1.5rem !important; width: 100% !important; }
+        .sc-card { position: relative !important; display: block !important; border-radius: 1rem; overflow: hidden; height: 280px; text-decoration: none; }
+        .sc-card img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .sc-card:hover img { transform: scale(1.1); }
+        .sc-card .sc-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.05) 100%); }
+        .sc-card .sc-content { position: absolute; bottom: 0; left: 0; right: 0; padding: 1.5rem; }
+        .sc-card .sc-content h3 { color: white; font-weight: 700; font-size: 1.25rem; margin: 0 0 0.25rem 0; }
+        .sc-card .sc-content p { color: rgba(255,255,255,0.75); font-size: 0.875rem; line-height: 1.5; margin: 0; }
+        @media (max-width: 768px) {
+          .sc-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .sc-card { height: 200px; }
+        }
+      `}} />
+      <section className="sc-section">
+        <div className="sc-title-wrap">
+          <span className="sc-subtitle">Hizmetlerimiz</span>
+          <h2 className="sc-title">Ne Arıyorsunuz?</h2>
+        </div>
+        <div className="sc-grid">
+          {SERVICES.map((service) => (
+            <Link key={service.title} href={service.link} className="sc-card">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={service.image} alt={service.title} loading="lazy" />
+              <div className="sc-overlay" />
+              <div className="sc-content">
+                <h3>{service.title}</h3>
+                <p>{service.description}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+    </>
   );
 }
