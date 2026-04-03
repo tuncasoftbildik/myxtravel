@@ -205,7 +205,6 @@ function ServiceCard({ service }: { service: typeof SERVICES[0] }) {
         style={{
           position: "absolute",
           top: 0,
-          left: "-100%",
           width: "60%",
           height: "100%",
           background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)",
