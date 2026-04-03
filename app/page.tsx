@@ -1,5 +1,6 @@
 import { Header } from "@/components/header";
 import { HeroSection } from "@/components/hero-section";
+import { ServiceCards } from "@/components/service-cards";
 import { PromotionsCarousel } from "@/components/promotions-carousel";
 import { Features } from "@/components/features";
 import { Footer } from "@/components/footer";
@@ -11,6 +12,7 @@ export default function Home() {
       <Header />
       <HeroSection />
       <AirlineMarquee />
+      <ServiceCards />
       <PromotionsCarousel />
       <Features />
       <NewsletterCTA />
