@@ -61,7 +61,7 @@ export function ServiceCards() {
           <Link
             key={service.title}
             href={service.link}
-            className="group relative rounded-2xl overflow-hidden aspect-[4/3] sm:aspect-[3/2]"
+            className="group relative rounded-2xl overflow-hidden h-48 sm:h-56 lg:h-64"
           >
             {/* Background image */}
             <Image
