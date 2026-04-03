@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
       { hostname: "lh3.googleusercontent.com" },
       { hostname: "sfquagoyqohqnaziuqda.supabase.co" },
       { hostname: "epbbgpzkmmaeropqlsrr.supabase.co" },
+      { hostname: "images.unsplash.com" },
     ],
   },
 };
