@@ -6,7 +6,7 @@ const SERVICES = [
   {
     title: "Uçak Bileti",
     description: "En uygun fiyatlı uçak biletleri",
-    image: "https://images.unsplash.com/photo-1436491865332-7a61a109db05?w=800&q=80",
+    image: "https://images.unsplash.com/photo-1529074963764-98f45c47344b?w=800&q=80",
     link: "/ucus",
   },
   {
