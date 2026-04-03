@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 
 const SERVICES = [
   {
@@ -56,43 +55,38 @@ export function ServiceCards() {
         <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">Ne Arıyorsunuz?</h2>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
         {SERVICES.map((service) => (
           <Link
             key={service.title}
             href={service.link}
-            className="group relative rounded-2xl overflow-hidden h-48 sm:h-56 lg:h-64"
+            className="group"
+            style={{ display: 'block', position: 'relative', borderRadius: '1rem', overflow: 'hidden', height: '280px' }}
           >
-            {/* Background image */}
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={service.image}
               alt={service.title}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
-              sizes="(max-width: 768px) 50vw, 25vw"
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }}
+              className="group-hover:scale-110"
             />
 
-            {/* Dark overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10 group-hover:from-black/90 transition-all duration-300" />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.2), rgba(0,0,0,0.05))' }} />
 
-            {/* Content */}
-            <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-5">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-white/80 group-hover:text-white transition-colors">
-                  {service.icon}
-                </span>
-                <h3 className="text-white font-bold text-base sm:text-lg">{service.title}</h3>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                <span className="text-white/80">{service.icon}</span>
+                <h3 style={{ color: 'white', fontWeight: 700, fontSize: '1.125rem' }}>{service.title}</h3>
               </div>
-              <p className="text-white/70 text-xs sm:text-sm leading-snug group-hover:text-white/90 transition-colors">
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem', lineHeight: 1.4 }}>
                 {service.description}
               </p>
+            </div>
 
-              {/* Arrow indicator */}
-              <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-0 -translate-x-2">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-              </div>
+            <div style={{ position: 'absolute', top: '1rem', right: '1rem', width: '2rem', height: '2rem', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 0.3s' }} className="group-hover:!opacity-100">
+              <svg style={{ width: '1rem', height: '1rem', color: 'white' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
             </div>
           </Link>
         ))}
