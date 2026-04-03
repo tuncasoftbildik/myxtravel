@@ -9,28 +9,28 @@ const SERVICES = [
     description: "En uygun fiyatlı uçak biletleri",
     image: "https://images.unsplash.com/photo-1529074963764-98f45c47344b?w=800&q=80",
     link: "/ucus",
-    icon: "✈️",
+    icon: "",
   },
   {
     title: "Otel",
     description: "Binlerce otelde en iyi fiyat garantisi",
     image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80",
     link: "/otel",
-    icon: "🏨",
+    icon: "",
   },
   {
     title: "Transfer",
     description: "Havalimanı ve şehirler arası VIP transfer",
     image: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&q=80",
     link: "/transfer",
-    icon: "🚗",
+    icon: "",
   },
   {
     title: "Tur",
     description: "Yurt içi ve yurt dışı tur paketleri",
     image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80",
     link: "/tur",
-    icon: "🌍",
+    icon: "",
   },
 ];
 
@@ -93,28 +93,6 @@ function ServiceCard({ service }: { service: typeof SERVICES[0] }) {
         }}
       />
 
-      {/* Top-right badge */}
-      <div
-        style={{
-          position: "absolute",
-          top: "1rem",
-          right: "1rem",
-          width: "3rem",
-          height: "3rem",
-          borderRadius: "50%",
-          background: hovered ? "rgba(196,30,58,0.9)" : "rgba(255,255,255,0.15)",
-          backdropFilter: "blur(8px)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: "1.25rem",
-          transition: "all 0.4s ease",
-          transform: hovered ? "scale(1.1) rotate(10deg)" : "scale(1) rotate(0deg)",
-          zIndex: 5,
-        }}
-      >
-        {service.icon}
-      </div>
 
       {/* Arrow indicator */}
       <div
