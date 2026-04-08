@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.5 — 2026-04-08
+
+### RateHawk booking flow — B3 + B4 (gerçek book + DB)
+
+- **Yeni migration:** `011_hotel_orders.sql` — id/supplier/partner_order_id/supplier_order_id/book_hash/hotel_code/guest_info jsonb/status/raw_request+response jsonb, status enum (pending/form_submitted/confirmed/failed/cancelled), updated_at trigger, RLS enabled (service role only).
+- **Yeni:** `POST /api/hotels/book` — 4 adımlı akış: (1) Supabase'e `pending` order insert, (2) `bookFormPartner`, (3) status='form_submitted', (4) `bookFinish` → status='confirmed' + supplier_order_id. Her adımda raw request/response audit için DB'ye yazılıyor. Hata durumunda row status='failed' + error_message güncelleniyor.
+- **Feat:** Phase 1 ödeme tipi **`hotel`** — misafir otelde öder, sistem sıfır ödeme tahsilatı yapar. PSP/kart akışı yok.
+- **UI:** Rezervasyon formu artık gerçekten book endpoint'ini çağırıyor. Confirmation ekranında `partner_order_id` + tedarikçi ref'i gösteriliyor, "Ödeme otelde check-in sırasında yapılacaktır" notu. Submit hatası form içinde kırmızı kart olarak render ediliyor.
+- **Scope:** Tek oda, tek lead guest (certification checklist'in multiroom/children case'leri B5'te).
+
 ## 0.2.4 — 2026-04-08
 
 ### RateHawk booking funnel — B1 + B2 (supplier context + prebook)

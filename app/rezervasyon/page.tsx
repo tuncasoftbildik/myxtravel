@@ -113,22 +113,63 @@ function ReservasyonContent() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [confirmation, setConfirmation] = useState<{
+    orderId: string;
+    partnerOrderId: string;
+    supplierOrderId: string | null;
+  } | null>(null);
 
   const update = (field: string, value: string) => setForm((prev) => ({ ...prev, [field]: value }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError(null);
     if (!form.firstName || !form.lastName || !form.email || !form.phone) return;
     if (supplier === "ratehawk") {
-      if (prebookLoading || prebookError) return;
-      if (prebook?.priceChanged && !priceAccepted) return;
+      if (prebookLoading || prebookError || !prebook) return;
+      if (prebook.priceChanged && !priceAccepted) return;
     }
     setSubmitting(true);
-    // B3: actual book() call goes here — for now just simulate so the flow
-    // stays clickable. The prebook has locked the rate; book uses prebook.bookHash.
-    await new Promise((r) => setTimeout(r, 2000));
-    setDone(true);
-    setSubmitting(false);
+    try {
+      if (supplier === "ratehawk" && prebook) {
+        const res = await fetch("/api/hotels/book", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            supplier,
+            bookHash: prebook.bookHash,
+            hotelCode,
+            hotelName,
+            roomName,
+            boardName,
+            checkIn,
+            checkOut,
+            nights: Number(nights),
+            adults: Number(adults),
+            total: prebook.total,
+            currency: prebook.currency,
+            guest: form,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || data.message || "Rezervasyon başarısız");
+        setConfirmation({
+          orderId: data.orderId,
+          partnerOrderId: data.partnerOrderId,
+          supplierOrderId: data.supplierOrderId,
+        });
+        setDone(true);
+      } else {
+        // TravelRobot path — still stubbed; TR doesn't sell hotels in production.
+        await new Promise((r) => setTimeout(r, 1000));
+        setDone(true);
+      }
+    } catch (err) {
+      setSubmitError((err as Error).message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (done) {
@@ -142,11 +183,28 @@ function ReservasyonContent() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Rezervasyon Talebiniz Alindi</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Rezervasyonunuz Onaylandı</h1>
             <p className="text-sm text-gray-500 mb-1">{hotelName}</p>
             <p className="text-sm text-gray-500 mb-4">{roomName} &middot; {checkIn} - {checkOut}</p>
+            {confirmation && (
+              <div className="bg-gray-50 rounded-xl p-3 mb-4 text-xs space-y-1">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Rezervasyon no</span>
+                  <span className="font-mono font-medium text-gray-900">{confirmation.partnerOrderId}</span>
+                </div>
+                {confirmation.supplierOrderId && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Tedarikçi ref</span>
+                    <span className="font-mono font-medium text-gray-900">{confirmation.supplierOrderId}</span>
+                  </div>
+                )}
+              </div>
+            )}
+            <p className="text-xs text-gray-400 mb-2">
+              Ödeme <span className="font-semibold">otelde</span> check-in sırasında yapılacaktır.
+            </p>
             <p className="text-xs text-gray-400 mb-6">
-              Rezervasyon detaylariniz e-posta adresinize gonderilecektir. En kisa surede sizinle iletisime gecilegiz.
+              Rezervasyon detaylarınız e-posta adresinize gönderilecektir.
             </p>
             <button
               onClick={() => router.push("/otel")}
@@ -255,6 +313,12 @@ function ReservasyonContent() {
                       placeholder="Ozel isteklerinizi buraya yazabilirsiniz..."
                     />
                   </div>
+
+                  {submitError && (
+                    <div className="bg-red-50 border border-red-100 rounded-lg p-3 text-xs text-red-800">
+                      {submitError}
+                    </div>
+                  )}
 
                   <button
                     type="submit"
