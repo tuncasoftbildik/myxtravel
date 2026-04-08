@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.11 — 2026-04-08
+
+### Otel sayfası mobile filtre paneli temizliği
+
+- **UI:** Mobile filtre panelinin tepesindeki koyu "search info summary" kartı kaldırıldı — aynı bilgi (destinasyon, tarih, yetişkin sayısı) hemen altındaki arama formunda zaten görünüyordu, duplicate idi. Panel artık doğrudan arama kutusundan başlıyor.
+
 ## 0.2.10 — 2026-04-08
 
 ### Otel arama sayfası Türkçe karakter düzeltmeleri

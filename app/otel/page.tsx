@@ -246,21 +246,6 @@ function OtelContent() {
             )}
 
             <div className="p-4 space-y-4">
-              {/* Search info summary */}
-              <div className="bg-brand-dark rounded-xl p-3.5 text-white">
-                <div className="flex items-center gap-2 mb-2">
-                  <svg className="w-4 h-4 text-white/70 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                  <span className="text-sm font-semibold truncate">{destinationName || "Tüm Bölgeler"}</span>
-                </div>
-                <div className="text-xs text-white/60 space-y-0.5">
-                  <p>{checkIn} - {checkOut} ({nightCount} gece)</p>
-                  <p>{adults} yetişkin</p>
-                </div>
-                {!loading && !error && (
-                  <p className="text-xs text-white/50 mt-2 pt-2 border-t border-white/10">{sorted.length} otel bulundu</p>
-                )}
-              </div>
-
               {/* Map/List toggle */}
               <div className="hidden lg:flex rounded-xl border border-gray-200 overflow-hidden">
                 <button
