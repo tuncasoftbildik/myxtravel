@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
@@ -24,17 +24,84 @@ function ReservasyonContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
+  const supplier = (searchParams.get("supplier") || "travelrobot") as "travelrobot" | "ratehawk";
   const hotelCode = searchParams.get("hotelCode") || "";
   const hotelName = searchParams.get("hotelName") || "";
   const roomCode = searchParams.get("roomCode") || "";
   const roomName = searchParams.get("roomName") || "";
   const boardName = searchParams.get("boardName") || "";
-  const totalAmount = searchParams.get("totalAmount") || "0";
-  const currency = searchParams.get("currency") || "TRY";
+  const initialAmount = Number(searchParams.get("totalAmount") || "0");
+  const initialCurrency = searchParams.get("currency") || "TRY";
   const checkIn = searchParams.get("checkIn") || "";
   const checkOut = searchParams.get("checkOut") || "";
   const adults = searchParams.get("adults") || "2";
   const nights = searchParams.get("nights") || "2";
+
+  // Prebook state — final price, cancellation policies, locked book_hash
+  interface Policy {
+    startAt: string | null;
+    endAt: string | null;
+    amountShow: string;
+    currency: string;
+  }
+  const [prebook, setPrebook] = useState<{
+    total: number;
+    currency: string;
+    bookHash: string;
+    priceChanged: boolean;
+    previousTotal: number | null;
+    freeCancellationBefore: string | null;
+    policies: Policy[];
+  } | null>(null);
+  const [prebookLoading, setPrebookLoading] = useState(supplier === "ratehawk");
+  const [prebookError, setPrebookError] = useState<string | null>(null);
+  const [priceAccepted, setPriceAccepted] = useState(false);
+
+  useEffect(() => {
+    if (supplier !== "ratehawk" || !roomCode) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/hotels/prebook", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            supplier,
+            rateToken: roomCode,
+            expectedAmount: initialAmount,
+            expectedCurrency: initialCurrency,
+          }),
+        });
+        const data = await res.json();
+        if (cancelled) return;
+        if (!res.ok) {
+          setPrebookError(data.error || "Fiyat doğrulanamadı");
+          return;
+        }
+        setPrebook({
+          total: data.total,
+          currency: data.currency,
+          bookHash: data.bookHash,
+          priceChanged: !!data.priceChanged,
+          previousTotal: data.previousTotal,
+          freeCancellationBefore: data.freeCancellationBefore,
+          policies: data.cancellationPolicies || [],
+        });
+      } catch (err) {
+        if (!cancelled) setPrebookError((err as Error).message);
+      } finally {
+        if (!cancelled) setPrebookLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [supplier, roomCode, initialAmount, initialCurrency]);
+
+  // Effective amount to display: prebook result if available, else the
+  // amount carried over from the listing. For TR we never call prebook.
+  const totalAmount = prebook ? prebook.total : initialAmount;
+  const currency = prebook ? prebook.currency : initialCurrency;
 
   const [form, setForm] = useState({
     firstName: "",
@@ -52,8 +119,13 @@ function ReservasyonContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.firstName || !form.lastName || !form.email || !form.phone) return;
+    if (supplier === "ratehawk") {
+      if (prebookLoading || prebookError) return;
+      if (prebook?.priceChanged && !priceAccepted) return;
+    }
     setSubmitting(true);
-    // Simulate booking — in production this would call the TravelRobot booking API
+    // B3: actual book() call goes here — for now just simulate so the flow
+    // stays clickable. The prebook has locked the rate; book uses prebook.bookHash.
     await new Promise((r) => setTimeout(r, 2000));
     setDone(true);
     setSubmitting(false);
@@ -186,7 +258,11 @@ function ReservasyonContent() {
 
                   <button
                     type="submit"
-                    disabled={submitting}
+                    disabled={
+                      submitting ||
+                      (supplier === "ratehawk" &&
+                        (prebookLoading || !!prebookError || (prebook?.priceChanged && !priceAccepted)))
+                    }
                     className="w-full py-3 bg-brand-red text-white text-sm font-bold rounded-lg hover:bg-red-700 transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {submitting ? (
@@ -203,7 +279,61 @@ function ReservasyonContent() {
             </div>
 
             {/* Right — Booking summary */}
-            <div className="lg:w-80 shrink-0">
+            <div className="lg:w-80 shrink-0 space-y-4">
+              {supplier === "ratehawk" && prebookLoading && (
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-800 flex items-center gap-3">
+                  <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin shrink-0" />
+                  <span>Fiyat ve iptal koşulları doğrulanıyor...</span>
+                </div>
+              )}
+              {supplier === "ratehawk" && prebookError && (
+                <div className="bg-red-50 border border-red-100 rounded-xl p-4 text-sm text-red-800">
+                  <p className="font-semibold mb-1">Rezervasyon başlatılamadı</p>
+                  <p className="text-xs">{prebookError}</p>
+                </div>
+              )}
+              {supplier === "ratehawk" && prebook?.priceChanged && (
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm">
+                  <p className="font-semibold text-amber-900 mb-1">Fiyat güncellendi</p>
+                  <p className="text-xs text-amber-800 mb-2">
+                    Eski: {initialCurrency} {prebook.previousTotal?.toLocaleString("tr-TR")} →
+                    Yeni: {prebook.currency} {prebook.total.toLocaleString("tr-TR")}
+                  </p>
+                  <label className="flex items-start gap-2 text-xs text-amber-900 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={priceAccepted}
+                      onChange={(e) => setPriceAccepted(e.target.checked)}
+                      className="mt-0.5"
+                    />
+                    <span>Yeni fiyatı kabul ediyorum, rezervasyona devam et.</span>
+                  </label>
+                </div>
+              )}
+              {supplier === "ratehawk" && prebook && prebook.policies.length > 0 && (
+                <div className="bg-white rounded-2xl shadow-sm p-4 text-xs">
+                  <p className="font-semibold text-gray-900 mb-2">İptal Koşulları</p>
+                  {prebook.freeCancellationBefore && (
+                    <p className="text-emerald-700 mb-2">
+                      {new Date(prebook.freeCancellationBefore).toLocaleString("tr-TR")} tarihine kadar ücretsiz iptal.
+                    </p>
+                  )}
+                  <ul className="space-y-1 text-gray-600">
+                    {prebook.policies.map((p, i) => (
+                      <li key={i}>
+                        {p.startAt ? new Date(p.startAt).toLocaleDateString("tr-TR") : "—"}
+                        {" → "}
+                        {p.endAt ? new Date(p.endAt).toLocaleDateString("tr-TR") : "∞"}
+                        {": "}
+                        <span className="font-medium text-gray-900">
+                          {p.currency} {Number(p.amountShow).toLocaleString("tr-TR")}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               <div className="bg-white rounded-2xl shadow-sm p-5 sticky top-24">
                 <h2 className="text-sm font-bold text-gray-900 mb-4">Rezervasyon Ozeti</h2>
 

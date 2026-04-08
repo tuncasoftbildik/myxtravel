@@ -4,6 +4,14 @@ import { TravelrobotError } from "@/lib/travelrobot/token-manager";
 import { hotel as rhHotel, RatehawkError } from "@/lib/ratehawk";
 import type { HotelSupplier } from "@/lib/hotels";
 
+// RateHawk needs YYYY-MM-DD; UI carries DD.MM.YYYY (TravelRobot legacy).
+function toIsoDate(d: string): string {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+  const m = d.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+  return d;
+}
+
 /**
  * Rooms/rates lookup for a specific hotel. Supplier-aware: callers should
  * pass `supplier` ("travelrobot" | "ratehawk") along with the supplier-native
@@ -145,8 +153,8 @@ async function handleRatehawk({
 }) {
   const res = await rhHotel.hotelPage({
     id: productCode,
-    checkin: checkIn,
-    checkout: checkOut,
+    checkin: toIsoDate(checkIn),
+    checkout: toIsoDate(checkOut),
     residency: nationality.toLowerCase(),
     language: "en",
     guests: [{ adults, children: childAges }],

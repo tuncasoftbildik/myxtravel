@@ -491,7 +491,7 @@ function HotelCard({ hotel, nights, adults, checkIn, checkOut }: { hotel: Hotel;
                 </div>
                 {/* Hotel name as blue link */}
                 <a
-                  href={`/otel/${hotel.productCode}?searchKey=${encodeURIComponent(hotel.searchKey)}&checkIn=${encodeURIComponent(checkIn)}&checkOut=${encodeURIComponent(checkOut)}&adults=${adults}&nights=${nights}`}
+                  href={`/otel/${hotel.productCode}?supplier=${hotel.supplier || "travelrobot"}&searchKey=${encodeURIComponent(hotel.searchKey)}&checkIn=${encodeURIComponent(checkIn)}&checkOut=${encodeURIComponent(checkOut)}&adults=${adults}&nights=${nights}`}
                   className="text-[15px] font-bold text-blue-700 hover:text-blue-800 line-clamp-2 leading-snug mb-1 transition-colors block"
                 >
                   {hotel.name}
@@ -565,7 +565,7 @@ function HotelCard({ hotel, nights, adults, checkIn, checkOut }: { hotel: Hotel;
                 <p className="text-[10px] text-gray-400">Vergiler ve ucretler dahil</p>
               </div>
               <a
-                href={`/otel/${hotel.productCode}?searchKey=${encodeURIComponent(hotel.searchKey)}&checkIn=${encodeURIComponent(checkIn)}&checkOut=${encodeURIComponent(checkOut)}&adults=${adults}&nights=${nights}`}
+                href={`/otel/${hotel.productCode}?supplier=${hotel.supplier || "travelrobot"}&searchKey=${encodeURIComponent(hotel.searchKey)}&checkIn=${encodeURIComponent(checkIn)}&checkOut=${encodeURIComponent(checkOut)}&adults=${adults}&nights=${nights}`}
                 className="px-5 py-2.5 bg-brand-red text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition whitespace-nowrap shadow-sm inline-block text-center"
               >
                 Tüm odaları gör

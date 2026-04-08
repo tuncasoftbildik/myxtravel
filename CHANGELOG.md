@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.4 — 2026-04-08
+
+### RateHawk booking funnel — B1 + B2 (supplier context + prebook)
+
+- **Feat:** Supplier (travelrobot/ratehawk) artık liste → detay → oda → rezervasyon akışında URL üzerinden taşınıyor. Detay sayfası ve `/api/hotels/rooms` supplier'a göre doğru tedarikçiye gidiyor.
+- **Feat:** `/api/hotels/details` supplier-aware — RateHawk için TR'ye gitmek yerine cache'li `hotelInfo`'dan metadata dönüyor (ad, yıldız, görseller 1024x768, adres, koordinat, check-in/out saatleri).
+- **Yeni:** `POST /api/hotels/prebook` — RateHawk adım 2. `book_hash`'i kilitliyor, kesin fiyat + iptal politikası + `free_cancellation_before` döner. Fiyat değiştiyse `priceChanged: true` bayrağı.
+- **UI:** Rezervasyon sayfası RateHawk için açılışta prebook çağırıyor. Loading/error state, fiyat değişim uyarısı (kullanıcı kabul etmeden submit bloklanır — certification gereği), iptal politika listesi ve ücretsiz iptal deadline'ı gösteriliyor.
+- **Fix:** `/api/hotels/rooms` RateHawk path'i de `DD.MM.YYYY → YYYY-MM-DD` dönüşümü yapıyor (aggregator'la paralel).
+- **Ertelenen (B3+B4):** Gerçek book endpoint, `hotel_orders` tablosu, misafir form payload mapping, confirmation page. Ödeme tipi kararı bekliyor.
+
 ## 0.2.3 — 2026-04-08
 
 ### RateHawk tarih format fix
