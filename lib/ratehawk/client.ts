@@ -1,4 +1,4 @@
-import { ProxyAgent } from "undici";
+import { ProxyAgent, fetch as undiciFetch } from "undici";
 import { assertConfigured, authHeader, buildUrl } from "./config";
 
 /**
@@ -6,6 +6,10 @@ import { assertConfigured, authHeader, buildUrl } from "./config";
  * `http://user:pass@63.182.154.248:8888`), every RateHawk request is
  * routed through the static egress proxy so RH sees a stable source IP.
  * Without the env var, fetch runs direct (dev / sandbox).
+ *
+ * We use undici's own `fetch` (not global fetch) so the ProxyAgent
+ * dispatcher is recognized — Node's built-in fetch uses a separate
+ * undici instance that won't honor agents from our explicit import.
  */
 const proxyUrl = process.env.RATEHAWK_PROXY_URL;
 const proxyAgent = proxyUrl ? new ProxyAgent(proxyUrl) : undefined;
@@ -45,7 +49,7 @@ export async function ratehawkRequest<T = unknown>({
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const res = await fetch(buildUrl(path), {
+    const init = {
       method,
       headers: {
         "Content-Type": "application/json",
@@ -53,11 +57,12 @@ export async function ratehawkRequest<T = unknown>({
       },
       body: method === "POST" ? JSON.stringify(body) : undefined,
       signal: controller.signal,
-      cache: "no-store",
-      // undici dispatcher — routes through proxy when configured.
-      // Next.js fetch accepts this via the extended init type.
+      cache: "no-store" as const,
       ...(proxyAgent ? { dispatcher: proxyAgent } : {}),
-    } as RequestInit & { dispatcher?: unknown });
+    };
+    const res = proxyAgent
+      ? await undiciFetch(buildUrl(path), init)
+      : await fetch(buildUrl(path), init as unknown as RequestInit);
 
     const text = await res.text();
     let json: unknown = null;
