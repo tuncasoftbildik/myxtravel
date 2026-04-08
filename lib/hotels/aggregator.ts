@@ -4,6 +4,15 @@ import type { RhHotelInfo } from "@/lib/ratehawk";
 // Single fetcher used by both region and by-id pipelines; delegates the raw
 // API batch call so the cache layer stays ignorant of RateHawk service shapes.
 const rhInfoFetcher = (ids: string[]) => rhHotel.hotelInfoBatch(ids);
+
+// RateHawk needs YYYY-MM-DD. Our UI carries dates as DD.MM.YYYY (TravelRobot
+// legacy format). Accept either and normalize — ISO passes through untouched.
+function toIsoDate(d: string): string {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+  const m = d.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+  return d;
+}
 import { normalizeRatehawkHotel } from "./normalize/ratehawk";
 import { normalizeTravelrobotHotel } from "./normalize/travelrobot";
 import type {
@@ -75,8 +84,8 @@ function infoToMeta(info: RhHotelInfo) {
 async function runRatehawk(params: UnifiedSearchParams): Promise<UnifiedHotel[]> {
   if (!params.regionId) return []; // nothing to search without a RH region mapping
   const res = await rhHotel.searchByRegion({
-    checkin: params.checkIn,
-    checkout: params.checkOut,
+    checkin: toIsoDate(params.checkIn),
+    checkout: toIsoDate(params.checkOut),
     residency: params.nationality.toLowerCase(),
     language: "en",
     guests: [{ adults: params.adults, children: params.childAges }],
@@ -111,8 +120,8 @@ export async function fetchRatehawkByHotelIds(
 ): Promise<UnifiedHotel[]> {
   if (!hids.length) return [];
   const res = await rhHotel.searchByHotels({
-    checkin: params.checkIn,
-    checkout: params.checkOut,
+    checkin: toIsoDate(params.checkIn),
+    checkout: toIsoDate(params.checkOut),
     residency: params.nationality.toLowerCase(),
     language: "en",
     guests: [{ adults: params.adults, children: params.childAges }],

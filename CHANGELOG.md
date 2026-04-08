@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.3 — 2026-04-08
+
+### RateHawk tarih format fix
+
+- **Fix:** `lib/hotels/aggregator.ts` — UI'dan gelen `DD.MM.YYYY` tarih formatı RateHawk'a gitmeden önce `YYYY-MM-DD`'ye çevriliyor. Preview'da `?demo=ratehawk` ile "Beklenmeyen hata oluştu" görünmesinin sebebi buydu (TravelRobot dotted format'ı kabul ediyor, RateHawk ISO istiyor).
+
 ## 0.2.2 — 2026-04-08
 
 ### RateHawk Supabase cache layer
