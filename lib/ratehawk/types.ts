@@ -16,7 +16,10 @@ export interface RhSearchRequest {
   guests: RhGuest[];
   currency?: string; // e.g. "EUR"
   region_id?: number;
-  hotels?: string[]; // hotel ids for byHotelIds search
+  /** Numeric RateHawk hotel ids (preferred for searchByHotels). */
+  hids?: number[];
+  /** String hotel ids (slug). Some endpoints accept these instead of hids. */
+  ids?: string[];
 }
 
 export interface RhDailyPrice {
@@ -70,6 +73,35 @@ export interface RhSearchResponse {
 export interface RhPrebookRequest {
   book_hash: string;
   price_increase_percent?: number;
+}
+
+export interface RhHotelInfo {
+  id: string;
+  hid: number;
+  name: string;
+  /** 0..5 */
+  star_rating: number;
+  address: string;
+  postal_code?: string;
+  latitude: number;
+  longitude: number;
+  phone?: string;
+  email?: string;
+  /**
+   * Raw image URL template — contains `{size}` placeholder that must be
+   * replaced (e.g. "240x240", "1024x768") before rendering.
+   */
+  images: string[];
+  region?: {
+    id: number;
+    name: string;
+    country_code: string;
+    type: string;
+    iata?: string;
+  };
+  kind?: string;
+  check_in_time?: string;
+  check_out_time?: string;
 }
 
 export interface RhBookRequest {

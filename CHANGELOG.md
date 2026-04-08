@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.1 — 2026-04-08
+
+### RateHawk metadata hydration
+
+- **Yeni:** `lib/ratehawk/services/hotel.ts` → `hotelInfo` + `hotelInfoBatch` (paralel, hata-tolere).
+- **Yeni:** `lib/ratehawk/image.ts` → `rhImage(url, size)` — `{size}` placeholder'lı cdn URL'leri için yardımcı.
+- **Yeni:** `RhHotelInfo` tipi (name, star_rating, images, address, region, lat/lng).
+- **Aggregator:** RateHawk SERP sonuçları artık otomatik olarak hotel/info/ ile zenginleştiriliyor — ad, yıldız, görsel, şehir/ülke, koordinat UnifiedHotel'e geçiyor.
+- **Yeni:** `fetchRatehawkByHotelIds()` — spesifik hid listesi için pipeline (test + future search-by-hotels flow için).
+- **Test:** `scripts/rh-test.mts` — sandbox certification hid'leri (10595223, 10004834, 8819557) ile end-to-end doğrulama. Sonuç: Conrad LA, Rosa Bell Motel LA, Key View Residences başarıyla hidrate edildi.
+- **Types:** `RhSearchRequest`'e `hids: number[]` ve `ids: string[]` eklendi (slug sandbox'ta boş dönüyor, `hids` kullanılmalı).
+
 ## 0.2.0 — 2026-04-08
 
 ### RateHawk (Emerging Travel) çoklu tedarikçi entegrasyonu — faz 1

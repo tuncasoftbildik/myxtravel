@@ -4,6 +4,7 @@ import type {
   RhSearchResponse,
   RhPrebookRequest,
   RhBookRequest,
+  RhHotelInfo,
 } from "../types";
 
 /**
@@ -57,6 +58,38 @@ export function bookFinish(partner_order_id: string) {
     path: "/hotel/order/booking/finish/",
     body: { partner_order_id },
   });
+}
+
+/**
+ * Fetch static hotel metadata (name, stars, images, address, region).
+ * Rates are NOT returned here — use SERP endpoints for pricing.
+ */
+export function hotelInfo(id: string, language = "en") {
+  return ratehawkRequest<RhHotelInfo>({
+    path: "/hotel/info/",
+    body: { id, language },
+  });
+}
+
+/**
+ * Fetch metadata for many hotels in parallel. Returns a Map keyed by slug id.
+ * Failures are swallowed per-hotel so one bad id does not break the batch.
+ */
+export async function hotelInfoBatch(
+  ids: string[],
+  language = "en",
+): Promise<Map<string, RhHotelInfo>> {
+  const unique = Array.from(new Set(ids)).filter(Boolean);
+  const results = await Promise.allSettled(
+    unique.map((id) => hotelInfo(id, language)),
+  );
+  const map = new Map<string, RhHotelInfo>();
+  results.forEach((r, i) => {
+    if (r.status === "fulfilled" && r.value) {
+      map.set(unique[i], r.value);
+    }
+  });
+  return map;
 }
 
 /** Simple sandbox ping via overview endpoint. */

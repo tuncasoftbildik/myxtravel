@@ -1,4 +1,5 @@
-import { hotel as rhHotel } from "@/lib/ratehawk";
+import { hotel as rhHotel, rhImage } from "@/lib/ratehawk";
+import type { RhHotelInfo } from "@/lib/ratehawk";
 import { normalizeRatehawkHotel } from "./normalize/ratehawk";
 import { normalizeTravelrobotHotel } from "./normalize/travelrobot";
 import type {
@@ -52,6 +53,21 @@ async function timeit(call: SupplierCall) {
  * Run RateHawk region search and normalize. Metadata hydration (hotel names,
  * stars, images) is not yet wired — Task 3.5.
  */
+function infoToMeta(info: RhHotelInfo) {
+  return {
+    name: info.name,
+    stars: info.star_rating,
+    thumbnail: info.images?.[0] ? rhImage(info.images[0], "640x400") : null,
+    address: info.address || null,
+    city: info.region?.name || null,
+    country: info.region?.country_code || null,
+    location: {
+      lat: typeof info.latitude === "number" ? info.latitude : null,
+      lng: typeof info.longitude === "number" ? info.longitude : null,
+    },
+  };
+}
+
 async function runRatehawk(params: UnifiedSearchParams): Promise<UnifiedHotel[]> {
   if (!params.regionId) return []; // nothing to search without a RH region mapping
   const res = await rhHotel.searchByRegion({
@@ -63,8 +79,47 @@ async function runRatehawk(params: UnifiedSearchParams): Promise<UnifiedHotel[]>
     region_id: params.regionId,
     currency: params.currency || "EUR",
   });
-  return (res?.hotels || [])
-    .map((h) => normalizeRatehawkHotel(h))
+  const rawHotels = res?.hotels || [];
+  if (!rawHotels.length) return [];
+
+  // Hydrate metadata in parallel. Failures per-hotel are swallowed — we still
+  // return the unified hotel with id fallback rather than dropping it.
+  const infoMap = await rhHotel.hotelInfoBatch(rawHotels.map((h) => h.id));
+
+  return rawHotels
+    .map((h) => {
+      const info = infoMap.get(h.id);
+      return normalizeRatehawkHotel(h, info ? infoToMeta(info) : undefined);
+    })
+    .filter((h): h is UnifiedHotel => h !== null);
+}
+
+/**
+ * Hydrate a batch of RateHawk hotels directly from an arbitrary hid/slug list.
+ * Exposed so search-by-hotels callers (and tests) can reuse the same pipeline.
+ */
+export async function fetchRatehawkByHotelIds(
+  params: UnifiedSearchParams,
+  hids: number[],
+): Promise<UnifiedHotel[]> {
+  if (!hids.length) return [];
+  const res = await rhHotel.searchByHotels({
+    checkin: params.checkIn,
+    checkout: params.checkOut,
+    residency: params.nationality.toLowerCase(),
+    language: "en",
+    guests: [{ adults: params.adults, children: params.childAges }],
+    hids,
+    currency: params.currency || "EUR",
+  });
+  const rawHotels = res?.hotels || [];
+  if (!rawHotels.length) return [];
+  const infoMap = await rhHotel.hotelInfoBatch(rawHotels.map((h) => h.id));
+  return rawHotels
+    .map((h) => {
+      const info = infoMap.get(h.id);
+      return normalizeRatehawkHotel(h, info ? infoToMeta(info) : undefined);
+    })
     .filter((h): h is UnifiedHotel => h !== null);
 }
 
