@@ -103,6 +103,7 @@ function OtelContent() {
   const adults = searchParams.get("adults") || "2";
   const destinationId = searchParams.get("destinationId");
   const destinationName = searchParams.get("destinationName");
+  const demoMode = searchParams.get("demo"); // e.g. "ratehawk" — preview-only smoke test
 
   // Search form state (inline in sidebar)
   const [formDest, setFormDest] = useState(
@@ -134,7 +135,13 @@ function OtelContent() {
         const res = await fetch("/api/hotels/search", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ checkIn, checkOut, adults: Number(adults), ...(destinationId ? { destinationId } : {}) }),
+          body: JSON.stringify({
+            checkIn,
+            checkOut,
+            adults: Number(adults),
+            ...(destinationId ? { destinationId } : {}),
+            ...(demoMode ? { demo: demoMode } : {}),
+          }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Arama başarısız");
@@ -149,7 +156,7 @@ function OtelContent() {
     }
 
     fetchHotels();
-  }, [checkIn, checkOut, adults, destinationId]);
+  }, [checkIn, checkOut, adults, destinationId, demoMode]);
 
   function handleSearch() {
     if (!formCheckIn || !formCheckOut) return;

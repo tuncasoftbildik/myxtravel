@@ -2,7 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { hotel } from "@/lib/travelrobot";
 import { TravelrobotError } from "@/lib/travelrobot/token-manager";
 import { searchHotels } from "@/lib/hotels";
+import { fetchRatehawkByHotelIds } from "@/lib/hotels/aggregator";
 import type { UnifiedHotel, UnifiedSearchParams } from "@/lib/hotels";
+
+/**
+ * Sandbox certification hotel ids provided by RateHawk. Used when the request
+ * asks for demo=ratehawk — lets us smoke-test the whole pipeline (API client,
+ * cache, normalize, UI rendering) on a preview deploy even though TravelRobot
+ * returns no hotels and we do not yet have region_id mapping for "Tum bolgeler".
+ */
+const RATEHAWK_DEMO_HIDS = [10595223, 10004834, 8819557];
 
 /**
  * Multi-supplier hotel search. TravelRobot remains the primary source; RateHawk
@@ -49,6 +58,35 @@ export async function POST(req: NextRequest) {
         { error: "Giriş ve çıkış tarihi zorunludur" },
         { status: 400 },
       );
+    }
+
+    // Demo mode: skip supplier aggregation and return the RateHawk sandbox
+    // certification hotels directly. Enabled via ?demo=ratehawk on the URL or
+    // { demo: "ratehawk" } in the body. Does not affect production searches.
+    const demoParam = req.nextUrl.searchParams.get("demo") || body.demo;
+    if (demoParam === "ratehawk") {
+      const demoHotels = await fetchRatehawkByHotelIds(
+        {
+          checkIn,
+          checkOut,
+          nationality,
+          adults,
+          children,
+          childAges,
+          currency: currency || "EUR",
+        },
+        RATEHAWK_DEMO_HIDS,
+      );
+      return NextResponse.json({
+        success: true,
+        demo: "ratehawk",
+        count: demoHotels.length,
+        searchId: null,
+        suppliers: [
+          { supplier: "ratehawk", ok: true, count: demoHotels.length, ms: 0 },
+        ],
+        hotels: demoHotels.map(toWire),
+      });
     }
 
     const params: UnifiedSearchParams = {
