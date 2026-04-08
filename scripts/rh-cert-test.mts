@@ -25,6 +25,7 @@ for (const line of env.split("\n")) {
 
 const { hotel: rhHotel } = await import("../lib/ratehawk/index.ts");
 const { ratehawkRequest } = await import("../lib/ratehawk/client.ts");
+const { pollFinishStatus } = await import("../lib/ratehawk/services/hotel.ts");
 
 type Guests = { adults: number; children: number[] };
 
@@ -34,6 +35,15 @@ interface CertCase {
   residency: string;
   guests: Guests[];
   expectPriceChange?: boolean;
+  /**
+   * RH sandbox triggers error flows by partner_order_id SUFFIX:
+   *   - unknown_success  → finish errors; status eventually ok
+   *   - unknown_soldout  → finish errors; status eventually soldout
+   *   - unknown_book_limit → finish errors; status eventually book_limit
+   *   - soldout / book_limit → finish returns terminal directly
+   */
+  errorSuffix?: "unknown_success" | "unknown_soldout" | "unknown_book_limit" | "soldout" | "book_limit";
+  expectStatus?: "success" | "soldout" | "book_limit";
 }
 
 const CHECK_IN = "2026-05-01";
@@ -69,6 +79,30 @@ const CASES: CertCase[] = [
     residency: "tr",
     guests: [{ adults: 2, children: [] }],
     expectPriceChange: true,
+  },
+  {
+    name: "5. Unknown→success (finish errors, status ok)",
+    hid: 10004834,
+    residency: "tr",
+    guests: [{ adults: 2, children: [] }],
+    errorSuffix: "unknown_success",
+    expectStatus: "success",
+  },
+  {
+    name: "6. Unknown→soldout",
+    hid: 10004834,
+    residency: "tr",
+    guests: [{ adults: 2, children: [] }],
+    errorSuffix: "unknown_soldout",
+    expectStatus: "soldout",
+  },
+  {
+    name: "7. Unknown→book_limit",
+    hid: 10004834,
+    residency: "tr",
+    guests: [{ adults: 2, children: [] }],
+    errorSuffix: "unknown_book_limit",
+    expectStatus: "book_limit",
   },
 ];
 
@@ -200,8 +234,10 @@ async function runCase(c: CertCase, idx: number) {
     }
   }
 
-  // Step 4: bookFormPartner
-  const partnerOrderId = `x-cert${idx + 1}-${Date.now().toString(36)}`;
+  // Step 4: bookFormPartner. RH sandbox triggers error flows via the
+  // partner_order_id SUFFIX — must literally end with the magic keyword.
+  const suffix = c.errorSuffix ? `-${c.errorSuffix}` : "";
+  const partnerOrderId = `x-cert${idx + 1}-${Date.now().toString(36)}${suffix}`;
   const roomsPayload = genGuestNames(c.guests);
   const paymentType = {
     type: pbPt.type as string,
@@ -228,7 +264,10 @@ async function runCase(c: CertCase, idx: number) {
     return { case: c.name, status: "failed", reason: "form rejected" };
   }
 
-  // Step 5: bookFinish
+  // Step 5: bookFinish — may throw for unknown_* cases (expected); we
+  // still proceed to poll /finish/status/ because the order commits
+  // asynchronously per RH contract.
+  let finishErrored = false;
   try {
     const finishRes = (await ratehawkRequest<unknown>({
       path: "/hotel/order/booking/finish/",
@@ -245,30 +284,57 @@ async function runCase(c: CertCase, idx: number) {
         },
       },
     })) as Record<string, unknown>;
-    const fData = (finishRes?.data as Record<string, unknown>) || {};
-    const supplierOrderId =
-      (fData?.order_id as string) ||
-      ((fData?.order as Record<string, unknown>)?.order_id as string) ||
-      null;
-    log("finish", `✅ acknowledged${supplierOrderId ? ` order_id=${supplierOrderId}` : " (async — poll /finish/status/ for id, B6)"}`);
-    return {
-      case: c.name,
-      status: "ack",
-      partnerOrderId,
-      supplierOrderId,
-      amount: pbAmount,
-      currency: pbPt.currency_code,
-    };
+    void finishRes;
+    log("finish", `✅ acknowledged`);
   } catch (err) {
-    const e = err as { status?: number; body?: unknown };
-    log("finish", `❌ ${e.status || ""}`);
-    console.log(JSON.stringify((e.body as Record<string, unknown>)?.debug || e.body, null, 2));
-    return { case: c.name, status: "failed", reason: "finish rejected" };
+    finishErrored = true;
+    const e = err as { status?: number; body?: unknown; message?: string };
+    const errBody = (e.body as Record<string, unknown>) || {};
+    log("finish", `⚠️  errored (${errBody.error || e.message}) — still polling per RH contract`);
   }
+
+  log("finish", `→ polling /finish/status/`);
+  const poll = await pollFinishStatus(partnerOrderId, {
+    maxAttempts: 45,
+    intervalMs: 2000,
+    onTick: (a, p) => log("status", `  attempt ${a}: percent=${p}`),
+  });
+  const supplierOrderId =
+    (((poll.response as Record<string, unknown>)?.order as Record<string, unknown>)
+      ?.order_id as string) ||
+    ((poll.response as Record<string, unknown>)?.order_id as string) ||
+    null;
+  log(
+    "status",
+    `→ ${poll.status} (${poll.attempts} attempts)${supplierOrderId ? ` order_id=${supplierOrderId}` : ""}`,
+  );
+
+  if (c.expectStatus) {
+    if (poll.status === c.expectStatus) {
+      log("assert", `✅ expected status=${c.expectStatus} matched`);
+    } else {
+      log("assert", `❌ expected status=${c.expectStatus}, got ${poll.status}`);
+    }
+  }
+  if (!["success", "soldout", "book_limit"].includes(poll.status)) {
+    log("status", `dump: ${JSON.stringify(poll.response).slice(0, 400)}`);
+  }
+  return {
+    case: c.name,
+    status: poll.status,
+    finishErrored,
+    expected: c.expectStatus || "success",
+    partnerOrderId,
+    supplierOrderId,
+    amount: pbAmount,
+    currency: pbPt.currency_code,
+  };
 }
 
+const only = process.argv[2] ? parseInt(process.argv[2], 10) - 1 : -1;
 const results: unknown[] = [];
 for (let i = 0; i < CASES.length; i++) {
+  if (only >= 0 && i !== only) continue;
   try {
     results.push(await runCase(CASES[i], i));
   } catch (err) {

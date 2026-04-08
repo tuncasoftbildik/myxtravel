@@ -193,22 +193,83 @@ export async function POST(req: NextRequest) {
         comment: guest.notes || "",
       },
     };
-    const finishRes = (await rhHotel.bookFinish(finishReq)) as Record<string, unknown>;
+    // Per RH contract, even if finish returns error=unknown (sandbox
+    // unknown_* cert cases, also sporadic prod races), we MUST still poll
+    // /finish/status/ — the order may commit asynchronously. We only bail
+    // out here for transport/auth failures, not RH business errors.
+    let finishRes: Record<string, unknown> = {};
+    let finishErrored = false;
+    try {
+      finishRes = (await rhHotel.bookFinish(finishReq)) as Record<string, unknown>;
+    } catch (err) {
+      if (err instanceof RatehawkError && (err.body as Record<string, unknown>)?.error === "unknown") {
+        finishErrored = true;
+        finishRes = { error: "unknown" };
+      } else {
+        throw err;
+      }
+    }
 
+    // 4) Poll /finish/status/ — RH finish is async; real terminal state
+    // (success/soldout/book_limit) arrives via this endpoint. Sandbox
+    // typically reaches 100% in ~60-70s; prod usually <10s.
+    const poll = await rhHotel.pollFinishStatus(partnerOrderId, {
+      maxAttempts: 45,
+      intervalMs: 2000,
+    });
+
+    const pollOrder = (poll.response?.order as Record<string, unknown>) || {};
     const supplierOrderId =
-      (finishRes?.order_id as string) ||
-      ((finishRes?.order as Record<string, unknown>)?.order_id as string) ||
+      (pollOrder?.order_id as string) ||
+      (poll.response?.order_id as string) ||
       null;
+
+    const terminalSuccess = poll.status === "success";
+    const finalStatus = terminalSuccess
+      ? "confirmed"
+      : poll.status === "soldout"
+        ? "failed"
+        : poll.status === "book_limit"
+          ? "failed"
+          : "form_submitted"; // still processing / timeout — manual review
 
     await sb
       .from("hotel_orders")
       .update({
-        status: "confirmed",
+        status: finalStatus,
         supplier_order_id: supplierOrderId,
-        raw_request: { form: formReq, finish: finishReq } as unknown as Record<string, unknown>,
-        raw_response: { form: formRes as Record<string, unknown>, finish: finishRes },
+        error_message:
+          poll.status !== "success" ? `finish/status=${poll.status}` : null,
+        raw_request: { form: formReq, finish: finishReq } as unknown as Record<
+          string,
+          unknown
+        >,
+        raw_response: {
+          form: formRes as Record<string, unknown>,
+          finish: finishRes,
+          finishErrored,
+          finishStatus: poll.response,
+        },
       })
       .eq("id", orderId);
+
+    if (!terminalSuccess) {
+      return NextResponse.json(
+        {
+          success: false,
+          orderId,
+          partnerOrderId,
+          status: poll.status,
+          error:
+            poll.status === "soldout"
+              ? "Oda artık müsait değil"
+              : poll.status === "book_limit"
+                ? "Rezervasyon limitine ulaşıldı, lütfen destek ile iletişime geçin"
+                : "Rezervasyon işlemi beklenenden uzun sürüyor, kısa süre sonra tekrar deneyin",
+        },
+        { status: 409 },
+      );
+    }
 
     return NextResponse.json({
       success: true,

@@ -61,6 +61,88 @@ export function bookFinish(body: Record<string, unknown>) {
 }
 
 /**
+ * Step 5: poll booking status. Finish is async on RH — `data` often
+ * comes back null and the partner must poll this endpoint until the
+ * order reaches a terminal state (`success`, `soldout`, `book_limit`).
+ */
+export function bookFinishStatus(partnerOrderId: string) {
+  return ratehawkRequest<unknown>({
+    path: "/hotel/order/booking/finish/status/",
+    body: { partner_order_id: partnerOrderId },
+  });
+}
+
+/**
+ * Poll /finish/status/ with exponential-ish backoff until the order
+ * hits a terminal state or maxAttempts is exhausted. Returns the
+ * final response along with the resolved status string.
+ *
+ * Terminal statuses per RH cert: `success`, `soldout`, `book_limit`.
+ * Interim statuses (`init`, `processing`, `in_progress`, `waiting_payment`)
+ * cause retry. Anything else is treated as unknown and retried too.
+ */
+export async function pollFinishStatus(
+  partnerOrderId: string,
+  opts: { maxAttempts?: number; intervalMs?: number; onTick?: (a: number, p: number) => void } = {},
+) {
+  const maxAttempts = opts.maxAttempts ?? 20;
+  const base = opts.intervalMs ?? 2000;
+
+  let lastRes: Record<string, unknown> = {};
+  let lastError: string | null = null;
+  for (let i = 0; i < maxAttempts; i++) {
+    let res: Record<string, unknown>;
+    try {
+      res = (await bookFinishStatus(partnerOrderId)) as Record<string, unknown>;
+    } catch (err) {
+      // RH status endpoint returns status:error with error codes.
+      // - error=unknown → transient, keep polling (unknown_* async cases)
+      // - error=soldout / book_limit → TERMINAL (cert expects this as the
+      //   final state for unknown_soldout / unknown_book_limit suffixes).
+      const e = err as { message?: string; body?: Record<string, unknown> };
+      lastError = (e.body?.error as string) || e.message || "error";
+      if (lastError === "soldout" || lastError === "book_limit") {
+        return {
+          status: lastError,
+          response: (e.body as Record<string, unknown>) || {},
+          attempts: i + 1,
+          percent: 100,
+        };
+      }
+      opts.onTick?.(i + 1, -1);
+      const wait = Math.min(base + i * 500, 5000);
+      await new Promise((r) => setTimeout(r, wait));
+      continue;
+    }
+    lastRes = res;
+    // RH finish/status response shape: `{ partner_order_id, percent, data_3ds, prepayment, order? }`.
+    // Progress tracked via `percent` (0..100). `order` / `order_id` appear
+    // only once terminal. Cert terminal states (success/soldout/book_limit)
+    // surface under `order.status` once percent=100.
+    const percent = typeof res?.percent === "number" ? (res.percent as number) : 0;
+    opts.onTick?.(i + 1, percent);
+    const order = (res?.order as Record<string, unknown>) || undefined;
+    const orderStatus = (order?.status as string) || (res?.status as string);
+
+    if (percent >= 100 || orderStatus) {
+      const finalStatus =
+        orderStatus ||
+        (order?.order_id ? "success" : "success"); // percent=100 w/o explicit status → treat as success
+      return { status: finalStatus, response: res, attempts: i + 1, percent };
+    }
+    // Backoff: 2s, 2.5s, 3s, ... capped
+    const wait = Math.min(base + i * 500, 5000);
+    await new Promise((r) => setTimeout(r, wait));
+  }
+  return {
+    status: (lastError ? `error:${lastError}` : "timeout") as string,
+    response: lastRes,
+    attempts: maxAttempts,
+    percent: (lastRes?.percent as number) || 0,
+  };
+}
+
+/**
  * Fetch static hotel metadata (name, stars, images, address, region).
  * Rates are NOT returned here — use SERP endpoints for pricing.
  */

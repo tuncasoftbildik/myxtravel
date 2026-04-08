@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.8 — 2026-04-08
+
+### RateHawk certification — B6 (finish/status polling + 3 error scenarios)
+
+- **Yeni:** `bookFinishStatus()` + `pollFinishStatus()` helper (`lib/ratehawk/services/hotel.ts`). RH finish async commit ediyor — terminal state (`success` / `soldout` / `book_limit`) `/hotel/order/booking/finish/status/` endpoint'inden geliyor. Polling `percent: 0..100` ile progress track ediyor ve error body'deki `soldout`/`book_limit` değerlerini terminal sayıyor. Transient `unknown` error'ları retry'lanıyor.
+- **Fix:** Production `/api/hotels/book` artık finish'ten sonra polling yapıyor. Terminal state'e göre `hotel_orders.status` = `confirmed` / `failed` / `form_submitted` (timeout) ve kullanıcıya uygun Türkçe hata mesajı dönüyor (oda müsait değil, rezervasyon limiti, işlem uzun sürdü).
+- **Fix:** Book route finish `error=unknown` attığında throw etmek yerine polling'e düşüyor — RH cert contract gereği (sandbox `unknown_*` suffix case'leri + prod sporadic race'ler için şart).
+- **Cert harness:** `rh-cert-test.mts` 3 yeni case (5-6-7) — `unknown_success`, `unknown_soldout`, `unknown_book_limit`. Sandbox partner_order_id suffix trigger'ı ile doğrulandı:
+  - Case 5: finish errors → status 12 attempt'te success ✅
+  - Case 6: finish errors → status soldout ✅
+  - Case 7: finish errors → status 36 attempt'te book_limit ✅
+- **Keşif:** RH sandbox error scenaryoları `partner_order_id` SUFFIX ile tetikleniyor (ör. `x-cert-xyz-unknown_soldout`). Trigger listesi: `soldout`, `book_limit`, `unknown_success`, `unknown_soldout`, `unknown_book_limit`, `insufficient_b2b_balance`. Kaynak: docs.emergingtravel.com sandbox sayfası.
+
 ## 0.2.7 — 2026-04-08
 
 ### RateHawk certification — B5 (4 zorunlu test case)
