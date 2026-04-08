@@ -32,6 +32,12 @@ interface BookBody {
   childAges?: number[];
   total?: number;
   currency?: string;
+  /** Full payment_type from prebook response — RH requires replay at finish. */
+  paymentType?: {
+    type: string;
+    amount: string;
+    currency_code: string;
+  };
   guest?: {
     firstName: string;
     lastName: string;
@@ -76,6 +82,7 @@ export async function POST(req: NextRequest) {
       childAges = [],
       total,
       currency,
+      paymentType,
       guest,
     } = body;
 
@@ -85,8 +92,8 @@ export async function POST(req: NextRequest) {
         { status: 501 },
       );
     }
-    if (!bookHash || !hotelCode || !checkIn || !checkOut || !total || !currency || !guest) {
-      return NextResponse.json({ error: "Eksik alanlar" }, { status: 400 });
+    if (!bookHash || !hotelCode || !checkIn || !checkOut || !total || !currency || !guest || !paymentType) {
+      return NextResponse.json({ error: "Eksik alanlar (paymentType prebook'tan gelmeli)" }, { status: 400 });
     }
     if (!guest.firstName || !guest.lastName || !guest.email || !guest.phone) {
       return NextResponse.json({ error: "Misafir bilgileri eksik" }, { status: 400 });
@@ -127,12 +134,17 @@ export async function POST(req: NextRequest) {
     }
     orderId = inserted.id;
 
-    // 2) bookFormPartner — one room with one lead guest (phase 1 scope)
+    const userIp =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1";
+
+    // 2) bookFormPartner — replay the prebook-locked payment_type exactly.
+    // Sandbox coerces our requested type (e.g. "hotel" → "deposit"); we trust
+    // whatever prebook returned so form/finish stay consistent.
     const formReq = {
       partner_order_id: partnerOrderId,
       book_hash: bookHash,
       language: "en",
-      user_ip: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1",
+      user_ip: userIp,
       rooms: [
         {
           guests: [
@@ -143,11 +155,7 @@ export async function POST(req: NextRequest) {
           ],
         },
       ],
-      payment_type: {
-        type: "hotel",
-        amount: String(total),
-        currency_code: currency,
-      },
+      payment_type: paymentType,
     };
 
     const formRes = await rhHotel.bookFormPartner(formReq);
@@ -161,8 +169,31 @@ export async function POST(req: NextRequest) {
       })
       .eq("id", orderId);
 
-    // 3) bookFinish — commit. Supplier may still reject at this stage.
-    const finishRes = (await rhHotel.bookFinish(partnerOrderId)) as Record<string, unknown>;
+    // 3) bookFinish — requires the full booking payload again, with
+    // partner_order_id NESTED under `partner`. Payment_type must match
+    // what the form accepted.
+    const finishReq = {
+      partner: { partner_order_id: partnerOrderId },
+      language: "en",
+      user_ip: userIp,
+      rooms: [
+        {
+          guests: [
+            {
+              first_name: guest.firstName,
+              last_name: guest.lastName,
+            },
+          ],
+        },
+      ],
+      payment_type: paymentType,
+      user: {
+        email: guest.email,
+        phone: guest.phone,
+        comment: guest.notes || "",
+      },
+    };
+    const finishRes = (await rhHotel.bookFinish(finishReq)) as Record<string, unknown>;
 
     const supplierOrderId =
       (finishRes?.order_id as string) ||
@@ -174,6 +205,7 @@ export async function POST(req: NextRequest) {
       .update({
         status: "confirmed",
         supplier_order_id: supplierOrderId,
+        raw_request: { form: formReq, finish: finishReq } as unknown as Record<string, unknown>,
         raw_response: { form: formRes as Record<string, unknown>, finish: finishRes },
       })
       .eq("id", orderId);

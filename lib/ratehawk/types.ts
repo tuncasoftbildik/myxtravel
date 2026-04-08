@@ -71,7 +71,9 @@ export interface RhSearchResponse {
 }
 
 export interface RhPrebookRequest {
-  book_hash: string;
+  /** RateHawk prebook expects the field `hash`, not `book_hash`. The value
+   * is the `book_hash` returned from hotelPage (starts with `h-`). */
+  hash: string;
   price_increase_percent?: number;
 }
 

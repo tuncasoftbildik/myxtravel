@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.6 — 2026-04-08
+
+### RateHawk book flow fix — canlı sandbox doğrulaması
+
+Sandbox üzerinden uçtan uca rezervasyon tamamlandı (`order_id: 100012832`). Bulgular ve düzeltmeler:
+
+- **Fix:** `/hotel/prebook/` body'de `hash` field'ı bekliyor, `book_hash` değil. Tip ve çağrı yerleri güncellendi.
+- **Fix:** Prebook yeni `book_hash` dönüyor (`p-` prefix'li — SERP'deki `h-` yerine); book aşamasında bu yeni hash kullanılmalı.
+- **Fix:** `bookFinish` sadece `partner_order_id` istemiyor — full booking payload istiyor: `{partner: {partner_order_id}, language, user_ip, rooms, payment_type, user}`. `bookFinish` imzası güncellendi.
+- **Fix:** Sandbox `payment_type.type = "hotel"`'i reddedip `deposit`'e çeviriyor. Artık prebook'tan dönen `payment_type` (type + amount + currency_code) olduğu gibi saklanıp form ve finish'te aynen replay ediliyor. Hardcoded "hotel" kaldırıldı.
+- **Fix:** Client timeout 15s → 45s (RH prebook sandbox zaman zaman 20s+ sürüyor).
+- **Test:** `scripts/rh-book-test.mts` — hotelPage → prebook → form → finish zinciri sandbox'ta başarıyla doğrulandı.
+
 ## 0.2.5 — 2026-04-08
 
 ### RateHawk booking flow — B3 + B4 (gerçek book + DB)

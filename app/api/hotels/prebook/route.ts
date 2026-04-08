@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const res = (await rhHotel.prebook({ book_hash: rateToken })) as Record<string, unknown>;
+    const res = (await rhHotel.prebook({ hash: rateToken })) as Record<string, unknown>;
 
     // RateHawk wraps data behind `data.hotels[0].rates[0]` in the envelope
     // (ratehawkRequest already unwraps the outer {status, data, error}).
@@ -86,7 +86,14 @@ export async function POST(req: NextRequest) {
       previousTotal: expectedAmount ?? null,
       freeCancellationBefore,
       cancellationPolicies: policies,
-      paymentType: (pt.type as string) || "deposit",
+      // Full payment_type blob echoed so the client can replay it to
+      // /api/hotels/book. RH rejects mismatched payment_type at finish time
+      // (sandbox often coerces our requested "hotel" → "deposit").
+      paymentType: {
+        type: (pt.type as string) || "deposit",
+        amount: (pt.amount as string) || String(total),
+        currency_code: (pt.currency_code as string) || currency,
+      },
     });
   } catch (error) {
     if (error instanceof RatehawkError) {

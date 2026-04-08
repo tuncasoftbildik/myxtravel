@@ -53,10 +53,10 @@ export function bookFormPartner(req: RhBookRequest) {
 }
 
 /** Step 4: finish booking (commit). */
-export function bookFinish(partner_order_id: string) {
+export function bookFinish(body: Record<string, unknown>) {
   return ratehawkRequest<unknown>({
     path: "/hotel/order/booking/finish/",
-    body: { partner_order_id },
+    body,
   });
 }
 

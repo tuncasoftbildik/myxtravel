@@ -27,7 +27,7 @@ export async function ratehawkRequest<T = unknown>({
   path,
   body = {},
   method = "POST",
-  timeoutMs = 15000,
+  timeoutMs = 45000,
 }: RequestOptions): Promise<T> {
   assertConfigured();
 

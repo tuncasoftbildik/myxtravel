@@ -52,6 +52,7 @@ function ReservasyonContent() {
     previousTotal: number | null;
     freeCancellationBefore: string | null;
     policies: Policy[];
+    paymentType: { type: string; amount: string; currency_code: string };
   } | null>(null);
   const [prebookLoading, setPrebookLoading] = useState(supplier === "ratehawk");
   const [prebookError, setPrebookError] = useState<string | null>(null);
@@ -86,6 +87,7 @@ function ReservasyonContent() {
           previousTotal: data.previousTotal,
           freeCancellationBefore: data.freeCancellationBefore,
           policies: data.cancellationPolicies || [],
+          paymentType: data.paymentType,
         });
       } catch (err) {
         if (!cancelled) setPrebookError((err as Error).message);
@@ -149,6 +151,7 @@ function ReservasyonContent() {
             adults: Number(adults),
             total: prebook.total,
             currency: prebook.currency,
+            paymentType: prebook.paymentType,
             guest: form,
           }),
         });
