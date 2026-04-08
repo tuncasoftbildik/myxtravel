@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.9 — 2026-04-08
+
+### RateHawk static egress proxy
+
+- **Feat:** `lib/ratehawk/client.ts` artık `RATEHAWK_PROXY_URL` env var set olduğunda `undici.ProxyAgent` üzerinden route ediyor. Env yokken direkt fetch — dev/sandbox için değişiklik yok.
+- **Yeni:** `docs/ratehawk-proxy-setup.md` — Lightsail `api-proxy` (63.182.154.248, Frankfurt) üzerinde tinyproxy kurulum talimatları: BasicAuth, domain allowlist (worldota/ratehawk/emergingtravel), CONNECT 443, port 8888.
+- **Dep:** `undici@^8` eklendi (Node'un built-in undici'sini ProxyAgent için explicit dep olarak çekiyoruz).
+- **Güvenlik:** FilterDefaultDeny + domain allowlist ile proxy açık relay olamıyor; port BasicAuth arkasında.
+- **Env:** Vercel Preview+Production'a `RATEHAWK_PROXY_URL` eklenecek (setup doc'ta).
+
 ## 0.2.8 — 2026-04-08
 
 ### RateHawk certification — B6 (finish/status polling + 3 error scenarios)

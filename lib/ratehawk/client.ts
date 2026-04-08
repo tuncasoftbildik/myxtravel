@@ -1,4 +1,14 @@
+import { ProxyAgent } from "undici";
 import { assertConfigured, authHeader, buildUrl } from "./config";
+
+/**
+ * Optional HTTP(S) proxy — when `RATEHAWK_PROXY_URL` is set (e.g.
+ * `http://user:pass@63.182.154.248:8888`), every RateHawk request is
+ * routed through the static egress proxy so RH sees a stable source IP.
+ * Without the env var, fetch runs direct (dev / sandbox).
+ */
+const proxyUrl = process.env.RATEHAWK_PROXY_URL;
+const proxyAgent = proxyUrl ? new ProxyAgent(proxyUrl) : undefined;
 
 export class RatehawkError extends Error {
   constructor(
@@ -44,7 +54,10 @@ export async function ratehawkRequest<T = unknown>({
       body: method === "POST" ? JSON.stringify(body) : undefined,
       signal: controller.signal,
       cache: "no-store",
-    });
+      // undici dispatcher — routes through proxy when configured.
+      // Next.js fetch accepts this via the extended init type.
+      ...(proxyAgent ? { dispatcher: proxyAgent } : {}),
+    } as RequestInit & { dispatcher?: unknown });
 
     const text = await res.text();
     let json: unknown = null;
