@@ -204,7 +204,7 @@ function OtelContent() {
   return (
     <>
       <Header variant="solid" />
-      <main className="flex-1 bg-[#f5f0e8] min-h-screen">
+      <main className="flex-1 bg-[#f5f0e8] min-h-screen pt-20 sm:pt-24">
         {/* Mobile filter/sort bar */}
         <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-2.5 flex items-center justify-between">
           <button onClick={() => setShowMobileFilters(true)} className="flex items-center gap-2 text-sm font-medium text-gray-700">
@@ -223,14 +223,14 @@ function OtelContent() {
         </div>
 
         {/* 3-column layout */}
-        <div className="flex h-[calc(100vh-64px)]">
+        <div className="flex h-[calc(100vh-80px)] sm:h-[calc(100vh-96px)]">
           {/* LEFT SIDEBAR — always visible on desktop, overlay on mobile */}
           {showMobileFilters && (
             <div className="lg:hidden fixed inset-0 z-50 bg-black/40" onClick={() => setShowMobileFilters(false)} />
           )}
           <aside className={`
             ${showMobileFilters
-              ? "fixed right-0 top-0 h-full w-80 z-50 bg-white shadow-2xl overflow-y-auto lg:relative lg:shadow-none"
+              ? "fixed right-0 top-20 sm:top-24 bottom-0 w-80 z-50 bg-white shadow-2xl overflow-y-auto lg:relative lg:top-0 lg:bottom-auto lg:h-auto lg:shadow-none"
               : "hidden lg:block"
             }
             lg:w-[260px] shrink-0 bg-white lg:border-r border-gray-200 overflow-y-auto

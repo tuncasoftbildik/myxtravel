@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.12 — 2026-04-08
+
+### Otel sayfası header overlap fix
+
+- **Fix:** `Header` absolute + z-50 olduğu için otel sayfası içeriği logo'nun altına kayıyordu — mobile filtre barı ve filtre paneli header'ın arkasına giriyordu. Main'e `pt-20 sm:pt-24` (header 80/96px), 3-col layout height'ı `100vh-80px/96px`, mobile sidebar overlay da `top-20 sm:top-24 bottom-0` ile header altından başlayacak şekilde düzeltildi.
+
 ## 0.2.11 — 2026-04-08
 
 ### Otel sayfası mobile filtre paneli temizliği
