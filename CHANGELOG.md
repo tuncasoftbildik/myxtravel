@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.2 — 2026-04-08
+
+### RateHawk Supabase cache layer
+
+- **Yeni migration:** `010_ratehawk_hotel_info_cache.sql` — id/hid/data/expires_at, expires_at ve hid index'leri, RLS enabled (yalnızca service role).
+- **Yeni:** `lib/supabase/service.ts` — backend-only service-role client (singleton, RLS bypass).
+- **Yeni:** `lib/ratehawk/cache.ts` — `getCachedHotelInfo`, `setCachedHotelInfo`, `hotelInfoBatchCached` (7 gün TTL, hata-tolere, cache bozulsa arama devam eder).
+- **Aggregator:** artık cache-transparent — önce Supabase'e bakıyor, eksikleri RateHawk'tan batch çekiyor, fire-and-forget write-back.
+- **Test:** `scripts/rh-cache-test.mts` — cold/warm/partial miss senaryoları canlı Supabase'e karşı doğrulandı (cold 825ms + 3 rows yazıldı, warm 355ms 0 fetch, partial miss yalnız eksik id için fetch).
+
 ## 0.2.1 — 2026-04-08
 
 ### RateHawk metadata hydration

@@ -1,5 +1,9 @@
-import { hotel as rhHotel, rhImage } from "@/lib/ratehawk";
+import { hotel as rhHotel, rhImage, hotelInfoBatchCached } from "@/lib/ratehawk";
 import type { RhHotelInfo } from "@/lib/ratehawk";
+
+// Single fetcher used by both region and by-id pipelines; delegates the raw
+// API batch call so the cache layer stays ignorant of RateHawk service shapes.
+const rhInfoFetcher = (ids: string[]) => rhHotel.hotelInfoBatch(ids);
 import { normalizeRatehawkHotel } from "./normalize/ratehawk";
 import { normalizeTravelrobotHotel } from "./normalize/travelrobot";
 import type {
@@ -84,7 +88,10 @@ async function runRatehawk(params: UnifiedSearchParams): Promise<UnifiedHotel[]>
 
   // Hydrate metadata in parallel. Failures per-hotel are swallowed — we still
   // return the unified hotel with id fallback rather than dropping it.
-  const infoMap = await rhHotel.hotelInfoBatch(rawHotels.map((h) => h.id));
+  const infoMap = await hotelInfoBatchCached(
+    rawHotels.map((h) => h.id),
+    rhInfoFetcher,
+  );
 
   return rawHotels
     .map((h) => {
@@ -114,7 +121,10 @@ export async function fetchRatehawkByHotelIds(
   });
   const rawHotels = res?.hotels || [];
   if (!rawHotels.length) return [];
-  const infoMap = await rhHotel.hotelInfoBatch(rawHotels.map((h) => h.id));
+  const infoMap = await hotelInfoBatchCached(
+    rawHotels.map((h) => h.id),
+    rhInfoFetcher,
+  );
   return rawHotels
     .map((h) => {
       const info = infoMap.get(h.id);
