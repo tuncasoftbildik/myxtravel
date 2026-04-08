@@ -238,7 +238,7 @@ function OtelContent() {
             {/* Mobile close button */}
             {showMobileFilters && (
               <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 sticky top-0 bg-white z-10">
-                <h3 className="font-bold text-gray-900">Filtrele ve Sirala</h3>
+                <h3 className="font-bold text-gray-900">Filtrele ve Sırala</h3>
                 <button onClick={() => setShowMobileFilters(false)} className="p-1 rounded-lg hover:bg-gray-100">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
@@ -250,11 +250,11 @@ function OtelContent() {
               <div className="bg-brand-dark rounded-xl p-3.5 text-white">
                 <div className="flex items-center gap-2 mb-2">
                   <svg className="w-4 h-4 text-white/70 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                  <span className="text-sm font-semibold truncate">{destinationName || "Tum Bolge"}</span>
+                  <span className="text-sm font-semibold truncate">{destinationName || "Tüm Bölgeler"}</span>
                 </div>
                 <div className="text-xs text-white/60 space-y-0.5">
                   <p>{checkIn} - {checkOut} ({nightCount} gece)</p>
-                  <p>{adults} yetiskin</p>
+                  <p>{adults} yetişkin</p>
                 </div>
                 {!loading && !error && (
                   <p className="text-xs text-white/50 mt-2 pt-2 border-t border-white/10">{sorted.length} otel bulundu</p>
@@ -268,25 +268,25 @@ function OtelContent() {
                   className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium transition ${!showMap ? "bg-brand-dark text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
-                  Liste Gor.
+                  Liste Gör.
                 </button>
                 <button
                   onClick={() => setShowMap(true)}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium transition ${showMap ? "bg-brand-dark text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
-                  Harita Gor.
+                  Harita Gör.
                 </button>
               </div>
 
               {/* Sort dropdown */}
               <div className="border-b border-gray-100 pb-4">
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Siralama olcutu</label>
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Sıralama Ölçütü</label>
                 <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red bg-gray-50">
-                  <option value="popular">Populerlik</option>
-                  <option value="price-asc">Fiyat (Dusukten Yuksege)</option>
-                  <option value="price-desc">Fiyat (Yuksekten Dusuge)</option>
-                  <option value="stars">Yildiz Sayisi</option>
+                  <option value="popular">Popülerlik</option>
+                  <option value="price-asc">Fiyat (Düşükten Yükseğe)</option>
+                  <option value="price-desc">Fiyat (Yüksekten Düşüğe)</option>
+                  <option value="stars">Yıldız Sayısı</option>
                 </select>
               </div>
 
@@ -295,7 +295,7 @@ function OtelContent() {
                 <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Otel Ara</label>
                 <div className="space-y-2.5">
                   <select value={formDest} onChange={(e) => setFormDest(e.target.value)} className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red bg-gray-50">
-                    <option value="">Tum bolgeler</option>
+                    <option value="">Tüm bölgeler</option>
                     {DESTINATIONS.map((d, i) => <option key={d.id} value={i}>{d.label}</option>)}
                   </select>
                   <div className="grid grid-cols-2 gap-1.5">
@@ -336,7 +336,7 @@ function OtelContent() {
 
               {/* Star rating filter */}
               <div className="border-b border-gray-100 pb-4">
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Yildiz Sayisi</h3>
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Yıldız Sayısı</h3>
                 <div className="space-y-2">
                   {[5, 4, 3, 2, 1].map((s) => {
                     const c = hotels.filter((h) => h.stars === s).length;
@@ -369,7 +369,7 @@ function OtelContent() {
                 <div className="flex flex-wrap gap-2 mb-4">
                   {starFilter.map((s) => (
                     <button key={s} onClick={() => toggleStar(s)} className="inline-flex items-center gap-1 px-3 py-1.5 bg-brand-dark/10 text-brand-dark text-xs font-medium rounded-full hover:bg-brand-dark/20 transition">
-                      {s} Yildiz <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                      {s} Yıldız <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                   ))}
                   {boardFilter.map((b) => (
@@ -390,7 +390,7 @@ function OtelContent() {
               {loading && <LoadingSkeleton />}
               {error && <ErrorCard message={error} onBack={() => router.push("/otel")} />}
               {!loading && !error && sorted.length === 0 && (
-                <EmptyState message={hotels.length > 0 ? "Filtrelere uygun otel bulunamadı." : "Bu tarihler icin otel bulunamadı."} onBack={() => { setStarFilter([]); setBoardFilter([]); }} />
+                <EmptyState message={hotels.length > 0 ? "Filtrelere uygun otel bulunamadı." : "Bu tarihler için otel bulunamadı."} onBack={() => { setStarFilter([]); setBoardFilter([]); }} />
               )}
               {!loading && !error && sorted.length > 0 && (
                 <div className="space-y-4">
@@ -562,7 +562,7 @@ function HotelCard({ hotel, nights, adults, checkIn, checkOut }: { hotel: Hotel;
                 <p className="text-xl font-bold text-gray-900">
                   {hotel.price.currency} {hotel.price.total?.toLocaleString("tr-TR")}
                 </p>
-                <p className="text-[10px] text-gray-400">Vergiler ve ucretler dahil</p>
+                <p className="text-[10px] text-gray-400">Vergiler ve ücretler dahil</p>
               </div>
               <a
                 href={`/otel/${hotel.productCode}?supplier=${hotel.supplier || "travelrobot"}&searchKey=${encodeURIComponent(hotel.searchKey)}&checkIn=${encodeURIComponent(checkIn)}&checkOut=${encodeURIComponent(checkOut)}&adults=${adults}&nights=${nights}`}
