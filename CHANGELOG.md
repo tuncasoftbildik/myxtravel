@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.7 — 2026-04-08
+
+### RateHawk certification — B5 (4 zorunlu test case)
+
+- **Yeni:** `scripts/rh-cert-test.mts` — headless cert harness. 4 zorunlu senaryoyu (multiroom, citizenship, children, price-change) sandbox'a karşı uçtan uca (search → HP → prebook → form → finish) çalıştırıyor.
+- **Doğrulandı:** Case 1 (hid 10004834, 2 oda 2a+1c[3] / 2a+3c[1,5,17]), Case 2 (residency=uz), Case 3 (residency=mc, 2a+2c[0,17]), Case 4 (hid 8819557, %10 artış prebook'ta yakalandı).
+- **Keşif:** RH `first_name` rakam/sembol reddediyor — sadece harf (unicode letters, boşluk, `'-,.’`). Test verisinde Alice/Bob/Carol kullanılıyor.
+- **Keşif:** Sandbox bazı rate'lerde prebook `rate_not_found` dönüyor; `price_increase_percent: 100` gönderilmezse Case 4 çalışmıyor. Cert harness her rate'i sırayla deniyor.
+- **Not:** Finish `data: null` ile ack dönüyor — gerçek `order_id` için `/hotel/order/booking/finish/status/` polling şart. Bu B6 kapsamında.
+
 ## 0.2.6 — 2026-04-08
 
 ### RateHawk book flow fix — canlı sandbox doğrulaması
