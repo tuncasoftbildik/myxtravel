@@ -1,12 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
 import { hotel } from "@/lib/travelrobot";
 import { TravelrobotError } from "@/lib/travelrobot/token-manager";
+import { hotel as rhHotel, rhImage, hotelInfoBatchCached } from "@/lib/ratehawk";
+import type { HotelSupplier } from "@/lib/hotels";
 
 export async function POST(req: NextRequest) {
   try {
-    const { productCode } = await req.json();
+    const { productCode, supplier = "travelrobot" } = (await req.json()) as {
+      productCode?: string;
+      supplier?: HotelSupplier;
+    };
     if (!productCode) {
       return NextResponse.json({ error: "productCode zorunludur" }, { status: 400 });
+    }
+
+    if (supplier === "ratehawk") {
+      // RateHawk: pull from cached hotelInfo (service role). Cold misses go
+      // to the live API via the same fetcher used by search aggregation.
+      const map = await hotelInfoBatchCached([productCode], (ids) => rhHotel.hotelInfoBatch(ids));
+      const info = map.get(productCode);
+      if (!info) {
+        return NextResponse.json({ error: "Otel bulunamadı" }, { status: 404 });
+      }
+      return NextResponse.json({
+        success: true,
+        hotel: {
+          productCode: info.id,
+          name: info.name,
+          stars: info.star_rating || 0,
+          description: "",
+          address: info.address || "",
+          city: info.region?.name || "",
+          country: info.region?.country_code || "",
+          phone: info.phone || "",
+          email: info.email || "",
+          location: info.latitude != null ? { lat: info.latitude, lng: info.longitude } : null,
+          thumbnail: info.images?.[0] ? rhImage(info.images[0], "1024x768") : "",
+          images: (info.images || []).map((u) => rhImage(u, "1024x768")),
+          facilities: [],
+          distances: [],
+          checkInTime: info.check_in_time || "",
+          checkOutTime: info.check_out_time || "",
+        },
+      });
     }
 
     const result = await hotel.getHotelDetails({ ProductCode: productCode });

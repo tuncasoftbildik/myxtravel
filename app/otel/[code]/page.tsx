@@ -57,6 +57,7 @@ export default function HotelDetailPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const code = params.code as string;
+  const supplier = (searchParams.get("supplier") || "travelrobot") as "travelrobot" | "ratehawk";
   const searchKey = searchParams.get("searchKey") || "";
   const checkIn = searchParams.get("checkIn") || "";
   const checkOut = searchParams.get("checkOut") || "";
@@ -77,7 +78,7 @@ export default function HotelDetailPage() {
         const res = await fetch("/api/hotels/details", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ productCode: code }),
+          body: JSON.stringify({ productCode: code, supplier }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Otel bilgisi alınamadı");
@@ -89,7 +90,7 @@ export default function HotelDetailPage() {
       }
     }
     fetchDetails();
-  }, [code]);
+  }, [code, supplier]);
 
   // Fetch room offers — fresh search for this specific hotel
   useEffect(() => {
@@ -102,7 +103,7 @@ export default function HotelDetailPage() {
         const res = await fetch("/api/hotels/rooms", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ productCode: code, checkIn, checkOut, adults: Number(adults) }),
+          body: JSON.stringify({ productCode: code, supplier, checkIn, checkOut, adults: Number(adults) }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Oda bilgileri alınamadı");
@@ -114,7 +115,7 @@ export default function HotelDetailPage() {
       }
     }
     fetchRooms();
-  }, [code, checkIn, checkOut, adults]);
+  }, [code, supplier, checkIn, checkOut, adults]);
 
   if (loading) {
     return (
@@ -316,6 +317,7 @@ export default function HotelDetailPage() {
                               <button
                                 onClick={() => {
                                   const params = new URLSearchParams({
+                                    supplier,
                                     hotelCode: code,
                                     hotelName: hotel.name,
                                     roomCode: alt.roomCode,
