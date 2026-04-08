@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.10 — 2026-04-08
+
+### Otel arama sayfası Türkçe karakter düzeltmeleri
+
+- **Fix:** `app/otel/page.tsx` filtre/sidebar metinleri eksik Türkçe karakterlerle render ediliyordu (ASCII fallback). Düzeltildi: "Tüm Bölgeler", "yetişkin", "Sıralama Ölçütü", "Popülerlik", "Fiyat (Düşükten Yükseğe)", "Yıldız Sayısı", "Liste Gör.", "Harita Gör.", "Filtrele ve Sırala", "Vergiler ve ücretler dahil", vb.
+
 ## 0.2.9 — 2026-04-08
 
 ### RateHawk static egress proxy
