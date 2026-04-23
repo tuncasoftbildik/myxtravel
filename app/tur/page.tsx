@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { AgencyFeaturedSection } from "@/components/agency-featured-section";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -300,6 +301,8 @@ export default function TurPage() {
             </p>
           </div>
         </div>
+
+        <AgencyFeaturedSection serviceType="tour" title="Öne Çıkan Turlarımız" />
 
         {/* Content with sidebar */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 -mt-8 relative z-10 pb-12 sm:pb-16">

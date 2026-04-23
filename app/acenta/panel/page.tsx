@@ -35,6 +35,7 @@ export default function AcentaPaneli() {
   const [agency, setAgency] = useState<AgencyProfile | null>(null);
   const [markups, setMarkups] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
+  const [pendingRequestCount, setPendingRequestCount] = useState(0);
 
   useEffect(() => {
     if (!isAgencyUser) return;
@@ -47,6 +48,10 @@ export default function AcentaPaneli() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
+    fetch("/api/agency/bookings?status=new")
+      .then((r) => r.json())
+      .then((d) => setPendingRequestCount((d.requests || []).length))
+      .catch(() => {});
   }, [isAgencyUser]);
 
   if (authLoading) {
@@ -150,15 +155,38 @@ export default function AcentaPaneli() {
               <p className="text-sm text-gray-500">Satis gecmisi ve siparis takibi</p>
             </Link>
 
-            <div className="bg-white rounded-2xl shadow-sm p-6 opacity-70">
-              <div className="w-12 h-12 rounded-xl bg-gray-400 flex items-center justify-center mb-4">
+            <Link
+              href="/acenta/panel/urunlerim"
+              className="group bg-white rounded-2xl shadow-sm p-6 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+            >
+              <div className="w-12 h-12 rounded-xl bg-purple-500 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
               </div>
-              <h3 className="text-base font-bold text-gray-900 mb-1">Acenta Ayarlari</h3>
-              <p className="text-sm text-gray-500">Yakin zamanda eklenecek</p>
-            </div>
+              <h3 className="text-base font-bold text-gray-900 mb-1">Ürünlerim</h3>
+              <p className="text-sm text-gray-500">Kendi transfer ve turlarınızı yönetin</p>
+            </Link>
+
+            <Link
+              href="/acenta/panel/talepler"
+              className="group bg-white rounded-2xl shadow-sm p-6 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 relative"
+            >
+              {pendingRequestCount > 0 && (
+                <span className="absolute top-4 right-4 bg-brand-red text-white text-xs font-bold rounded-full min-w-6 h-6 px-1.5 flex items-center justify-center">
+                  {pendingRequestCount}
+                </span>
+              )}
+              <div className="w-12 h-12 rounded-xl bg-amber-500 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-base font-bold text-gray-900 mb-1">Rezervasyon Talepleri</h3>
+              <p className="text-sm text-gray-500">
+                {pendingRequestCount > 0 ? `${pendingRequestCount} yeni talep bekliyor` : "Müşteri talepleri"}
+              </p>
+            </Link>
           </div>
 
           {/* Current markups overview */}

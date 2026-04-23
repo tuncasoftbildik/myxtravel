@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { AgencyFeaturedSection } from "@/components/agency-featured-section";
 
 interface Transfer {
   resultKey: string;
@@ -365,6 +366,8 @@ function TransferContent() {
             </div>
           </div>
         </div>
+
+        <AgencyFeaturedSection serviceType="transfer" title="Öne Çıkan Transferlerimiz" />
 
         {/* Results */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 -mt-6 relative z-10 pb-12 sm:pb-16">
