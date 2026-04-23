@@ -14,12 +14,26 @@ export async function POST(req: NextRequest) {
       .select("role")
       .eq("user_id", user.id);
     const roleList = (roles || []).map((r) => r.role);
-    if (!roleList.includes("super_admin") && !roleList.includes("admin")) {
-      return NextResponse.json({ error: "Admin yetkisi gerekli" }, { status: 403 });
+    const isAdmin = roleList.includes("super_admin") || roleList.includes("admin");
+
+    let isAgencyUser = false;
+    if (!isAdmin) {
+      const { data: agencyUser } = await supabase
+        .from("agency_users")
+        .select("agency_id")
+        .eq("user_id", user.id)
+        .limit(1)
+        .single();
+      isAgencyUser = !!agencyUser;
+    }
+
+    if (!isAdmin && !isAgencyUser) {
+      return NextResponse.json({ error: "Yetki yok" }, { status: 403 });
     }
 
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
+    const folder = (formData.get("folder") as string | null) || (isAdmin ? "blog" : "agency-products");
     if (!file) {
       return NextResponse.json({ error: "Dosya bulunamadi" }, { status: 400 });
     }
@@ -36,7 +50,8 @@ export async function POST(req: NextRequest) {
     }
 
     const ext = file.name.split(".").pop() || "jpg";
-    const fileName = `blog/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const safeFolder = folder.replace(/[^a-zA-Z0-9_-]+/g, "").slice(0, 40) || "blog";
+    const fileName = `${safeFolder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = new Uint8Array(arrayBuffer);
