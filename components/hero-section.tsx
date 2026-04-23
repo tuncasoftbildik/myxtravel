@@ -1,6 +1,16 @@
 "use client";
 
 import { SearchTabs } from "./search-tabs";
+import { RevealText } from "./ui/reveal-text";
+
+const KESFET_IMAGES = [
+  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=70", // K - beach
+  "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1200&q=70", // e - airplane wing
+  "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=70", // ş - mountains
+  "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=70", // f - paris/city
+  "https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?auto=format&fit=crop&w=1200&q=70", // e - hot air balloon
+  "https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1200&q=70", // t - tropical resort
+];
 
 export function HeroSection() {
   return (
@@ -17,10 +27,19 @@ export function HeroSection() {
       <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 pt-28 sm:pt-32 pb-12">
         {/* Headline */}
         <div className="text-center mb-8 sm:mb-10">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold italic text-white leading-tight tracking-tight">
             Hayalindeki Seyahati
-            <span className="block text-brand-red mt-1">Keşfet</span>
           </h1>
+          <div className="mt-1">
+            <RevealText
+              text="Keşfet"
+              textColor="text-brand-red"
+              overlayColor="text-white"
+              fontSize="text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
+              italic
+              letterImages={KESFET_IMAGES}
+            />
+          </div>
           <p className="mt-4 text-base sm:text-lg text-white/70 max-w-xl mx-auto">
             Uçak bileti, otel, transfer ve tur — hepsi tek platformda, en uygun fiyatlarla.
           </p>
