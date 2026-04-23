@@ -163,9 +163,15 @@ export function AgencyProductForm({ serviceType, initial, onSubmit, submitLabel 
       </div>
 
       {serviceType === "transfer" ? (
-        <TransferFields detail={state.details as TransferDetails} set={setDetail} />
+        <TransferFields
+          detail={state.details as TransferDetails}
+          set={(k, v) => setDetail(k, v as (TransferDetails & TourDetails)[typeof k])}
+        />
       ) : (
-        <TourFields detail={state.details as TourDetails} set={setDetail} />
+        <TourFields
+          detail={state.details as TourDetails}
+          set={(k, v) => setDetail(k, v as (TransferDetails & TourDetails)[typeof k])}
+        />
       )}
 
       <Field label="">
