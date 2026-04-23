@@ -52,7 +52,7 @@ export function RevealText({
             key={index}
             onMouseEnter={() => hasImages && setHoveredIndex(index)}
             onMouseLeave={() => hasImages && setHoveredIndex(null)}
-            className={`${fontSize} ${italicClass} font-black tracking-tight ${hasImages ? "cursor-pointer" : ""} relative overflow-hidden inline-block`}
+            className={`${fontSize} ${italicClass} font-black tracking-tight ${hasImages ? "cursor-pointer" : ""} relative inline-block leading-[1.15] px-[0.04em]`}
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{
